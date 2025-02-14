@@ -1,0 +1,1 @@
+# 24_kuk-opportunity_detector
