@@ -1,17 +1,17 @@
-# Utiliser une image Python officielle
-FROM python:3.11.9
+# Utiliser une image de base Python
+FROM python:3.8-slim
 
-# Définir le dossier de travail
+# Définir le répertoire de travail
 WORKDIR /app
 
-# Copier les fichiers dans le conteneur
+# Copier les fichiers nécessaires dans le container
 COPY . .
 
 # Installer les dépendances
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Exposer le port 5000
+# Exposer le port 5000 pour l'application Flask
 EXPOSE 5000
 
-# Lancer l’application
+# Lancer l'application Flask
 CMD ["python", "app.py"]

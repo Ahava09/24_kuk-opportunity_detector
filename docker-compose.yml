@@ -1,12 +1,22 @@
 version: "3.8"
 
 services:
-  web:
+  # web:
+  #   build: .
+  #   ports:
+  #     - "5000:5000"
+  #   volumes:
+  #     - .:/app
+  #   environment:
+  #     - FLASK_ENV=development
+  #   restart: always
+   email-detector:
     build: .
+    environment:
+      - EMAIL_USER=minoraherinirina72@gmail.com
+      - EMAIL_PASS="okow yfdx plks owob"
     ports:
       - "5000:5000"
     volumes:
       - .:/app
-    environment:
-      - FLASK_ENV=development
-    restart: always
+    command: python app.py
