@@ -1,35 +1,43 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, send_from_directory
 import os
 from email_client import EmailClient
 
 app = Flask(__name__)
 
 # Informations de connexion
-username = os.getenv("EMAIL_USER")
-password = os.getenv("EMAIL_PASS")
+# username = os.getenv("EMAIL_USER")
+# password = os.getenv("EMAIL_PASS")
 
-@app.route("/", methods=["GET"])
+
+@app.route("/")
+def index():
+    return send_from_directory(".", "index.html")  
+
+@app.route("/get_emails", methods=["POST"])
 def get_emails():
+    data = request.get_json()
+    username = data.get("email")
+    password = data.get("password")
+
+    if not username or not password:
+        return jsonify({"error": "Email et mot de passe requis"}), 400
+
     email_client = EmailClient(username, password)
 
-    # Connexion au serveur
-    email_client.connect()
+    try:
+        email_client.connect()
+        date_since = "15-Feb-2025"  # Modifier selon besoin
+        emails = email_client.get_unread_emails_since(date_since)
+        email_client.disconnect()
 
-    # Récupérer les emails non lus depuis une date donnée
-    date_since = "15-Feb-2025"  # Exemple, tu peux adapter la date
-    emails = email_client.get_unread_emails_since(date_since)
-
-    # Déconnexion du serveur
-    email_client.disconnect()
-
-    # Convertir la liste d'objets Email en un format JSON
-    emails_json = [
-        {"subject": email.subject, "from": email.sender, "body": email.body,
-            "attachments": email.attachments  }
-        for email in emails
-    ]
-
-    return jsonify(emails_json)
+        emails_json = [
+            {"subject": email.subject, "from": email.sender, "body": email.body, "attachments": len(email.attachments)}
+            for email in emails
+        ]
+        return jsonify(emails_json)
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == "__main__":

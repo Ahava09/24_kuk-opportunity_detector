@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Emails</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .container { width: 300px; margin: 50px auto; }
+        input, button { width: 100%; padding: 10px; margin: 5px 0; }
+        .email-list { margin-top: 20px; text-align: left; }
+        
+        /* Loader animé */
+        .loader {
+            display: none;
+            margin: 20px auto;
+            width: 40px;
+            height: 40px;
+            border: 5px solid #ccc;
+            border-top: 5px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Désactivation du bouton */
+        button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Connexion</h2>
+        <input type="email" id="email" placeholder="Adresse e-mail" value="minoraherinirina72@gmail.com" required autocomplete="off">
+        <input type="password" id="password" placeholder="Mot de passe" value="okow yfdx plks owob" required autocomplete="off">
+        <button id="fetchButton" onclick="fetchEmails()">Se connecter</button>
+        
+        <!-- Loader -->
+        <div id="loading" class="loader"></div>
+
+        <div id="emails" class="email-list"></div>
+    </div>
+
+    <script>
+        function fetchEmails() {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const loading = document.getElementById("loading");
+            const fetchButton = document.getElementById("fetchButton");
+            const emailContainer = document.getElementById("emails");
+
+            // Afficher le loader et désactiver le bouton
+            loading.style.display = "block";
+            fetchButton.disabled = true;
+            emailContainer.innerHTML = ""; // Effacer les anciens emails
+
+            fetch("http://localhost:5000/get_emails", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                let emailList = "<h3>Emails reçus :</h3>";
+                data.forEach(mail => {
+                    emailList += `<p><b>${mail.subject}</b> de ${mail.from}<br>🗂 Pièces jointes : ${mail.attachments}</p><hr>`;
+                });
+
+                emailContainer.innerHTML = emailList;
+            })
+            .catch(error => {
+                emailContainer.innerHTML = `<p style="color:red;">Erreur : Impossible de récupérer les emails.</p>`;
+                console.error("Erreur :", error);
+            })
+            .finally(() => {
+                // Cacher le loader et réactiver le bouton
+                loading.style.display = "none";
+                fetchButton.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>
