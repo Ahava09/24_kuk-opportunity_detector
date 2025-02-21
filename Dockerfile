@@ -2,7 +2,7 @@
 FROM python:3.8-slim
 
 # Définir le répertoire de travail
-WORKDIR /app
+WORKDIR /24kuk
 
 # Copier les fichiers nécessaires dans le container
 COPY . .
@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 5000
 
 # Lancer l'application Flask
-CMD ["python", "app.py"]
+CMD ["python", "run.py"]

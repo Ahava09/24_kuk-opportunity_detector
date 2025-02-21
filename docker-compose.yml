@@ -1,16 +1,7 @@
 version: "3.8"
 
 services:
-  # web:
-  #   build: .
-  #   ports:
-  #     - "5000:5000"
-  #   volumes:
-  #     - .:/app
-  #   environment:
-  #     - FLASK_ENV=development
-  #   restart: always
-   email-detector:
+  email-detector:
     build: .
     environment:
       - EMAIL_USER=minoraherinirina72@gmail.com
@@ -20,3 +11,27 @@ services:
     volumes:
       - .:/app
     command: python app.py
+
+  flask:
+    build: .
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://postgres:etu001985@db:5432/24kuk
+
+  db:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: etu001985
+      POSTGRES_DB: 24kuk
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

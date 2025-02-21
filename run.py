@@ -1,17 +1,18 @@
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request, render_template
 import os
-from email_client import EmailClient
+from app.models.email_client import EmailClient
+from app import create_app
 
-app = Flask(__name__)
+app = create_app()
 
 # Informations de connexion
 # username = os.getenv("EMAIL_USER")
 # password = os.getenv("EMAIL_PASS")
-
+# app = Flask(__name__, template_folder='app/templates')
 
 @app.route("/")
 def index():
-    return send_from_directory(".", "index.html")  
+    return render_template("index.html")  
 
 @app.route("/get_emails", methods=["POST"])
 def get_emails():

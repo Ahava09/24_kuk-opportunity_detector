@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Emails</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+</head>
+<body>
+
+    <div class="container">
+        <h2>Connexion</h2>
+        <input type="email" id="email" placeholder="Adresse e-mail" value="minoraherinirina72@gmail.com" required autocomplete="off">
+        <input type="password" id="password" placeholder="Mot de passe" value="okow yfdx plks owob" required autocomplete="off">
+        <button id="fetchButton" onclick="fetchEmails()">Se connecter</button>
+        
+        <!-- Loader -->
+        <div id="loading" class="loader"></div>
+
+        <div id="emails" class="email-list"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/mailing.js') }}"></script>
+</body>
+</html>
