@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Emails</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mailing.css') }}">
+</head>
+<body>
+
+    <!-- 🏠 Barre de Navigation -->
+    <div class="navbar">
+        <h2>📧 Boîte de Réception</h2>
+
+        <!-- 🔍 Barre de Recherche -->
+        <div class="search-container">
+            <form id="searchForm">
+                <input type="text" id="searchCriteria" placeholder="Entrez un critère..." autocomplete="off">
+                <button type="submit">🔍 Rechercher</button>
+            </form>
+        </div>
+
+        <!-- 🔔 Icône des nouveaux emails -->
+        <div id="messageIcon" class="message-icon">
+            <span id="unreadCount">0</span>
+        </div>
+    </div>
+
+    <!-- 📦 Contenu principal -->
+    <div class="container">
+        <!-- Liste des emails -->
+        <div id="emails" class="email-list"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/mailing.js') }}"></script>
+
+</body>
+</html>

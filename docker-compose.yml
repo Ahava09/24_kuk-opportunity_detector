@@ -1,37 +1,46 @@
-version: "3.8"
+version: '3.8'
 
 services:
-  email-detector:
-    build: .
-    environment:
-      - EMAIL_USER=minoraherinirina72@gmail.com
-      - EMAIL_PASS="okow yfdx plks owob"
-    ports:
-      - "5000:5000"
-    volumes:
-      - .:/app
-    command: python app.py
-
-  flask:
-    build: .
-    ports:
-      - "5000:5000"
-    depends_on:
-      - db
-    environment:
-      - DATABASE_URL=postgresql://postgres:etu001985@db:5432/24kuk
-
   db:
     image: postgres:13
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: etu001985
-      POSTGRES_DB: 24kuk
+    env_file:
+      - .env
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
+    restart: always  
+
+  # email-detector:
+  #   build: .
+  #   env_file:
+  #     - .env
+  #   ports:
+  #     - "5000:5000"
+  #   volumes:
+  #     - .:/app
+  #   command: python run.py
+
+  flask:
+    build: .
+    ports:
+      - "5001:5000"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    volumes:
+      - .:/24kuk  
+    working_dir: /24kuk  
+    environment:
+      - FLASK_ENV=development 
+    command: python run.py
 
 volumes:
   pgdata:
