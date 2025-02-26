@@ -59,7 +59,6 @@ def get_emails():
 @api_emails_blueprint.route("/searchCriteria", methods=["GET"])
 def search_criterion():
     search_term = request.args.get("criterion", "").strip()
-    print(search_term)
     message = Email.message_chat(search_term)
     print(message)
     return jsonify({"message": message})

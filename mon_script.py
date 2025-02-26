@@ -1,7 +1,7 @@
 import openai
 
 # Remplace par ta clé API
-client = openai.OpenAI(api_key="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")
+client = openai.OpenAI(api_key="")
 
 models = client.models.list()
 for model in models.data:
