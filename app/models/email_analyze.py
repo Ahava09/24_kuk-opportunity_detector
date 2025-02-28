@@ -142,7 +142,7 @@ class EmailAnalyze:
             client = openai.Client(api_key=os.getenv("OPENAI_API_KEY") )  # Nouvelle façon d'initialiser le client
 
             response = client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-3.5-turbo",
                 store=True,
                 messages=[
                     {"role": "user", "content": prompt}
