@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-
+from datetime import timedelta
 # Charger les variables du fichier .env
 load_dotenv()
 
@@ -13,6 +13,10 @@ EMAIL_PASS = os.getenv("EMAIL_PASS")
 
 # Clé API OpenAI
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=20) 
+
 
 load_dotenv()
 

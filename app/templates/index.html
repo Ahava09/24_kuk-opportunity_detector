@@ -26,36 +26,37 @@
             const password = document.getElementById("password").value;
             const loading = document.getElementById("loading");
             const loginButton = document.getElementById("loginButton");
-
+    
             if (email && password) {
                 // Afficher le loader et désactiver le bouton
                 loading.style.display = "block";
                 loginButton.disabled = true;
-
+    
                 // Envoyer les identifiants au serveur
-                fetch("/get_emails", {
+                fetch("/login", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify({ "email": email, "password": password })
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.error) {
                         alert("Erreur : " + data.error);
-                        loading.style.display = "none";
-                        loginButton.disabled = false;
                     } else {
-                        // Stocker les emails dans localStorage pour le dashboard
-                        localStorage.setItem("emails", JSON.stringify(data.emails));
-                        localStorage.setItem("unread_count", data.unread_count);
+                        // ✅ Stocker le token JWT dans `sessionStorage`
+                        sessionStorage.setItem("token", data.token);
 
-                        // Rediriger vers le dashboard
+                        // ✅ Vérifier si le token a bien été stocké
+                        console.log("🟢 Token stocké :", sessionStorage.getItem("token"));
+    
                         window.location.href = "/email";
                     }
                 })
                 .catch(error => {
                     alert("Erreur de connexion au serveur.");
                     console.error("Erreur :", error);
+                })
+                .finally(() => {
                     loading.style.display = "none";
                     loginButton.disabled = false;
                 });
@@ -64,6 +65,6 @@
             }
         });
     </script>
-
+    
 </body>
 </html>

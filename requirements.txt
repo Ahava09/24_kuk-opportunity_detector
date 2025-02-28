@@ -1,9 +1,10 @@
 Flask==2.3.0
 Werkzeug==2.3.0
 python-dotenv
-# Flask-SQLAlchemy==3.0.1
 flask_sqlalchemy==3.0.1
 SQLAlchemy==1.4.49
 psycopg2-binary
 openai==1.64.0
 imapclient
+flask-jwt-extended
+flask-socketio

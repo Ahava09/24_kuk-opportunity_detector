@@ -135,3 +135,7 @@ Database : 'host' => env('DB_HOST', 'dpg-ctk5pvdsvqrc738chbr0-a'),
             'password' => env('DB_PASSWORD', password),
 postgresql://postgresql:password@dpg-ctk5pvdsvqrc738chbr0-a.oregon-postgres.render.com/gps_coordinates
 https://learning-squid-teaching.ngrok-free.app
+
+
+
+pip install flask flask-jwt-extended

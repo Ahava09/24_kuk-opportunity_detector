@@ -21,15 +21,31 @@
         </div>
 
         <!-- 🔔 Icône des nouveaux emails -->
+        <div id="mailIcon" class="mail-icon">
+            <span id="mailCount">0</span>
+        </div>
+
+        <!-- 🔔 Icône des nouveaux emails -->
         <div id="messageIcon" class="message-icon">
             <span id="unreadCount">0</span>
         </div>
     </div>
 
     <!-- 📦 Contenu principal -->
-    <div class="container">
+    <div id="container" class="container">
+        <div id="searchContainer" style="display: none;">
+            <label for="opportunityFilter">Filtrer par type d'opportunites :</label>
+            <select id="opportunityFilter">
+                <option value="1">Tous</option>
+            </select>
+
+        </div>
+        <button id="saveEmails" style="display: none;">📥 Ajouter à la base de données</button>
+
         <!-- Liste des emails -->
         <div id="emails" class="email-list"></div>
+        <!-- Loader -->
+        <div id="loading" class="loader" style="display: none;"></div>
     </div>
 
     <script src="{{ url_for('static', filename='js/mailing.js') }}"></script>
