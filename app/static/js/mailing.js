@@ -1,3 +1,4 @@
+
 document.addEventListener("DOMContentLoaded", function () {
     fetchEmails(false);
     
@@ -18,16 +19,30 @@ function fetchEmails(status) {
 
     // ✅ Vérifier si `opportunityFilter` existe avant de l'utiliser
     const opportunityFilterElement = document.getElementById("opportunityFilter");
-    const opportunityFilterId = opportunityFilterElement ? opportunityFilterElement.value : 1;  
-
+    const startDateElement  = document.getElementById('startDate');
+    const endDateElement  = document.getElementById('endDate');
+    const opportunityFilterId = opportunityFilterElement ? opportunityFilterElement.value : 0;  
+    const startDate  = startDateElement ? startDateElement.value : null;
+    const endDate  =  endDateElement ? endDateElement.value : null;
     const loading = document.getElementById("loading");
     if (loading) {
         loading.style.display = "block";
         emailContainer.style.display = "none";
         document.getElementById("searchContainer").style.display = "none";  
         document.getElementById("saveEmails").style.display = "none"; 
+        document.getElementById("emailStatesContainer").style.display = "none"; 
     }
-    fetch(`/get_emails?mail_type_id=${opportunityFilterId}`, {
+    // Construction de l'URL avec les paramètres de la requête, y compris les dates
+    let url = `/get_emails?mail_type_id=${opportunityFilterId}`;
+
+    if (startDate) {
+        url += `&date_since=${startDate}`;
+    }
+
+    if (endDate) {
+        url += `&date_before=${endDate}`;
+    }
+    fetch(url, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -45,24 +60,27 @@ function fetchEmails(status) {
     .then(data => {
         console.log(data.emails)
         if (status === true) {
-            updateEmailUI(data.emails_bdd, data.unread_count, data.emails_count,data.types);
+            updateEmailUI(data.emails_bdd, data.unread_count, data.emails_count,data.types,status, data.state);
         } else {
-            updateEmailUI(data.emails, data.unread_count, data.emails_count,data.types);
+            console.log(data.emails)
+            updateEmailUI(data.emails, data.unread_count, data.emails_count,data.types, status, data.state);
         }
     })
     .catch(error => {
         console.error("🔴 Erreur :", error);
-        alert("Erreur lors de la récupération des emails.");
+        alert(`Erreur lors de la récupération des emails. ${error}`);
     })
     .finally(() => {
         if (loading) {
             loading.style.display = "none";
-            document.getElementById("emails").style.display = "flex";
 
             if (status === true) {
+                document.getElementById("emailStatesContainer").style.display = "flex"; 
+                document.getElementById("emails").style.display = "block";
             } else {
                 document.getElementById("searchContainer").style.display = "block";  
                 document.getElementById("saveEmails").style.display = "block"; 
+                document.getElementById("emails").style.display = "flex";
             }
         }
     });
@@ -70,24 +88,45 @@ function fetchEmails(status) {
 
 
 // ✅ Fonction pour afficher les emails dans le dashboard
-function updateEmailUI(emails, unread_count, emails_count, types) {
+function updateEmailUI(emails, unread_count, emails_count, types, status, state) {
     const emailsList = document.getElementById("emails");
     emailsList.innerHTML = "";
     // 📩 Afficher les emails non lus
     if (emails.length > 0) {
+                
+        createColumnsByState(state);
         emails.forEach(mail => {
             const emailItem = document.createElement("div");
             emailItem.classList.add("email-item");
-            emailItem.innerHTML = `
-                <input type="checkbox" class="email-checkbox">
-                <p><b>${mail.subject}</b></p>
-                <p>📨 Expéditeur : ${mail.sender}</p>
-                <p>📆 Reçu le : ${mail.receive_at}</p>
-                <a href="${mail.path}" target="_blank">📩 Voir l'email</a>
-                <p>📌 Probabilité : ${mail.percentage }</p>
-                <p>📌 Type : ${mail.mail_type_id }</p>
-            `;
-            emailsList.appendChild(emailItem);
+            if (status===false){
+                emailItem.innerHTML = `
+                    <input type="checkbox" class="email-checkbox">
+                    <p><b>${mail.subject}</b></p>
+                    <p>📨 Expéditeur : ${mail.sender}</p>
+                    <p>📆 Reçu le : ${mail.receive_at}</p>
+                    <p> Boite: ${mail.body}</p>
+                    <a href="${mail.path}" target="_blank">📩 Voir l'email</a>
+                    <p>% Probabilité : ${mail.percentage }</p>
+                    <p>📌 Type : ${mail.type_name }</p>
+                `;
+                emailsList.appendChild(emailItem);
+            } else {
+                emailItem.innerHTML = `
+                    <p><b>${mail.email.subject}</b></p>
+                    <p>📨 Expéditeur : ${mail.email.sender}</p>
+                    <p>📆 Reçu le : ${mail.email.receive_at}</p>
+                    <a href="${mail.email.path}" target="_blank">📩 Voir l'email</a>
+                    <p>% Probabilité : ${mail.email.percentage}</p>
+                    <p>📌 Type : ${mail.email.type_name}</p>
+                    <p>Etat : ${mail.state.name_state}</p>
+                `;
+
+                const column = document.getElementById(`state-${mail.state.id}`);
+                if (column) {
+                    column.appendChild(emailItem);
+                }
+
+            }
         });
         document.getElementById("opportunityFilter").addEventListener("change", filterEmails);
     } else {
@@ -97,42 +136,66 @@ function updateEmailUI(emails, unread_count, emails_count, types) {
     if (types) {
         const opportunityFilter = document.getElementById("opportunityFilter");
 
-        // ✅ Ajouter les options dynamiquement
+        // 🔥 Supprimer toutes les options existantes sauf la première option
+        opportunityFilter.innerHTML = opportunityFilter.options[0].outerHTML;
+
         types.forEach(mailType => {
             let option = document.createElement("option");
             option.value = mailType.id;
             option.textContent = mailType.type_name;
             opportunityFilter.appendChild(option);
         });
+
+        // 🎯 Supprimer les anciens événements pour éviter le doublement
+        opportunityFilter.removeEventListener("change", filterEmails);
+        opportunityFilter.addEventListener("change", filterEmails);
     }
+    
 
     // 🔔 Mettre à jour les compteurs d'emails
     document.getElementById("unreadCount").textContent = unread_count;
     document.getElementById("mailCount").textContent = emails_count;
 }
 
-// ✅ Fonction pour filtrer les emails "Negoce Oui/Non"
 function filterEmails() {
-    const filterValue = document.getElementById("opportunityFilter").value;
-
-    emails.forEach(email => {
-        const negoceText = email.querySelector("p:last-child").textContent.trim();
-
-        // 🔍 Debugging : Vérifier les valeurs réelles
-        console.log("🔍 Filtrage en cours :", { filterValue, negoceText });
-
-        // ✅ Appliquer le filtre correct
-        if (filterValue === "all") {
-            email.style.display = "block";  // ✅ Afficher tous les emails
-        } else if (filterValue === "true" && negoceText.includes("Oui")) {
-            email.style.display = "block";  // ✅ Afficher seulement "Negoce : Oui"
-        } else if (filterValue === "false" && negoceText.includes("Non")) {
-            email.style.display = "block";  // ✅ Afficher seulement "Negoce : Non"
-        } else {
-            email.style.display = "none";  // ❌ Cacher tous les autres emails
-        }
-    });
+    const selectedType = document.getElementById("opportunityFilter").value;
+    fetchEmails(false);  // 🔥 Recharge les emails avec le filtre
 }
+
+// ✅ Fonction pour filtrer les emails "Negoce Oui/Non"
+// function filterEmails() {
+//     const filterValue = document.getElementById("opportunityFilter").value;
+
+//     emails.forEach(email => {
+//         const negoceText = email.querySelector("p:last-child").textContent.trim();
+
+//         // 🔍 Debugging : Vérifier les valeurs réelles
+//         console.log("🔍 Filtrage en cours :", { filterValue, negoceText });
+
+//         // ✅ Appliquer le filtre correct
+//         if (filterValue === "all") {
+//             email.style.display = "block";  // ✅ Afficher tous les emails
+//         } else if (filterValue === "true" && negoceText.includes("Oui")) {
+//             email.style.display = "block";  // ✅ Afficher seulement "Negoce : Oui"
+//         } else if (filterValue === "false" && negoceText.includes("Non")) {
+//             email.style.display = "block";  // ✅ Afficher seulement "Negoce : Non"
+//         } else {
+//             email.style.display = "none";  // ❌ Cacher tous les autres emails
+//         }
+//     });
+// }
+
+document.getElementById('applyFilters').addEventListener('click', function () {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+
+    if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+        alert("La date de début ne peut pas être supérieure à la date de fin !");
+        return;
+    }
+
+    fetchEmails(false);
+});
 
 
 document.getElementById("saveEmails").addEventListener("click", function () {
@@ -146,14 +209,15 @@ document.getElementById("saveEmails").addEventListener("click", function () {
         const cleanDate = rawDate.replace("📆 Reçu le :", "").trim();  
 
         const emailData = {
-            subject: emailItem.querySelector("p:nth-child(2)").textContent.trim(),
-            sender: emailItem.querySelector("p:nth-child(3)").textContent.replace("📨 Expéditeur :", "").trim(),
-            receive_at: cleanDate,  // ✅ Utiliser la date propre
-            path: emailItem.querySelector("a").getAttribute("href"),
-            percentage: emailItem.querySelector("p:nth-child(6)").textContent.replace("📌 Probabilité :", "").trim(),
-            type: emailItem.querySelector("p:nth-child(7)").textContent.replace("📌 Type :", "").trim()
+            subject: emailItem.querySelector("p:nth-child(2)") ? emailItem.querySelector("p:nth-child(2)").textContent.trim() : '',
+            sender: emailItem.querySelector("p:nth-child(3)") ? emailItem.querySelector("p:nth-child(3)").textContent.replace("📨 Expéditeur :", "").trim() : '',
+            receive_at: cleanDate || '',
+            body: emailItem.querySelector("p:nth-child(5)") ? emailItem.querySelector("p:nth-child(5)").textContent.replace("Boite  :", "").trim() : '',
+            path: emailItem.querySelector("a") ? emailItem.querySelector("a").getAttribute("href") : '',
+            percentage: emailItem.querySelector("p:nth-child(7)") ? emailItem.querySelector("p:nth-child(7)").textContent.replace("% Probabilité :", "").trim() : '',
+            type: emailItem.querySelector("p:nth-child(8)") ? emailItem.querySelector("p:nth-child(8)").textContent.replace("📌 Type :", "").trim() : ''
         };
-
+        console.log(emailData);
         selectedEmails.push(emailData);
     });
     console.log("🟢 Emails sélectionnés :", selectedEmails);
@@ -234,5 +298,23 @@ document.getElementById("messageIcon").addEventListener("click", function () {
 
 document.getElementById("mailIcon").addEventListener("click", function () {
     setTimeout(() => fetchEmails(true), 200);
+});
+
+function createColumnsByState(states) {
+    const container = document.getElementById("emailStatesContainer");
+    container.innerHTML = ""; 
+
+    states.forEach(state => {
+        const column = document.createElement("div");
+        column.classList.add("column");
+        column.id = `state-${state.id}`;
+        column.innerHTML = `<h3>${state.name_state}</h3>`;
+        container.appendChild(column);
+    });
+}
+
+document.addEventListener("change", function () {
+    const selected = document.querySelectorAll(".email-checkbox:checked").length;
+    document.getElementById("saveEmails").textContent = `📥 Ajouter (${selected}) à la base de données`;
 });
 

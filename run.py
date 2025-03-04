@@ -1,14 +1,17 @@
 from flask import jsonify, request, render_template
 from sqlalchemy.exc import SQLAlchemyError
 from app.models.email_analyze import EmailAnalyze
+from app.models.emails_partner import EmailsPartner
 from app.models.emails import Emails
+from app.models.state import State
+from app.models.emails_state import EmailsState
 from app.models.mail_type import MailType
 from app import create_app
 from app.database import db
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from config import JWT_SECRET_KEY, JWT_ACCESS_TOKEN_EXPIRES
 from flask_socketio import SocketIO
-import time
+from datetime import datetime
 
 app = create_app()
 socketio = SocketIO(app, cors_allowed_origins="*")  # ✅ Permet la communication WebSocket
@@ -16,24 +19,6 @@ socketio = SocketIO(app, cors_allowed_origins="*")  # ✅ Permet la communicatio
 app.config["JWT_SECRET_KEY"] =   JWT_SECRET_KEY
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] =  JWT_ACCESS_TOKEN_EXPIRES
 jwt = JWTManager(app)
-
-# ✅ Simulation de la récupération des emails en boucle (à remplacer par ta logique)
-# def check_new_emails():
-#     while True:
-#         time.sleep(10)  # ✅ Vérifier les nouveaux emails toutes les 10 secondes
-#         emails = get_new_emails()  # 🔄 Fonction qui récupère les nouveaux emails
-
-#         if emails:
-#             print("🟢 Nouveaux emails détectés, envoi via WebSocket...")
-#             socketio.emit("new_email", {"emails": emails})  # ✅ Envoi en temps réel au client
-
-# ✅ Lancer la fonction en tâche de fond
-# import threading
-# email_thread = threading.Thread(target=check_new_emails)
-# email_thread.daemon = True
-# email_thread.start()
-
-
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -83,20 +68,45 @@ def save_emails():
         # Exemple de traitement
         emails = data.get("emails", [])
         for email_data in emails:
+            percentage =  email_data["percentage"] if email_data["percentage"] is not None else 0
+            mail_type = MailType.select_by_type_name(email_data["type"]) 
             new_email = Emails(
                 subject=email_data["subject"],
                 sender=email_data["sender"],
-                body="Contenu non disponible", 
+                body=email_data["body"],
                 receive_at=email_data["receive_at"],
                 path=email_data["path"],
-                percentage=email_data["percentage"],
-                mail_type_id=email_data["type"]
+                percentage=percentage,
+                mail_type_id=mail_type.id
             )
-            app.logger.info(f"Emails existant : ---------------------------------------------------------------------")
-            db.session.add(new_email)
 
-        db.session.commit()
-        return jsonify({"message": "Emails enregistrés avec succès !"}), 200
+            try:
+                new_email = new_email.save()
+            except Exception as e:
+                app.logger.error(f"Erreur lors de la sauvegarde : {str(e)}")
+
+            partner = new_email.verify_partner()
+            if partner == None :
+                app.logger.info(f" --------------------------- {partner}")
+                
+                try:
+                    state_id = State.default()
+                    if state_id is None:
+                        app.logger.error("Erreur : État par défaut non inséré ou non trouvé.")
+                        return jsonify({"message": "Erreur lors de la récupération de l'état par défaut."}), 500
+                    emails_state = EmailsState(new_email.id, state_id)
+                    emails_state.save()
+                    app.logger.info(f"Email avec ID {new_email.id} et état ID {state_id} inséré avec succès.")
+                except Exception as e:
+                    app.logger.error(f"Erreur lors de la sauvegarde de l'état : {str(e)}")
+                    return jsonify({"message": "Erreur lors de la sauvegarde de l'état."}), 500
+
+
+                return jsonify({"message": f"L'expéditeur {new_email.sender} n'est pas un client existant."}), 500
+            else :
+                emailsPartner = EmailsPartner(partner.id, new_email.id)
+                
+                return jsonify({"message": f"Opportunité bien enregistrée {emailsPartner.partner_id}"}), 200
 
     except Exception as e:
         db.session.rollback()
@@ -109,6 +119,8 @@ def get_emails():
     username = current_user["email"]
     password = current_user["password"]
     mail_type_id = request.args.get('mail_type_id')
+    date_since = request.args.get('date_since')
+    date_before = request.args.get('date_before')
     if not mail_type_id:
         return jsonify({"error": "mail_type_id is required"}), 400
     try:
@@ -119,18 +131,20 @@ def get_emails():
     email_client = EmailAnalyze(username, password)
 
     try:
-        date_since = "28-Feb-2025"  # Modifier selon besoin
-        app.logger.info(email_client)
-
-        emails = email_client.get_unread_emails_since(date_since, mail_type_id)
+        if date_since:
+            date_since = datetime.strptime(date_since, "%Y-%m-%d")
+        if date_before:
+            date_before = datetime.strptime(date_before, "%Y-%m-%d")
+        emails = email_client.get_unread_emails_since(date_since, date_before, mail_type_id)
         new_emails = []  # Liste pour stocker les objets à insérer
 
         for email in emails:
             try:
-                existing_email = email.save()
+                existing_email = email.verify()
 
                 if existing_email:
-                    # app.logger.info(str(existing_email))
+                    app.logger.info(email.percentage)
+
                     new_emails.append(email)
                     continue
 
@@ -140,9 +154,12 @@ def get_emails():
                 return jsonify({"error": "Erreur lors de l'insertion en base"}), 500
             
         emails_json = [e.to_dict() for e in new_emails]
-        mails = Emails.get_all_json()
+        mails = EmailsState.get_all_json()
         types = MailType.get_all_json()
-        return jsonify({"unread_count": len(emails_json), "emails": emails_json,"emails_count": len(mails), "emails_bdd":mails, "types": types})
+        state = State.get_all_json()
+        app.logger.info(f"-********************* : {len(emails_json)}")
+
+        return jsonify({"unread_count": len(emails_json), "emails": emails_json,"emails_count": len(mails), "emails_bdd":mails, "types": types, "state": state})
 
     except Exception as e:
         import traceback

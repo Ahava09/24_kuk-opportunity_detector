@@ -1,6 +1,7 @@
 import imaplib
 import email
 import os
+import re
 from app.models.emails import Emails
 from app.models.mail_type import MailType
 from email.header import decode_header
@@ -9,7 +10,7 @@ from email.utils import parsedate_to_datetime, parseaddr
 from app import create_app
 import openai  
 from config import OPENAI_API_KEY
-
+from datetime import timedelta
 openai.api_key = OPENAI_API_KEY
 app = create_app()
 
@@ -30,23 +31,58 @@ class EmailAnalyze:
             self.mail.close()
             self.mail.logout()
     
+    # Fonction pour nettoyer le texte
+    @staticmethod
+    def clean_text(body):
 
-    def generate_gmail_link(self, email_uid):
-        """Génère un lien direct vers l'email dans Gmail Web."""
-        return f"https://mail.google.com/mail/u/0/#inbox/{email_uid}"
+        # Supprimer tous les liens HTTP/HTTPS
+        body = re.sub(r'https?://\S+', '', body)
+        # body = '\n'.join([line for line in body.splitlines() if len(line) < 200])
 
-    def get_unread_emails_since(self, date_since="01-Jan-2025", mail_type_id=6):
+        # Supprimer les espaces multiples
+        body = re.sub(r'\s+', ' ', body).strip()
+        if body:
+            return body.strip().replace("\n", " ").replace("\r", " ")
+        return ""
+
+    def generate_gmail_link(self, message_id):
+        message_id = message_id.strip("<>")
+        return f"https://mail.google.com/mail/u/0/#search/rfc822msgid:{message_id}"
+    
+    def get_unread_emails_since(self, date_since, date_before, mail_type_id=0):
         self.connect()
+        # Vérifier si la date est déjà un objet datetime
+        if isinstance(date_since, str):
+            date_since = datetime.strptime(date_since, "%d-%b-%Y")  # Format : DD-MMM-YYYY
         
-        status, messages = self.mail.search(None, f'(SINCE "{date_since}")')
+        if isinstance(date_before, str):
+            date_before = datetime.strptime(date_before, "%d-%b-%Y")
+
+        # Gérer le cas où date_since est null (On prend date_before - 3 jours)
+        if not date_since and date_before:
+            date_before = date_before - timedelta(days=3)  # Recherche avant 3 jours de date_before
+            date_since = date_before - timedelta(days=365)  # Choisir une date lointaine avant `date_before - 3 jours`
+        
+        # Gérer le cas où date_before est null (On prend date_since + 3 jours)
+        elif date_since and not date_before:
+            date_before = date_since + timedelta(days=3)  # Recherche après 3 jours de date_since
+
+        # Convertir les dates au format IMA
+        date_since = date_since.strftime("%d-%b-%Y")
+        date_before = date_before.strftime("%d-%b-%Y")
+    
+        
+        app.logger.info(date_since)
+        # Recherche des emails entre deux dates
+        search_criteria = f'(SINCE "{date_since}" BEFORE "{date_before}")'
+        
+        status, messages = self.mail.search(None, search_criteria)
 
         email_ids = messages[0].split()
         emails = []
 
         for email_id in email_ids:
             # Récupérer l'UID de l'email
-            status, uid_data = self.mail.fetch(email_id, "(UID)")
-            email_uid = uid_data[0].decode().split()[-1]  # Extraction de l'UID
             status, msg_data = self.mail.fetch(email_id, "(RFC822)")
 
             for response_part in msg_data:
@@ -71,7 +107,16 @@ class EmailAnalyze:
 
                     # 🛠️ Définir un chemin vers le mail (exemple : ID du mail)
                     # Générer le lien Gmail
-                    path = self.generate_gmail_link(email_uid)
+                    
+                    message_id = msg["Message-ID"]
+                    path = self.generate_gmail_link(message_id)
+                    if mail_type_id != 0:
+                        type = MailType.select_by_id(int(mail_type_id))
+                    else:
+                        type = MailType.select_by_type_name("None")
+                        if type is None:
+                            type = MailType("None")
+                            type.save()  # Enregistrer dans la base
 
                     # ✅ Stocker en base de données
                     new_email = Emails(
@@ -80,12 +125,14 @@ class EmailAnalyze:
                         body=body,
                         receive_at=receive_at,
                         path=path,
-                        percentage=0, 
-                        mail_type_id=mail_type_id
+                        percentage=0,
+                        mail_type_id=type.id
                     )
-                    type = MailType.select_by_id(int(mail_type_id))
-                    percentage = self.analyze_email_with_chatgpt(new_email, type.type_name)
-                    new_email.percentage = percentage
+                    if mail_type_id == 0 or not type.type_name or type.type_name.strip() == "None":
+                        new_email.percentage = 0
+                    else:
+                        percentage = self.analyze_email_with_chatgpt(new_email, type.type_name)
+                        new_email.percentage = percentage
 
                     emails.append(new_email)
                     
@@ -95,16 +142,32 @@ class EmailAnalyze:
 
     def extract_body(self, msg):
         # Si l'email a plusieurs parties (texte, HTML, etc.)
+        # body = ""
+        # if msg.is_multipart():
+        #     for part in msg.walk():
+        #         content_type = part.get_content_type()
+        #         content_disposition = str(part.get("Content-Disposition"))
+        #         if content_type == "text/plain" and "attachment" not in content_disposition:
+        #             body = part.get_payload(decode=True).decode()
+        #             break
+        # else:
+        #     body = msg.get_payload(decode=True).decode()
+        # return body
+
+                
         body = ""
         if msg.is_multipart():
             for part in msg.walk():
                 content_type = part.get_content_type()
-                content_disposition = str(part.get("Content-Disposition"))
-                if content_type == "text/plain" and "attachment" not in content_disposition:
-                    body = part.get_payload(decode=True).decode()
+                if content_type == "text/plain":
+                    try:
+                        body = part.get_payload(decode=True).decode("utf-8")
+                    except (UnicodeDecodeError, AttributeError):
+                        body = part.get_payload(decode=True).decode("iso-8859-1")
                     break
         else:
-            body = msg.get_payload(decode=True).decode()
+            body = msg.get_payload(decode=True).decode("utf-8")
+        body = EmailAnalyze.clean_text(body)
         return body
 
     def extract_attachments(self, msg):
@@ -125,15 +188,15 @@ class EmailAnalyze:
     
 
     def analyze_email_with_chatgpt(self, email, message):
-
         prompt = f"""
-        {Emails.message_chat(message)}
+        {EmailAnalyze.message_chat(message)}
         
         --- Début de l'email ---
-        Sujet : {email.subject}
-        Contenu : {email.body}
+        {email.subject}
+        {email.body}
         --- Fin de l'email ---
         """
+        app.logger.info(prompt)
 
         try:
             print("🤖 Envoi du prompt à ChatGPT...")
@@ -142,12 +205,13 @@ class EmailAnalyze:
             client = openai.Client(api_key=os.getenv("OPENAI_API_KEY") )  # Nouvelle façon d'initialiser le client
 
             response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                store=True,
+                model="gpt-3.5-turbo", # gpt-4o
+                temperature=0,
                 messages=[
                     {"role": "user", "content": prompt}
                 ]
             )
+
 
             
             answer = response.choices[0].message.content.strip()
@@ -159,6 +223,14 @@ class EmailAnalyze:
         except Exception as e:
             app.logger.info(e)
             print("❌ Erreur lors de l'analyse :", e)
+    
+    @staticmethod 
+    def message_chat(message):
+        print("Reformulation du message pour le critère")
+        return f"""
+        Analyse le contenu de cet email pour déterminer si l'opportunité décrite est une opportunité de {message} pour l'entreprise dans son secteur d'activité.
+        Répond uniquement par un nombre entre 0 et 100, représentant le pourcentage d'adéquation avec un type d'opportunité de {message}, que ce soit dans le secteur industriel, maritime ou logistique.
+        """
 
 
     

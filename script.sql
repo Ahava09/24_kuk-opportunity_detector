@@ -12,17 +12,37 @@ INSERT INTO mail_type (type_name) VALUES
 ('Spam');
 
 
+
 CREATE TABLE emails (
     id SERIAL PRIMARY KEY,
     subject VARCHAR(255) NOT NULL,
     sender VARCHAR(255) NOT NULL,
     body TEXT NOT NULL,
     receive_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    path VARCHAR(100),
+    path VARCHAR,
     percentage DOUBLE PRECISION DEFAULT 0,
     mail_type_id INTEGER REFERENCES mail_type(id) ON DELETE SET NULL
 );
 
+create table state (
+    id SERIAL PRIMARY KEY,
+    name_state VARCHAR(255) NOT NULL UNIQUE
+);
+
+-- Insérer des états dans la table state
+INSERT INTO state (name_state) VALUES 
+('Nouveau Client'),
+('Accepté'),
+('Refusé'),
+('En Attente'),
+('Archivé');
+
+
+create table emails_state (
+    id SERIAL PRIMARY KEY,
+    emails_id INTEGER REFERENCES emails(id) ON DELETE CASCADE,,
+    state_id INTEGER REFERENCES state(id) ON DELETE SET NULL
+);
 
 -- Création de la table res_country (nécessaire pour les relations)
 CREATE TABLE res_country (

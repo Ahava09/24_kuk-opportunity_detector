@@ -2,6 +2,8 @@ import os
 from sqlalchemy import Column, Integer, String, Text, Float
 from datetime import datetime
 from app.database import db
+from app.models.mail_type import MailType
+from app.models.res_partner import ResPartner
 
 class Emails(db.Model):
     __tablename__ = "emails"
@@ -11,9 +13,10 @@ class Emails(db.Model):
     sender = Column(String(255), nullable=False)
     body = Column(Text, nullable=False)
     receive_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    path = db.Column(db.String(100))
+    path = db.Column(db.String)
     percentage = Column(Float, default=0)
     mail_type_id = db.Column(db.Integer, db.ForeignKey('mail_type.id'), nullable=True)
+    type_name = db.String 
 
     def __init__(self, subject, sender, body,path , receive_at, percentage=0, mail_type_id=None):
         self.subject = subject
@@ -24,8 +27,12 @@ class Emails(db.Model):
         self.receive_at = receive_at
         self.mail_type_id = mail_type_id
 
+    def get_type_name(self):
+        self.type_name = MailType.select_by_id(self.mail_type_id).type_name
+
     def to_dict(self):
         """ Convertit un objet Emails en dictionnaire JSON """
+        self.get_type_name()
         return {
             "id": self.id,
             "subject": self.subject,
@@ -34,7 +41,8 @@ class Emails(db.Model):
             "receive_at": self.receive_at.isoformat() if self.receive_at else None,
             "path": self.path,
             "percentage": self.percentage,
-            "mail_type_id": self.mail_type_id
+            "mail_type_id": self.mail_type_id,
+            "type_name": self.type_name
         }
     
     @classmethod
@@ -43,12 +51,34 @@ class Emails(db.Model):
         return existing_email is not None  
 
     def save(self):
-        # Vérifier si l'email existe déjà avant de l'enregistrer
+        try:
+            db.session.add(self)
+            db.session.commit()
+            db.session.refresh(self)  # Recharge l'objet avec les nouvelles valeurs
+            return self
+        except Exception as e:
+            db.session.rollback()
+            raise e
+    
+    
+    def verify(self):
         if not Emails.exists(self.subject, self.sender, self.receive_at):
-            # db.session.add(self)
-            # db.session.commit()
             return True
         return False
+
+    def verify_partner (self):
+        # Chercher le partenaire existant en fonction de l'email actuel
+        existing_partner = ResPartner.query.filter_by(email=self.sender).first()
+        
+        if existing_partner:
+            return existing_partner
+        else:
+            # Si l'expéditeur n'est pas un client
+            print(f"L'expéditeur {self.sender} n'est pas un client existant.")
+            return None 
+        
+        
+
 
     @staticmethod 
     def get_all_json():
@@ -57,12 +87,3 @@ class Emails(db.Model):
     
     def __repr__(self):
         return f"<Email id={self.id}, subject={self.subject}, sender={self.sender}>"
-    
-    @staticmethod 
-    def message_chat(message):
-        print("Reformulation du message pour le critère")
-        return f"""
-        Analyse le contenu de cet email pour déterminer s'il concerne {message}.
-
-        Ta réponse doit être uniquement entre 0 à 100, de quel pourcentage s'agit il de ce type si on a ce mail.
-        """

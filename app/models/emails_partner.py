@@ -17,3 +17,14 @@ class EmailsPartner(db.Model):
     def __init__(self, partner_id, emails_id):
         self.partner_id = partner_id
         self.emails_id = emails_id
+
+    
+    def save(self):
+        try:
+            db.session.add(self)
+            db.session.commit()
+            db.session.refresh(self)  # Recharge l'objet avec les nouvelles valeurs
+            return self
+        except Exception as e:
+            db.session.rollback()
+            raise e

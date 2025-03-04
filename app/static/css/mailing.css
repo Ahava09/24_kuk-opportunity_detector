@@ -164,6 +164,32 @@ body {
     color: #007bff;
 }
 
+.email-columns {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding: 10px;
+    margin-top: 20px;
+}
+
+.column {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background: #f9f9f9;
+    border-radius: 8px;
+    min-height: 300px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.column h3 {
+    text-align: center;
+    background: #007BFF;
+    color: white;
+    padding: 10px;
+    border-radius: 8px 8px 0 0;
+}
+
+
 /* 📱 Responsive pour mobile */
 @media (max-width: 768px) {
     .email-list {
@@ -179,6 +205,12 @@ body {
     }
 
     #searchCriteria {
+        width: 100%;
+    }
+    #opportunityFilter,
+    #startDate,
+    #endDate,
+    #applyFilters {
         width: 100%;
     }
 }
