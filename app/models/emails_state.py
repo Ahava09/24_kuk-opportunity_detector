@@ -1,4 +1,5 @@
 from app.database import db
+from app.models.state import State
 
 class EmailsState(db.Model):
     __tablename__ = "emails_state"
@@ -70,3 +71,29 @@ class EmailsState(db.Model):
         except Exception as e:
             db.session.rollback()
             raise e
+
+    @classmethod
+    def update_state_id(cls, id, new_state_id):
+        """Mettre à jour l'état d'un email par son ID"""
+        try:
+            # Récupérer l'état de l'email
+            email_state = cls.query.filter_by(id=id).first()
+            
+            if email_state:
+                # Mettre à jour l'état
+                email_state.state_id = new_state_id
+                db.session.commit()
+                db.session.refresh(email_state)  # Recharge l'objet
+                return email_state
+            else:
+                return None  # Si aucun email n'est trouvé
+        except Exception as e:
+            db.session.rollback()
+            raise e
+        
+
+    def is_accepted(self):
+        id_state = State.is_partner()
+        if id_state == self.state_id:
+            return True
+        return False

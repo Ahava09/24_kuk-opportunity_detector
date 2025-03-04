@@ -40,7 +40,7 @@ INSERT INTO state (name_state) VALUES
 
 create table emails_state (
     id SERIAL PRIMARY KEY,
-    emails_id INTEGER REFERENCES emails(id) ON DELETE CASCADE,,
+    emails_id INTEGER REFERENCES emails(id) ON DELETE CASCADE,
     state_id INTEGER REFERENCES state(id) ON DELETE SET NULL
 );
 
@@ -93,12 +93,13 @@ INSERT INTO res_company (name, street, city, zip, phone, email, website, created
 CREATE TABLE res_partner (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    company_id INTEGER REFERENCES res_company(id) ON DELETE CASCADE,
+    company_id INTEGER REFERENCES res_company(id) ON DELETE SET NULL,
     email VARCHAR(255) UNIQUE,
     phone VARCHAR(50),
     is_company BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
 
 INSERT INTO res_partner (name, company_id, email, phone, is_company, created_at) VALUES
 ('John Doe', 1, 'john.doe@techsolutions.com', '+33678901234', FALSE, NOW()),

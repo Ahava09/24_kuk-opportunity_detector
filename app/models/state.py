@@ -79,11 +79,9 @@ class State(db.Model):
 
     @staticmethod
     def is_partner():
-        # Chercher le state par défaut
         default_state = State.query.filter_by(name_state="Accepté").first()
         
         if not default_state:
-            # Si aucun state trouvé, insérer "En Attente" par défaut
             default_state = State(name_state="Accepté")
             try:
                 db.session.add(default_state)
@@ -95,4 +93,3 @@ class State(db.Model):
                 return None
         
         return default_state.id
-

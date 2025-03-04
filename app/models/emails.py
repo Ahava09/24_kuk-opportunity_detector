@@ -3,7 +3,6 @@ from sqlalchemy import Column, Integer, String, Text, Float
 from datetime import datetime
 from app.database import db
 from app.models.mail_type import MailType
-from app.models.res_partner import ResPartner
 
 class Emails(db.Model):
     __tablename__ = "emails"
@@ -65,21 +64,7 @@ class Emails(db.Model):
         if not Emails.exists(self.subject, self.sender, self.receive_at):
             return True
         return False
-
-    def verify_partner (self):
-        # Chercher le partenaire existant en fonction de l'email actuel
-        existing_partner = ResPartner.query.filter_by(email=self.sender).first()
         
-        if existing_partner:
-            return existing_partner
-        else:
-            # Si l'expéditeur n'est pas un client
-            print(f"L'expéditeur {self.sender} n'est pas un client existant.")
-            return None 
-        
-        
-
-
     @staticmethod 
     def get_all_json():
         emails = Emails.query.all()
@@ -87,3 +72,11 @@ class Emails(db.Model):
     
     def __repr__(self):
         return f"<Email id={self.id}, subject={self.subject}, sender={self.sender}>"
+
+    @classmethod
+    def get_by_id(cls, email_id):
+        """ Récupérer un email par son ID """
+        email = cls.query.get(email_id)
+        if email:
+            return email
+        return None

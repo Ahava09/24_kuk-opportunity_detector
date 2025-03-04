@@ -6,12 +6,14 @@ from app.models.emails import Emails
 from app.models.state import State
 from app.models.emails_state import EmailsState
 from app.models.mail_type import MailType
+from app.models.res_partner import ResPartner
 from app import create_app
 from app.database import db
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from config import JWT_SECRET_KEY, JWT_ACCESS_TOKEN_EXPIRES
 from flask_socketio import SocketIO
 from datetime import datetime
+import traceback
 
 app = create_app()
 socketio = SocketIO(app, cors_allowed_origins="*")  # ✅ Permet la communication WebSocket
@@ -43,7 +45,6 @@ def login():
         }), 200
 
     except Exception as e:
-        import traceback
         app.logger.error(f"Erreur de connexion: {str(e)}")
         traceback.print_exc()
 
@@ -79,13 +80,14 @@ def save_emails():
                 percentage=percentage,
                 mail_type_id=mail_type.id
             )
+            app.logger.info(f"-********************* : {new_email}")
 
             try:
                 new_email = new_email.save()
             except Exception as e:
                 app.logger.error(f"Erreur lors de la sauvegarde : {str(e)}")
 
-            partner = new_email.verify_partner()
+            partner = ResPartner.verify_partner(new_email)
             if partner == None :
                 app.logger.info(f" --------------------------- {partner}")
                 
@@ -157,16 +159,48 @@ def get_emails():
         mails = EmailsState.get_all_json()
         types = MailType.get_all_json()
         state = State.get_all_json()
-        app.logger.info(f"-********************* : {len(emails_json)}")
 
         return jsonify({"unread_count": len(emails_json), "emails": emails_json,"emails_count": len(mails), "emails_bdd":mails, "types": types, "state": state})
 
     except Exception as e:
-        import traceback
         app.logger.error(f"Erreur serveur: {str(e)}")
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
+    
+@app.route("/update_email_state", methods=["POST"])
+@jwt_required()
+def update_email_state():
+    data = request.json
+    email_id = data.get("emailId")
+    new_state_id = data.get("newStateId")
 
+    if not email_id or not new_state_id:
+        return jsonify({"success": False, "message": "Données manquantes"}), 400
+
+    try:
+        email_state = EmailsState.update_state_id(email_id, new_state_id)
+        
+        if email_state:
+            partner = ResPartner.verify_state(email_state)
+            
+            if partner:
+                return jsonify({
+                    "success": True,
+                    "message": "Email mis à jour & Partenaire créé ou existant",
+                    "data": partner.to_dict()
+                }), 200
+            else:
+                return jsonify({
+                    "success": True,
+                    "message": "Email mis à jour, mais aucun partenaire n'a été créé"
+                }), 200
+        else:
+            return jsonify({"success": False, "message": "Email introuvable"}), 404
+
+    except Exception as e:
+        app.logger.error(f"Erreur serveur: {str(e)}")
+        traceback.print_exc()
+        return jsonify({"success": False, "error": str(e)}), 500
 
 if __name__ == "__main__":
     with app.app_context():  

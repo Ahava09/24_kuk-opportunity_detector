@@ -111,20 +111,25 @@ function updateEmailUI(emails, unread_count, emails_count, types, status, state)
                 `;
                 emailsList.appendChild(emailItem);
             } else {
+                emailItem.id = mail.email.id; 
                 emailItem.innerHTML = `
                     <p><b>${mail.email.subject}</b></p>
                     <p>📨 Expéditeur : ${mail.email.sender}</p>
                     <p>📆 Reçu le : ${mail.email.receive_at}</p>
+                    <p> Boite: ${mail.email.body}</p>
                     <a href="${mail.email.path}" target="_blank">📩 Voir l'email</a>
-                    <p>% Probabilité : ${mail.email.percentage}</p>
-                    <p>📌 Type : ${mail.email.type_name}</p>
-                    <p>Etat : ${mail.state.name_state}</p>
+                    <p>% Probabilité : ${mail.email.percentage }</p>
+                    <p>📌 Type : ${mail.state.type_name }</p>
                 `;
-
+    
                 const column = document.getElementById(`state-${mail.state.id}`);
                 if (column) {
-                    column.appendChild(emailItem);
+                    column.appendChild(emailItem); // Ajouter l'email à la colonne correspondante
                 }
+                emailItem.setAttribute("draggable", "true"); // Rendre l'email déplaçable
+    
+                // Définir l'événement de début de glissement
+                emailItem.setAttribute("ondragstart", `drag(event, ${mail.id})`);
 
             }
         });
@@ -309,7 +314,72 @@ function createColumnsByState(states) {
         column.classList.add("column");
         column.id = `state-${state.id}`;
         column.innerHTML = `<h3>${state.name_state}</h3>`;
+        
+        // Ajouter des événements de glisser-déposer à chaque colonne
+        column.setAttribute("ondrop", "drop(event)");
+        column.setAttribute("ondragover", "allowDrop(event)");
+
         container.appendChild(column);
+    });
+}
+
+function allowDrop(event) {
+    event.preventDefault(); // Nécessaire pour permettre le dépose
+}
+
+function drag(event, emailId) {
+    event.dataTransfer.setData("emailId", emailId); // Enregistrer l'ID de l'email dans les données de transfert
+}
+
+function drop(event) {
+    event.preventDefault();
+    const emailId = event.dataTransfer.getData("emailId"); // Récupérer l'ID de l'email
+    const emailElement = document.getElementById(emailId); // Trouver l'élément email correspondant
+
+    const targetColumn = event.target.closest('.column'); // Trouver la colonne cible
+
+    if (targetColumn) {
+        const stateId = targetColumn.id.split('-')[1]; // Extraire l'ID de l'état depuis l'ID de la colonne
+
+        // Mettre à jour l'état de l'email dans la base de données (par exemple, via un appel API)
+        updateEmailState(emailId, stateId);
+
+        // Déplacer l'email dans la nouvelle colonne
+        targetColumn.appendChild(emailElement);
+    }
+}
+
+// Fonction pour mettre à jour l'état de l'email dans la base de données
+function updateEmailState(emailId, newStateId) {
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+        alert("Votre session a expiré. Veuillez vous reconnecter.");
+        window.location.href = "/";
+        return;
+    }
+
+    fetch(`/update_email_state`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({
+            emailId: emailId,
+            newStateId: newStateId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log(`Email ${emailId} déplacé vers l'état ${newStateId}`);
+        } else {
+            alert("Erreur lors de la mise à jour de l'état de l'email.");
+        }
+    })
+    .catch(error => {
+        console.error("Erreur:", error);
+        alert("Erreur lors de la mise à jour de l'état de l'email.");
     });
 }
 
