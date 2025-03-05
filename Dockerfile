@@ -11,9 +11,8 @@ COPY . .
 # Installer les dépendances
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Exposer le port 5000 pour l'application Flask
 EXPOSE 5000
 
 # Lancer l'application Flask
-CMD ["flask", "run", "--host=0.0.0.0", "--port=5000", "--debug"]
+CMD ["flask", "run", "--host=0.0.0.0", "--port=5001", "--debug"]
 

@@ -4,6 +4,9 @@ import os
 from app.routes import api_emails_blueprint 
 from config import DATABASE_URL
 from app.database import init_db
+from flask_socketio import SocketIO
+
+socketio = SocketIO(cors_allowed_origins="*")
 
 def create_app():
     app = Flask(__name__)
@@ -13,6 +16,7 @@ def create_app():
 
     # Initialiser db avec l'application Flask
     init_db(app)
+    socketio.init_app(app)
 
     # Enregistrement du blueprint une seule fois
     app.register_blueprint(api_emails_blueprint, url_prefix='/api')

@@ -70,21 +70,25 @@ class ResPartner(db.Model):
                 print(f"Partenaire {existing_partner.name} existe déjà.")
         else:
             print("Email introuvable")
+    @staticmethod    
+    def get_partner(emails):
+        partner = ResPartner(
+                        name=emails.sender,
+                        email=emails.sender,
+                        is_company=False
+                    )
+        return partner
 
-    @classmethod
-    def verify_state(cls, emails_state):
+    @staticmethod
+    def verify_state(emails_state):
         """Vérifier si l'email est accepté"""
         state = emails_state.is_accepted()
         if state:
             emails = Emails.get_by_id(emails_state.emails_id)
             if emails:
-                partner = cls.query.filter_by(email=emails.sender).first()
+                partner = ResPartner.query.filter_by(email=emails.sender).first()
                 if not partner:
-                    partner = cls(
-                        name=emails.sender,
-                        email=emails.sender,
-                        is_company=False
-                    )
+                    partner = ResPartner.get_partner(emails)
                     partner.save()
                     print(f"Partenaire {partner.name} créé avec succès.")
                 else:

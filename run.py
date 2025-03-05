@@ -7,16 +7,16 @@ from app.models.state import State
 from app.models.emails_state import EmailsState
 from app.models.mail_type import MailType
 from app.models.res_partner import ResPartner
-from app import create_app
+from app import create_app, socketio
 from app.database import db
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from config import JWT_SECRET_KEY, JWT_ACCESS_TOKEN_EXPIRES
-from flask_socketio import SocketIO
+# from app import socketio
 from datetime import datetime
 import traceback
+import time
 
 app = create_app()
-socketio = SocketIO(app, cors_allowed_origins="*")  # ✅ Permet la communication WebSocket
 
 app.config["JWT_SECRET_KEY"] =   JWT_SECRET_KEY
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] =  JWT_ACCESS_TOKEN_EXPIRES
@@ -65,54 +65,74 @@ def save_emails():
         data = request.get_json()
         if not data:
             return jsonify({"message": "Aucune donnée reçue"}), 400
-        
-        # Exemple de traitement
+
         emails = data.get("emails", [])
-        for email_data in emails:
-            percentage =  email_data["percentage"] if email_data["percentage"] is not None else 0
-            mail_type = MailType.select_by_type_name(email_data["type"]) 
-            new_email = Emails(
-                subject=email_data["subject"],
-                sender=email_data["sender"],
-                body=email_data["body"],
-                receive_at=email_data["receive_at"],
-                path=email_data["path"],
-                percentage=percentage,
-                mail_type_id=mail_type.id
-            )
-            app.logger.info(f"-********************* : {new_email}")
+        if not emails:
+            return jsonify({"message": "Aucun email à traiter"}), 400
 
-            try:
-                new_email = new_email.save()
-            except Exception as e:
-                app.logger.error(f"Erreur lors de la sauvegarde : {str(e)}")
-
-            partner = ResPartner.verify_partner(new_email)
-            if partner == None :
-                app.logger.info(f" --------------------------- {partner}")
-                
+        old_total = Emails.query.count()
+        new_count = 0
+        new_mail = []
+        try:
+            for email_data in emails:
                 try:
-                    state_id = State.default()
-                    if state_id is None:
-                        app.logger.error("Erreur : État par défaut non inséré ou non trouvé.")
-                        return jsonify({"message": "Erreur lors de la récupération de l'état par défaut."}), 500
-                    emails_state = EmailsState(new_email.id, state_id)
-                    emails_state.save()
-                    app.logger.info(f"Email avec ID {new_email.id} et état ID {state_id} inséré avec succès.")
+                    percentage = email_data.get("percentage", 0)
+                    mail_type = MailType.select_by_type_name(email_data["type"])
+
+                    if not mail_type:
+                        app.logger.error(f"Type de mail inconnu : {email_data['type']}")
+                        continue
+
+                    new_email = Emails(
+                        subject=email_data["subject"],
+                        sender=email_data["sender"],
+                        body=email_data["body"],
+                        receive_at=email_data["receive_at"],
+                        path=email_data["path"],
+                        percentage=percentage,
+                        mail_type_id=mail_type.id
+                    )
+                    db.session.add(new_email)
+
+                    partner = ResPartner.verify_partner(new_email)
+                    if partner is None:
+                        state_id = State.default()
+                        if state_id is None:
+                            raise Exception("État par défaut introuvable.")
+                        emails_state = EmailsState(new_email.id, state_id)
+                        db.session.add(emails_state)
+                        new_mail.append(emails_state)
+                        # --------------------------------- Rehefa is client
+                    else:
+                        emailsPartner = EmailsPartner(partner.id, new_email.id)
+                        db.session.add(emailsPartner)
+
+                    new_count += 1
+
                 except Exception as e:
-                    app.logger.error(f"Erreur lors de la sauvegarde de l'état : {str(e)}")
-                    return jsonify({"message": "Erreur lors de la sauvegarde de l'état."}), 500
+                    app.logger.error(f"Erreur lors du traitement de l'email : {str(e)}")
+                    db.session.rollback()  # Annuler uniquement cette opération
+                    continue
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Erreur lors de la transaction globale : {str(e)}")
+            return jsonify({"error": "Erreur interne lors du traitement des emails."}), 500
 
+        new_total = old_total + new_count
+        db.session.commit()  
+        app.logger.info("Emails envoyés via socket:", new_mail)
+        socketio.emit("new_email", {
+            "total": new_total,
+            "new_count": new_count, 
+            "new_emails": [email.to_dict() for email in new_mail]
+        })
 
-                return jsonify({"message": f"L'expéditeur {new_email.sender} n'est pas un client existant."}), 500
-            else :
-                emailsPartner = EmailsPartner(partner.id, new_email.id)
-                
-                return jsonify({"message": f"Opportunité bien enregistrée {emailsPartner.partner_id}"}), 200
+        return jsonify({"message": f"{new_count} emails traités avec succès."}), 200
 
     except Exception as e:
-        db.session.rollback()
+        app.logger.error(f"Erreur générale : {str(e)}")
         return jsonify({"error": str(e)}), 500
+
 
 @app.route("/get_emails", methods=["GET"])
 @jwt_required()
@@ -156,17 +176,33 @@ def get_emails():
                 return jsonify({"error": "Erreur lors de l'insertion en base"}), 500
             
         emails_json = [e.to_dict() for e in new_emails]
-        mails = EmailsState.get_all_json()
         types = MailType.get_all_json()
-        state = State.get_all_json()
 
-        return jsonify({"unread_count": len(emails_json), "emails": emails_json,"emails_count": len(mails), "emails_bdd":mails, "types": types, "state": state})
+        # return jsonify({"unread_count": len(emails_json), "emails": emails_json,"emails_count": len(mails), "emails_bdd":mails, "types": types, "state": state})
+        return jsonify({"emails": emails_json, "types": types})
+
 
     except Exception as e:
         app.logger.error(f"Erreur serveur: {str(e)}")
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
     
+@app.route("/get_emails_bdd", methods=["GET"])
+@jwt_required()
+def get_emails_bdd():
+    try:
+        mails = EmailsState.get_all_json()
+        state = State.get_all_json()
+
+        return jsonify({ "emails_bdd":mails, "state": state})
+
+
+    except Exception as e:
+        app.logger.error(f"Erreur serveur: {str(e)}")
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+   
+
 @app.route("/update_email_state", methods=["POST"])
 @jwt_required()
 def update_email_state():
@@ -178,8 +214,8 @@ def update_email_state():
         return jsonify({"success": False, "message": "Données manquantes"}), 400
 
     try:
+        app.logger.info(f"{new_state_id}---------------- {email_id}")
         email_state = EmailsState.update_state_id(email_id, new_state_id)
-        
         if email_state:
             partner = ResPartner.verify_state(email_state)
             
@@ -202,7 +238,11 @@ def update_email_state():
         traceback.print_exc()
         return jsonify({"success": False, "error": str(e)}), 500
 
+
 if __name__ == "__main__":
-    with app.app_context():  
-        db.create_all() 
-        app.run(host='0.0.0.0', port=5000, debug=True)
+    with app.app_context():
+        db.create_all()
+    socketio.run(app, host='0.0.0.0', port=5001, debug=True, allow_unsafe_werkzeug=True)
+#     with app.app_context():  
+#         db.create_all() 
+#         app.run(host='0.0.0.0', port=5000, debug=True)

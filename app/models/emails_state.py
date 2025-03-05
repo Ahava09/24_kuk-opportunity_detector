@@ -73,11 +73,11 @@ class EmailsState(db.Model):
             raise e
 
     @classmethod
-    def update_state_id(cls, id, new_state_id):
+    def update_state_id(cls, emails_id, new_state_id):
         """Mettre à jour l'état d'un email par son ID"""
         try:
             # Récupérer l'état de l'email
-            email_state = cls.query.filter_by(id=id).first()
+            email_state = cls.query.filter_by(emails_id=emails_id).first()
             
             if email_state:
                 # Mettre à jour l'état
