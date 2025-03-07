@@ -9,18 +9,23 @@ from app.models.mail_type import MailType
 from app.models.res_partner import ResPartner
 from app import create_app, socketio
 from app.database import db
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
 from config import JWT_SECRET_KEY, JWT_ACCESS_TOKEN_EXPIRES
-# from app import socketio
 from datetime import datetime
 import traceback
 import time
+import threading
+from imapclient import IMAPClient
+from flask_socketio import emit
 
 app = create_app()
 
 app.config["JWT_SECRET_KEY"] =   JWT_SECRET_KEY
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] =  JWT_ACCESS_TOKEN_EXPIRES
 jwt = JWTManager(app)
+
+import imaplib
+imaplib.Debug = 4
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -37,7 +42,7 @@ def login():
         email_client.connect()  # Connexion à la boîte mail
         # 🔐 Stocker email et password dans le token
         user_identity = {"email": email, "password": password}
-        access_token = create_access_token(identity=user_identity)
+        access_token = create_access_token(identity=user_identity) 
 
         return jsonify({
             "token": access_token,
@@ -48,15 +53,15 @@ def login():
         app.logger.error(f"Erreur de connexion: {str(e)}")
         traceback.print_exc()
 
-        return jsonify({"error": "Échec de connexion, vérifiez vos identifiants "}), 401
+        return jsonify({"error": "Échec de connexion, vérifiez vos identifiants"}), 401
 
 @app.route('/email')
-def dashboard():
-    return render_template("email.html")
+def email():
+    return render_template("email.html", title="Gestion mail")
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", title="Connexion - Emails")
 
 @app.route("/save_emails", methods=["POST"])
 @jwt_required()
@@ -104,6 +109,12 @@ def save_emails():
                         new_mail.append(emails_state)
                         # --------------------------------- Rehefa is client
                     else:
+                        state_id = State.is_partner()
+                        if state_id is None:
+                            raise Exception("État par défaut introuvable.")
+                        emails_state = EmailsState(new_email.id, state_id)
+                        db.session.add(emails_state)
+                        new_mail.append(emails_state)
                         emailsPartner = EmailsPartner(partner.id, new_email.id)
                         db.session.add(emailsPartner)
 
@@ -120,13 +131,13 @@ def save_emails():
 
         new_total = old_total + new_count
         db.session.commit()  
-        app.logger.info("Emails envoyés via socket:", new_mail)
+        # app.logger.info("Emails envoyés via socket:", new_mail)
         socketio.emit("new_email", {
             "total": new_total,
             "new_count": new_count, 
             "new_emails": [email.to_dict() for email in new_mail]
         })
-
+        
         return jsonify({"message": f"{new_count} emails traités avec succès."}), 200
 
     except Exception as e:
@@ -165,8 +176,7 @@ def get_emails():
                 existing_email = email.verify()
 
                 if existing_email:
-                    app.logger.info(email.percentage)
-
+                    # app.logger.info(email.percentage)
                     new_emails.append(email)
                     continue
 
@@ -177,8 +187,6 @@ def get_emails():
             
         emails_json = [e.to_dict() for e in new_emails]
         types = MailType.get_all_json()
-
-        # return jsonify({"unread_count": len(emails_json), "emails": emails_json,"emails_count": len(mails), "emails_bdd":mails, "types": types, "state": state})
         return jsonify({"emails": emails_json, "types": types})
 
 
@@ -191,9 +199,9 @@ def get_emails():
 @jwt_required()
 def get_emails_bdd():
     try:
+
         mails = EmailsState.get_all_json()
         state = State.get_all_json()
-
         return jsonify({ "emails_bdd":mails, "state": state})
 
 
@@ -214,7 +222,7 @@ def update_email_state():
         return jsonify({"success": False, "message": "Données manquantes"}), 400
 
     try:
-        app.logger.info(f"{new_state_id}---------------- {email_id}")
+        # app.logger.info(f"{new_state_id}---------------- {email_id}")
         email_state = EmailsState.update_state_id(email_id, new_state_id)
         if email_state:
             partner = ResPartner.verify_state(email_state)
@@ -243,6 +251,3 @@ if __name__ == "__main__":
     with app.app_context():
         db.create_all()
     socketio.run(app, host='0.0.0.0', port=5001, debug=True, allow_unsafe_werkzeug=True)
-#     with app.app_context():  
-#         db.create_all() 
-#         app.run(host='0.0.0.0', port=5000, debug=True)

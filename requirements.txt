@@ -8,3 +8,4 @@ openai==1.64.0
 imapclient
 flask-jwt-extended
 flask-socketio
+eventlet

@@ -31,6 +31,7 @@ class EmailsState(db.Model):
 
     def to_dict(self):
         """ Convertit un objet EmailsState en dictionnaire JSON """
+        
         return {
             "id": self.id,
             "emails_id": self.emails_id,
@@ -54,6 +55,11 @@ class EmailsState(db.Model):
         """Récupérer l'état d'un email spécifique"""
         return cls.query.filter_by(emails_id=email_id).first()
 
+    @classmethod
+    def get_email_state_by_id(cls, id):
+        """Récupérer l'état d'un email spécifique"""
+        return cls.query.filter_by(id=id).first()
+    
     @classmethod
     def add_email_state(cls, email_id, state_id):
         """Associer un email à un état"""

@@ -15,7 +15,7 @@ EMAIL_PASS = os.getenv("EMAIL_PASS")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=20) 
+JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24) 
 
 
 load_dotenv()

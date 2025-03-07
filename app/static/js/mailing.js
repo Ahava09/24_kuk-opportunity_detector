@@ -1,24 +1,49 @@
 
+let reconnectAttempts = 0;
+const token = sessionStorage.getItem("token");
 document.addEventListener("DOMContentLoaded", function () {
-    const socket = io("localhost:5001", {
+
+
+    const isFetchTrue = sessionStorage.getItem("isFetchTrue");
+
+    // Si l'état est "true", appelez fetchEmails(true)
+    if (isFetchTrue === "true") {
+        fetchEmails(true);
+    } else {
+        // Par défaut ou si l'état est "false", appelez fetchEmails(false)
+        fetchEmails(false);
+    }
+
+    const socket = io("http://localhost:5001", {
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
         timeout: 5000
     });
 
-    let lastTotal = 0;
-    let reconnectAttempts = 0;
-
-    socket.on("connect", () => {
-        console.log("Connecté au serveur");
-        reconnectAttempts = 0;  // Réinitialiser les tentatives
+    socket.on("new_email_gmail", (data) => {
+        console.log("📩 Nouvel email reçu :", data.emails);
+        alert("📩 Nouvel email détecté !");
     });
+
+    socket.onAny((event, data) => {
+        console.log(`📡 Événement reçu : ${event}`, data);
+    });
+    
+
     socket.on("new_email", function (data) {
         console.log("📩 Total emails :", data.total);
         console.log("📩 Nouveaux emails :", data.new_count);
     
         // Mise à jour du compteur d'emails
-        document.getElementById("mailCount").textContent = data.new_count;
+        const iconEmail = document.getElementById("mailCount");
+        let currentCount = parseInt(iconEmail.textContent);
+        if (isNaN(currentCount)) {
+            currentCount = 0; // Si ce n'est pas un chiffre, initialiser à 0
+        }
+    
+        // Addition de la nouvelle valeur
+        const updatedCount = currentCount + data.new_count;
+        iconEmail.textContent = updatedCount;
     
         // Notification sonore et visuelle si de nouveaux emails arrivent
         if (data.new_count > 0) {
@@ -35,7 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const emailsList = document.getElementById("emails");
                 console.log(data.new_emails)
                 data.new_emails.forEach(mail => {
-                    if (mail.email && mail.state) {  // Vérification de la structure
+                    if (mail.email && mail.state) { 
                         const emailItem = document.createElement("div");
                         emailItem.classList.add("email-item");
                         emailItem.id = mail.email.id; 
@@ -48,13 +73,13 @@ document.addEventListener("DOMContentLoaded", function () {
                             <p>% Probabilité : ${mail.email.percentage}</p>
                             <p>📌 Type : ${mail.state.type_name}</p>
                         `;
-                        emailItem.style.backgroundColor = "#f0f8ff"; // Couleur bleu clair par exemple
+                        emailItem.style.backgroundColor = "#f0f8ff"; 
 
                         const column = document.getElementById(`state-${mail.state.id}`);
                         if (column) {
-                            column.appendChild(emailItem); // Ajouter l'email à la colonne correspondante
+                            column.appendChild(emailItem); 
                         }
-                        emailItem.setAttribute("draggable", "true"); // Rendre l'email déplaçable
+                        emailItem.setAttribute("draggable", "true"); 
                         emailItem.setAttribute("ondragstart", `drag(event, ${mail.email.id})`);
                     } else {
                         console.error("Email ou état manquant dans les données de l'email :", mail);
@@ -68,177 +93,20 @@ document.addEventListener("DOMContentLoaded", function () {
             }, 10000);
         }
     });
+
+    socket.on("error", (data) => {
+        console.error("🚨 Erreur WebSocket :", data);
+    });
     
     
 
     socket.on("disconnect", () => {
         console.log("Déconnecté du serveur");
-        if (reconnectAttempts < 5) {
-            console.log("Tentative de reconnexion...");
-            reconnectAttempts++;
-        } else {
-            console.log("Échec de la reconnexion après plusieurs tentatives.");
-            alert("Échec de la connexion au serveur. Essayez à nouveau plus tard.");
-        }
     });
     
 
-    fetchEmails(false);
+    // fetchEmails(false);
 });
-
-
-// ✅ Fonction pour récupérer les emails en direct depuis le serveur
-function fetchEmails(status) {
-    const token = sessionStorage.getItem("token");
-    const emailContainer = document.getElementById("emails");
-
-    if (!token) {
-        alert("Votre session a expiré. Veuillez vous reconnecter.");
-        window.location.href = "/";  // 🔄 Redirige vers la connexion
-        return;
-    }
-
-    // ✅ Vérifier si `opportunityFilter` existe avant de l'utiliser
-    const opportunityFilterElement = document.getElementById("opportunityFilter");
-    const startDateElement  = document.getElementById('startDate');
-    const endDateElement  = document.getElementById('endDate');
-    const opportunityFilterId = opportunityFilterElement ? opportunityFilterElement.value : 0;  
-    const startDate  = startDateElement ? startDateElement.value : null;
-    const endDate  =  endDateElement ? endDateElement.value : null;
-    const loading = document.getElementById("loading");
-
-    let url = status ? `/get_emails_bdd` : `/get_emails?mail_type_id=${opportunityFilterId}`;
-
-    if (status === false && startDate && startDate.trim() !== "") {
-        url += `&date_since=${startDate}`;
-    }
-    if (status === false && endDate && endDate.trim() !== "") {
-        url += `&date_before=${endDate}`;
-    }
-    if (loading) {
-        loading.style.display = "block";
-        emailContainer.style.display = "none";
-        document.getElementById("searchContainer").style.display = "none";  
-        document.getElementById("saveEmails").style.display = "none"; 
-        document.getElementById("emailStatesContainer").style.display = "none"; 
-    }
-    fetch(url, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + token  // ✅ Envoi correct du token JWT
-        }
-    })
-    .then(response => {
-        if (response.status === 401) {  
-            alert("Votre session a expiré. Veuillez vous reconnecter.");
-            sessionStorage.removeItem("token");  
-            window.location.href = "/"; 
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (status === true) {
-            updateEmailUI(data.emails_bdd, [], data.state,status);
-        } else {
-            updateEmailUI(data.emails,data.types, [], status);
-        }
-    })
-    .catch(error => {
-        console.error("🔴 Erreur :", error);
-        alert(`Erreur lors de la récupération des emails. ${error}`);
-    })
-    .finally(() => {
-        if (loading) {
-            loading.style.display = "none";
-
-            if (status === true) {
-                document.getElementById("emailStatesContainer").style.display = "flex"; 
-                document.getElementById("emails").style.display = "block";
-            } else {
-                document.getElementById("searchContainer").style.display = "block";  
-                document.getElementById("saveEmails").style.display = "block"; 
-                document.getElementById("emails").style.display = "flex";
-            }
-        }
-    });
-}
-
-
-// ✅ Fonction pour afficher les emails dans le dashboard
-function updateEmailUI(emails, types, state, status) {
-    const emailsList = document.getElementById("emails");
-    emailsList.innerHTML = "";
-    // 📩 Afficher les emails non lus
-    if (emails.length > 0) {
-        if (status === true) {
-            createColumnsByState(state);
-        }        
-        emails.forEach(mail => {
-            const emailItem = document.createElement("div");
-            emailItem.classList.add("email-item");
-            if (status===false){
-                emailItem.innerHTML = `
-                    <input type="checkbox" class="email-checkbox">
-                    <p><b>${mail.subject}</b></p>
-                    <p>📨 Expéditeur : ${mail.sender}</p>
-                    <p>📆 Reçu le : ${mail.receive_at}</p>
-                    <p> Boite: ${mail.body}</p>
-                    <a href="${mail.path}" target="_blank">📩 Voir l'email</a>
-                    <p>% Probabilité : ${mail.percentage }</p>
-                    <p>📌 Type : ${mail.type_name }</p>
-                `;
-                emailsList.appendChild(emailItem);
-            } else {
-                emailItem.id = mail.email.id; 
-                emailItem.innerHTML = `
-                    <p><b>${mail.email.subject}</b></p>
-                    <p>📨 Expéditeur : ${mail.email.sender}</p>
-                    <p>📆 Reçu le : ${mail.email.receive_at}</p>
-                    <p> Boite: ${mail.email.body}</p>
-                    <a href="${mail.email.path}" target="_blank">📩 Voir l'email</a>
-                    <p>% Probabilité : ${mail.email.percentage }</p>
-                    <p>📌 Type : ${mail.state.type_name }</p>
-                `;
-    
-                const column = document.getElementById(`state-${mail.state.id}`);
-                if (column) {
-                    column.appendChild(emailItem); // Ajouter l'email à la colonne correspondante
-                }
-                emailItem.setAttribute("draggable", "true"); // Rendre l'email déplaçable
-    
-                // Définir l'événement de début de glissement
-                emailItem.setAttribute("ondragstart", `drag(event, ${mail.email.id})`);
-
-            }
-        });
-        document.getElementById("opportunityFilter").addEventListener("change", filterEmails);
-    } else {
-        emailsList.innerHTML = "<p>Aucun email trouvé.</p>";
-    }
-    // ✅ Ajouter un événement pour filtrer les emails
-    if (types) {
-        const opportunityFilter = document.getElementById("opportunityFilter");
-
-        // 🔥 Supprimer toutes les options existantes sauf la première option
-        opportunityFilter.innerHTML = opportunityFilter.options[0].outerHTML;
-
-        types.forEach(mailType => {
-            let option = document.createElement("option");
-            option.value = mailType.id;
-            option.textContent = mailType.type_name;
-            opportunityFilter.appendChild(option);
-        });
-
-        // 🎯 Supprimer les anciens événements pour éviter le doublement
-        opportunityFilter.removeEventListener("change", filterEmails);
-        opportunityFilter.addEventListener("change", filterEmails);
-    }
-    
-
-    // 🔔 Mettre à jour les compteurs d'emails
-    // document.getElementById("unreadCount").textContent = unread_count;
-}
 
 function filterEmails() {
     const selectedType = document.getElementById("opportunityFilter").value;
@@ -365,32 +233,8 @@ document.getElementById("saveEmails").addEventListener("click", function () {
 //     });
 // });
 
-document.getElementById("messageIcon").addEventListener("click", function () {
-    setTimeout(() => fetchEmails(false), 200); // ✅ Attendre 200ms pour s'assurer que l'élément est visible
-});
 
-document.getElementById("mailIcon").addEventListener("click", function () {
-    document.getElementById("mailCount").textContent = "MD";
-    setTimeout(() => fetchEmails(true), 200);
-});
 
-function createColumnsByState(states) {
-    const container = document.getElementById("emailStatesContainer");
-    container.innerHTML = ""; 
-
-    states.forEach(state => {
-        const column = document.createElement("div");
-        column.classList.add("column");
-        column.id = `state-${state.id}`;
-        column.innerHTML = `<h3>${state.name_state}</h3>`;
-        
-        // Ajouter des événements de glisser-déposer à chaque colonne
-        column.setAttribute("ondrop", "drop(event)");
-        column.setAttribute("ondragover", "allowDrop(event)");
-
-        container.appendChild(column);
-    });
-}
 
 function allowDrop(event) {
     event.preventDefault(); // Nécessaire pour permettre le dépose

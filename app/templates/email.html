@@ -3,33 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Emails</title>
+    <title>{{title}}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/mailing.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mail.css') }}">
 </head>
 <body>
 
     <!-- 🏠 Barre de Navigation -->
-    <div class="navbar">
-        <h2>📧 Boîte de Réception</h2>
-
-        <!-- 🔍 Barre de Recherche -->
-        <div class="search-container">
-            <form id="searchForm">
-                <input type="text" id="searchCriteria" placeholder="Entrez un critère..." autocomplete="off">
-                <button type="submit">🔍 Rechercher</button>
-            </form>
-        </div>
-
-        <!-- 🔔 Icône des nouveaux emails -->
-        <div id="mailIcon" class="mail-icon">
-            <span id="mailCount" class="badge">MD</span>
-        </div>
-
-        <!-- 🔔 Icône des nouveaux emails -->
-        <div id="messageIcon" class="message-icon">
-            <span id="unreadCount">EM</span>
-        </div>
-    </div>
+    {% include 'nav.html' %}
 
     <!-- 📦 Contenu principal -->
     <div id="container" class="container">
@@ -57,9 +38,19 @@
         <div id="emails" class="email-list"></div>
         <!-- Loader -->
         <div id="loading" class="loader" style="display: none;"></div>
+
+        <div id="emailModal" class="modalemail">
+            <div class="modal-content-email">
+              <span class="close">&times;</span>
+              <div id="modalBodyEmail"></div>
+              <div id="modalFooterEmail"></div>
+            </div>
+          </div>
+          
     </div>
     <script src="https://cdn.socket.io/4.1.3/socket.io.min.js"></script>
     <script src="{{ url_for('static', filename='js/mailing.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
 
 </body>
 </html>

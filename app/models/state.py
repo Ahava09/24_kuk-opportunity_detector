@@ -78,6 +78,30 @@ class State(db.Model):
         return default_state.id
 
     @staticmethod
+    def refuse():
+        
+        # Chercher le state par défaut
+        refuse_state = State.query.filter_by(name_state="Refusé").first()
+        
+        # Si aucun state trouvé, insérer "Nouveau Client" par défaut
+        if not refuse_state:
+            refuse_state = State(name_state="Refusé")
+            try:
+                print("🔔 Tentative d'insertion du state 'Nouveau Client' dans la base de données...")
+                db.session.add(refuse_state)
+                db.session.commit()
+                db.session.refresh(refuse_state)
+                print(f"🔔 State '{refuse_state.name_state}' inséré avec ID {refuse_state.id}")
+            except Exception as e:
+                db.session.rollback()
+                print(f"❌ Erreur lors de l'insertion : {e}")
+                return None
+        
+        print(f"🔔 Retour de l'ID du state : {refuse_state.id}")
+        return refuse_state.id
+
+
+    @staticmethod
     def is_partner():
         default_state = State.query.filter_by(name_state="Accepté").first()
         

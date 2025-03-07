@@ -1,0 +1,31 @@
+
+    <!-- 🏠 Barre de Navigation -->
+    <div class="navbar">
+        <h2>📧 Boîte de Réception</h2>
+
+        <!-- 🔍 Barre de Recherche -->
+        <div class="search-container">
+            <form id="searchForm">
+                <input type="text" id="searchCriteria" placeholder="Entrez un critère..." autocomplete="off">
+                <button type="submit">🔍 Rechercher</button>
+            </form>
+        </div>
+        <!-- Icône de la liste des clients et entreprises -->
+        <div id="listIcon" class="list-icon">
+            <button id="listButton">📋 Liste</button>
+            <div id="listDropdown" class="dropdown-content">
+                <a href="{{ url_for('api_emails.clients') }}">Clients</a>
+                <a href="{{ url_for('api_emails.companies') }}">Entreprises</a>
+            </div>
+        </div>
+
+        <!-- 🔔 Icône des nouveaux emails -->
+        <div id="mailIcon" class="mail-icon">
+            <span id="mailCount" class="badge">MD</span>
+        </div>
+
+        <!-- 🔔 Icône des nouveaux emails -->
+        <div id="messageIcon" class="message-icon">
+            <span id="unreadCount">EM</span>
+        </div>
+    </div>

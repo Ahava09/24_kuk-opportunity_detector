@@ -7,12 +7,10 @@ from app.models.mail_type import MailType
 from email.header import decode_header
 from datetime import datetime
 from email.utils import parsedate_to_datetime, parseaddr
-from app import create_app
 import openai  
 from config import OPENAI_API_KEY
 from datetime import timedelta
 openai.api_key = OPENAI_API_KEY
-app = create_app()
 
 class EmailAnalyze:
     def __init__(self, username, password):
@@ -72,7 +70,7 @@ class EmailAnalyze:
         date_before = date_before.strftime("%d-%b-%Y")
     
         
-        app.logger.info(date_since)
+        # app.logger.info(date_since)
         # Recherche des emails entre deux dates
         search_criteria = f'(SINCE "{date_since}" BEFORE "{date_before}")'
         
@@ -185,8 +183,6 @@ class EmailAnalyze:
                     attachments.append(filepath)
         return attachments
 
-    
-
     def analyze_email_with_chatgpt(self, email, message):
         prompt = f"""
         {EmailAnalyze.message_chat(message)}
@@ -196,7 +192,7 @@ class EmailAnalyze:
         {email.body}
         --- Fin de l'email ---
         """
-        app.logger.info(prompt)
+        # app.logger.info(prompt)
 
         try:
             print("🤖 Envoi du prompt à ChatGPT...")
@@ -221,7 +217,7 @@ class EmailAnalyze:
             return email.percentage
 
         except Exception as e:
-            app.logger.info(e)
+            # app.logger.info(e)
             print("❌ Erreur lors de l'analyse :", e)
     
     @staticmethod 
@@ -231,6 +227,3 @@ class EmailAnalyze:
         Analyse le contenu de cet email pour déterminer si l'opportunité décrite est une opportunité de {message} pour l'entreprise dans son secteur d'activité.
         Répond uniquement par un nombre entre 0 et 100, représentant le pourcentage d'adéquation avec un type d'opportunité de {message}, que ce soit dans le secteur industriel, maritime ou logistique.
         """
-
-
-    

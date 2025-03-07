@@ -203,6 +203,161 @@ body {
     border-radius: 8px 8px 0 0;
 }
 
+/* 🔽 Icône de la liste des clients et entreprises */
+.list-icon {
+    position: relative;
+    display: inline-block;
+    margin-right: 30px;
+    cursor: pointer;
+}
+
+#listButton {
+    background-color: #ffffff;
+    color: #007bff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s ease-in-out;
+}
+
+#listButton:hover {
+    background-color: #0056b3;
+    color: white;
+}
+
+/* Menu déroulant (dropdown) */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    width: 250px;
+    top: 45px;
+    left: 0;
+    border-radius: 5px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#listIcon:hover .dropdown-content {
+    display: block;
+}
+
+/* Styles pour les éléments dans le menu déroulant */
+/* Style général du menu déroulant */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Bouton du menu */
+.dropdown-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    cursor: progress;
+    border-radius: 4px;
+}
+
+/* Contenu du menu déroulant */
+.dropdown-content {
+    display: none; /* Caché par défaut */
+    position: absolute;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 4px;
+}
+
+/* Style des éléments dans le dropdown */
+.dropdown-content h4 {
+    font-size: 18px;
+    margin: 0;
+    padding: 10px 0 5px 0;
+    color: #00ccff;
+    font-weight: normal;
+}
+
+.dropdown-content a {
+    display: block;
+    padding: 8px 0;
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+    transition: background-color 10s;
+}
+
+.dropdown-content a:hover {
+    background-color: #f4f7fc;
+    color: #007bff;
+}
+
+/* Affichage du menu au survol */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+
+/* Ajout de transition pour le menu déroulant */
+#listIcon {
+    transition: transform 0.2s ease-in-out;
+}
+
+#listIcon:hover {
+    transform: scale(1.1);
+}
+
+
+textarea {
+    width: 80%;
+    height: 100px;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.modal {
+    display: none; /* Par défaut, le modal est caché */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Permet de défiler si nécessaire */
+    background-color: rgba(0, 0, 0, 0.4); /* Fond semi-transparent */
+}
+
+.modal-content {
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
 
 /* 📱 Responsive pour mobile */
 @media (max-width: 768px) {
