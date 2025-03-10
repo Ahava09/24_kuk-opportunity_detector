@@ -91,6 +91,7 @@ def save_emails():
                     new_email = Emails(
                         subject=email_data["subject"],
                         sender=email_data["sender"],
+                        mail=email_data["mail"],
                         body=email_data["body"],
                         receive_at=email_data["receive_at"],
                         path=email_data["path"],
@@ -149,6 +150,7 @@ def save_emails():
 @jwt_required()
 def get_emails():
     current_user = get_jwt_identity()    # ✅ Récupérer email et mot de passe du token
+    app.logger.info(current_user)
     username = current_user["email"]
     password = current_user["password"]
     mail_type_id = request.args.get('mail_type_id')
@@ -162,6 +164,7 @@ def get_emails():
         return jsonify({"error": "mail_type_id must be an integer"}), 400
 
     email_client = EmailAnalyze(username, password)
+    app.logger.info(email_client)
 
     try:
         if date_since:
@@ -169,6 +172,7 @@ def get_emails():
         if date_before:
             date_before = datetime.strptime(date_before, "%Y-%m-%d")
         emails = email_client.get_unread_emails_since(date_since, date_before, mail_type_id)
+        app.logger.info(emails)
         new_emails = []  # Liste pour stocker les objets à insérer
 
         for email in emails:
@@ -176,7 +180,7 @@ def get_emails():
                 existing_email = email.verify()
 
                 if existing_email:
-                    # app.logger.info(email.percentage)
+                    app.logger.info(email.percentage)
                     new_emails.append(email)
                     continue
 
@@ -245,6 +249,23 @@ def update_email_state():
         app.logger.error(f"Erreur serveur: {str(e)}")
         traceback.print_exc()
         return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/generate_ai_message", methods=["POST"])
+@jwt_required()
+def generate_ai_message():
+    try:
+        data = request.json
+        subject = data.get("subject", "Demande d'information")
+        recipient = data.get("recipient", "")
+        existing_text = data.get("existingText", "").strip()
+        app.logger.info(existing_text)
+
+        mail_generer = EmailAnalyze.generate_message_mail(recipient, subject, existing_text)
+        return jsonify({"message": mail_generer})
+
+    except Exception as e:
+        app.logger.error(e)
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == "__main__":

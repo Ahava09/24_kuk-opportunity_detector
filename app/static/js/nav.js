@@ -121,6 +121,11 @@ function sendMailClient(mailId, defaultMessage = "Nous ne pouvons pas accepter v
             
                     <textarea id="message-${mailId}" placeholder="Motif du refus">${defaultMessage}</textarea>
                     
+                    <!-- 🔥 Le bouton AI qui sera ajouté dynamiquement -->
+                    <div id="aiButtonContainer-${mailId}" style="display: none;">
+                        <button type="button" class="btn btn-primary mt-2" id="generateAiBtn-${mailId}">🔮 Générer avec AI</button>
+                    </div>
+
                     <button type="button" class="btn btn-danger mt-2" id="confirmRefuseBtn-${mailId}">Envoyer</button>
                     <button type="button" class="btn btn-secondary mt-2" onclick="closeModal('confirmationModal-${mailId}')">Annuler</button>
                 </form>
@@ -132,15 +137,66 @@ function sendMailClient(mailId, defaultMessage = "Nous ne pouvons pas accepter v
     document.body.insertAdjacentHTML("beforeend", confirmationModal);
     document.getElementById(`confirmationModal-${mailId}`).style.display = "block";
 
-    // Ajout des événements
+    // Ajouter l'événement pour envoyer l'email
     document.getElementById(`confirmRefuseBtn-${mailId}`).addEventListener("click", function () {
         confirmRefuse(mailId);
     });
 
+    // Ajouter l'événement pour fermer le modal
     document.getElementById(`closeModalBtn-${mailId}`).addEventListener("click", function () {
         closeModal(`confirmationModal-${mailId}`);
     });
+
+    // 🚀 Détecter si du texte est ajouté dans la `textarea`
+    const messageTextarea = document.getElementById(`message-${mailId}`);
+    const aiButtonContainer = document.getElementById(`aiButtonContainer-${mailId}`);
+
+    messageTextarea.addEventListener("input", function () {
+        if (messageTextarea.value.trim().length > 0) {
+            aiButtonContainer.style.display = "block";  // 🔥 Afficher le bouton si du texte est présent
+        } else {
+            aiButtonContainer.style.display = "none";   // 🔥 Cacher le bouton si la zone est vide
+        }
+    });
+
+    // 🚀 Ajouter l'événement pour générer un texte avec AI
+    document.getElementById(`generateAiBtn-${mailId}`).addEventListener("click", function () {
+        generateAiMessage(mailId);
+    });
 }
+
+function generateAiMessage(mailId) {
+    const subject = document.getElementById(`subject-${mailId}`).value;
+    const to = document.getElementById(`to-${mailId}`).value;
+    const existingText = document.getElementById(`message-${mailId}`).value.trim();
+
+    // 🔥 Afficher un message de chargement
+    const messageTextarea = document.getElementById(`message-${mailId}`);
+    messageTextarea.value = "⏳ Génération du message en cours...";
+
+    // 📡 Envoyer une requête au backend
+    fetch("/generate_ai_message", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + sessionStorage.getItem("token")
+        },
+        body: JSON.stringify({ subject: subject, recipient: to, existingText: existingText })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            messageTextarea.value = data.message;
+        } else {
+            messageTextarea.value = "⚠️ Erreur lors de la génération du message.";
+        }
+    })
+    .catch(error => {
+        console.log("🔴 Erreur AI :", error);
+        messageTextarea.value = "⚠️ Impossible de générer un message.";
+    });
+}
+
 
 
 function confirmRefuse(mailId) {
@@ -191,7 +247,7 @@ function openEmailModal(mail) {
 
     modalBody.innerHTML = `
         <h2>${mail.email.subject}</h2>
-        <p>📨 Expéditeur : ${mail.email.sender}</p>
+        <p>📨 Expéditeur : ${mail.email.sender} ${mail.email.mail} </p>
         <p>📆 Reçu le : ${mail.email.receive_at}</p>
         <a href="${mail.email.path}" target="_blank">📩 Voir l'email</a>
         <p> Body : ${mail.email.body}</p>
@@ -228,8 +284,9 @@ window.onclick = function (event) {
 function updateEmailUI(emails, types, state, status) {
     const emailsList = document.getElementById("emails");
     emailsList.innerHTML = "";
+    console.log(emails);
 
-    if (emails.length > 0) {
+    if (emails) {
         if (status === true) {
             createColumnsByState(state);
         }
@@ -242,7 +299,7 @@ function updateEmailUI(emails, types, state, status) {
                 emailItem.innerHTML = `
                     <input type="checkbox" class="email-checkbox">
                     <p><b>${mail.subject}</b></p>
-                    <p>📨 Expéditeur : ${mail.sender}</p>
+                    <p>📨 Expéditeur : ${mail.sender} - ${mail.mail}</p>
                     <p>📆 Reçu le : ${mail.receive_at}</p>
                     <p> Boite: ${mail.body}</p>
                     <a href="${mail.path}" target="_blank">📩 Voir l'email</a>
@@ -254,13 +311,13 @@ function updateEmailUI(emails, types, state, status) {
                 emailItem.id = mail.email.id;
                 emailItem.innerHTML = `
                     <p><b>${mail.email.subject}</b></p>
-                    <p>📨 Expéditeur : ${mail.email.sender}</p>
+                    <p>📨 Expéditeur : ${mail.email.sender} - ${mail.email.mail}</p>
                     <p>📆 Reçu le : ${mail.email.receive_at}</p>
                     <a href="${mail.email.path}" target="_blank">📩 Voir l'email</a>
                     <p>% Probabilité : ${mail.email.percentage }</p>
                     <p>📌 Type : ${mail.email.type_name }</p>
                     <button id="sendmailButton" class="btn btn-danger" 
-                    onclick="event.stopPropagation(); sendMailClient(${mail.id}, '${contenu}', '${mail.email.sender}', '${mail.email.subject}');">
+                    onclick="event.stopPropagation(); sendMailClient(${mail.id}, '${contenu}', '${mail.email.mail}', '${mail.email.subject}');">
                     Envoyer un mail
                     </button>
                 `;

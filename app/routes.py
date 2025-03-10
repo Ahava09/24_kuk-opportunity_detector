@@ -2,9 +2,10 @@ from flask import Blueprint, current_app, jsonify, render_template, request, red
 from app.models.res_company import ResCompany
 from app.models.res_partner import ResPartner
 from app.models.emails_state import EmailsState
+from app.models.email_analyze import EmailAnalyze
 from app.models.state import State
 from app.database import db
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 api_emails_blueprint = Blueprint('api_emails', __name__)
 
@@ -43,7 +44,6 @@ def create_client():
     # Return the form page
     return render_template('list.html')
 
-
 # Route pour créer une entreprise
 @api_emails_blueprint.route('/company/create', methods=['GET', 'POST'])
 def create_company():
@@ -68,7 +68,6 @@ def edit_client(client_id):
     
     db.session.commit()  # Enregistrer les modifications dans la base de données
     return redirect(url_for('api_emails.clients'))
-
 
 # Route pour éditer une entreprise
 @api_emails_blueprint.route('/company/edit/<int:company_id>', methods=['GET', 'POST'])
@@ -100,8 +99,6 @@ def delete_company(company_id):
 @jwt_required()
 def refused_email(mailId):
     try:
-        # data = request.get_json()
-        # refuse_message = data.get('message', '')
         refuse = State.refuse()
         email = EmailsState.get_email_state_by_id(mailId)
         if not email:
@@ -123,23 +120,24 @@ def refused_email(mailId):
 @jwt_required()
 def send_refuse_client(mailId):
     try:
+        current_user = get_jwt_identity()    # ✅ Récupérer email et mot de passe du token
+        sender_email = current_user["email"]
+        sender_password = current_user["password"]
         data = request.json
-        to = data.get("to")
+        # sender_email = data.get("to")
+        recipient_email = "mr@phareindustries.com"
         subject = data.get("subject")
-        message = data.get("message")
-        email = EmailsState.get_email_state_by_id(mailId)
+        body_text = data.get("message")
 
-        if not to or not subject or not message:
+        if not recipient_email or not subject or not body_text:
             return jsonify({"message": "Tous les champs sont requis"}), 400
 
-        # Simule l'envoi de l'e-mail (à remplacer par votre logique d'envoi d'e-mail)
-        current_app.logger.info(f"Envoi de mail à : {to}\nSujet : {subject}\nMessage : {message}")
-
+        current_app.logger.info(f"Envoi de mail à : {recipient_email}\nSujet : {subject}\nMessage : {body_text}")
+        EmailAnalyze.send_email(sender_email, sender_password, recipient_email, subject, body_text, body_html=None)
         return jsonify({"message": "Email envoyé avec succès"}), 200
 
     except Exception as e:
         return jsonify({"message": str(e)}), 500
-
 
 # @api_emails_blueprint.route("/emails", methods=["GET"])
 # def get_emails():

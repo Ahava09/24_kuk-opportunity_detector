@@ -10,7 +10,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if (isFetchTrue === "true") {
         fetchEmails(true);
     } else {
-        // Par défaut ou si l'état est "false", appelez fetchEmails(false)
         fetchEmails(false);
     }
 
@@ -66,7 +65,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         emailItem.id = mail.email.id; 
                         emailItem.innerHTML = `
                             <p><b>${mail.email.subject}</b></p>
-                            <p>📨 Expéditeur : ${mail.email.sender}</p>
+                            <p>📨 Expéditeur : ${mail.email.sender} - ${mail.email.mail}</p>
                             <p>📆 Reçu le : ${mail.email.receive_at}</p>
                             <p>Boite: ${mail.email.body}</p>
                             <a href="${mail.email.path}" target="_blank">📩 Voir l'email</a>
@@ -132,20 +131,28 @@ document.getElementById("saveEmails").addEventListener("click", function () {
     // 📩 Récupérer les emails cochés et enregistrer leurs détails
     document.querySelectorAll(".email-checkbox:checked").forEach(checkbox => {
         const emailItem = checkbox.closest(".email-item");
-        
+
+        // 📩 Récupérer et nettoyer l'expéditeur
+        const rawSender = emailItem.querySelector("p:nth-child(3)") ? emailItem.querySelector("p:nth-child(3)").textContent.replace("📨 Expéditeur :", "").trim() : '';
+    
+        const senderMatch = rawSender.match(/^(.*?) - ([\w\.-]+@[\w\.-]+\.\w+)$/);
+        let senderName = senderMatch ? senderMatch[1].trim() : rawSender;
+        let senderEmail = senderMatch ? senderMatch[2].trim() : '';
+
+        // 📆 Nettoyage de la date
         const rawDate = emailItem.querySelector("p:nth-child(4)").textContent.trim();
         const cleanDate = rawDate.replace("📆 Reçu le :", "").trim();  
 
         const emailData = {
             subject: emailItem.querySelector("p:nth-child(2)") ? emailItem.querySelector("p:nth-child(2)").textContent.trim() : '',
-            sender: emailItem.querySelector("p:nth-child(3)") ? emailItem.querySelector("p:nth-child(3)").textContent.replace("📨 Expéditeur :", "").trim() : '',
+            sender: senderName,  // 🟢 Nom de l'expéditeur
+            mail: senderEmail,   // 🟢 Email de l'expéditeur
             receive_at: cleanDate || '',
             body: emailItem.querySelector("p:nth-child(5)") ? emailItem.querySelector("p:nth-child(5)").textContent.replace("Boite  :", "").trim() : '',
             path: emailItem.querySelector("a") ? emailItem.querySelector("a").getAttribute("href") : '',
             percentage: emailItem.querySelector("p:nth-child(7)") ? emailItem.querySelector("p:nth-child(7)").textContent.replace("% Probabilité :", "").trim() : '',
             type: emailItem.querySelector("p:nth-child(8)") ? emailItem.querySelector("p:nth-child(8)").textContent.replace("📌 Type :", "").trim() : ''
         };
-        console.log(emailData);
         selectedEmails.push(emailData);
     });
     console.log("🟢 Emails sélectionnés :", selectedEmails);

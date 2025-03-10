@@ -56,11 +56,11 @@ class ResPartner(db.Model):
     def save_partner_email(self, emails_state):
         emails = Emails.get_by_id(emails_state.emails_id)
         if emails:
-            existing_partner = ResPartner.query.filter_by(email=emails.sender).first()
+            existing_partner = ResPartner.query.filter_by(email=emails.mail, name = emails.sender).first()
             if not existing_partner:
                 partner = ResPartner(
                     name=emails.sender,
-                    email=emails.sender,
+                    email=emails.mail,
                     phone=None,
                     is_company=False
                 )
@@ -74,7 +74,7 @@ class ResPartner(db.Model):
     def get_partner(emails):
         partner = ResPartner(
                         name=emails.sender,
-                        email=emails.sender,
+                        email=emails.mail,
                         is_company=False
                     )
         return partner
@@ -86,7 +86,7 @@ class ResPartner(db.Model):
         if state:
             emails = Emails.get_by_id(emails_state.emails_id)
             if emails:
-                partner = ResPartner.query.filter_by(email=emails.sender).first()
+                partner = ResPartner.query.filter_by(email=emails.mail, name = emails.sender).first()
                 if not partner:
                     partner = ResPartner.get_partner(emails)
                     partner.save()
@@ -101,7 +101,7 @@ class ResPartner(db.Model):
     @staticmethod
     def verify_partner (emails):
         # Chercher le partenaire existant en fonction de l'email actuel
-        existing_partner = ResPartner.query.filter_by(email=emails.sender).first()
+        existing_partner = ResPartner.query.filter_by(email=emails.mail, name = emails.sender).first()
         
         if existing_partner:
             return existing_partner

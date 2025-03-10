@@ -10,6 +10,12 @@ from email.utils import parsedate_to_datetime, parseaddr
 import openai  
 from config import OPENAI_API_KEY
 from datetime import timedelta
+from flask import current_app
+import ssl
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 openai.api_key = OPENAI_API_KEY
 
 class EmailAnalyze:
@@ -91,10 +97,15 @@ class EmailAnalyze:
                     subject, encoding = decode_header(msg["Subject"])[0]
                     if isinstance(subject, bytes):
                         subject = subject.decode(encoding if encoding else "utf-8")
+                    # Récupération du champ "From"
+                    raw_sender = msg.get("From")
 
-                    # 📤 Extraire l'expéditeur
-                    # sender = msg.get("From")
-                    sender = parseaddr(msg.get("From"))[1]
+                    # Extraction du nom et de l'adresse email
+                    sender_name, sender_email = parseaddr(raw_sender)
+
+                    # Vérifier si le nom est vide et le remplacer par l'email si nécessaire
+                    if not sender_name:
+                        sender_name = sender_email
 
                     # 📆 Extraire la date d'envoi
                     date_str = msg.get("Date")
@@ -119,7 +130,8 @@ class EmailAnalyze:
                     # ✅ Stocker en base de données
                     new_email = Emails(
                         subject=subject,
-                        sender=sender,
+                        sender=sender_name,
+                        mail=sender_email,
                         body=body,
                         receive_at=receive_at,
                         path=path,
@@ -196,10 +208,7 @@ class EmailAnalyze:
 
         try:
             print("🤖 Envoi du prompt à ChatGPT...")
-
-            # openai.api_key = os.getenv("OPENAI_API_KEY") 
-            client = openai.Client(api_key=os.getenv("OPENAI_API_KEY") )  # Nouvelle façon d'initialiser le client
-
+            client = openai.Client(api_key=os.getenv("OPENAI_API_KEY") )  
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo", # gpt-4o
                 temperature=0,
@@ -211,15 +220,42 @@ class EmailAnalyze:
 
             
             answer = response.choices[0].message.content.strip()
-            print("🎯 Réponse analysée :", answer)
+            # app.logger.info("🎯 Réponse analysée :", answer)
 
             email.percentage = answer 
             return email.percentage
 
         except Exception as e:
-            # app.logger.info(e)
+            current_app.logger.error(e)
             print("❌ Erreur lors de l'analyse :", e)
-    
+
+    def generate_message_mail(recipient,subject,message):
+        current_app.logger.info(message)
+        prompt = f"Rédige un email professionnel à {recipient} sur '{subject}'.\n"
+        if message:
+            prompt += f"Voici une ébauche fournie par l'utilisateur :\n{message}\nAméliore-la et rends-la plus professionnelle."
+        
+        try:
+            print("🤖 Envoi du prompt à ChatGPT...")
+
+            # openai.api_key = os.getenv("OPENAI_API_KEY") 
+            client = openai.Client(api_key=os.getenv("OPENAI_API_KEY") )  
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo", # gpt-4o
+                temperature=0.7,
+                messages=[
+                    {"role": "system", "content": "Tu es un assistant expert en rédaction d'emails professionnels."},
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            
+            generated_message = response.choices[0].message.content
+            return generated_message
+        
+        except Exception as e:
+            current_app.logger.info(e)
+            print("❌ Erreur lors de l'analyse :", e)
+
     @staticmethod 
     def message_chat(message):
         print("Reformulation du message pour le critère")
@@ -227,3 +263,42 @@ class EmailAnalyze:
         Analyse le contenu de cet email pour déterminer si l'opportunité décrite est une opportunité de {message} pour l'entreprise dans son secteur d'activité.
         Répond uniquement par un nombre entre 0 et 100, représentant le pourcentage d'adéquation avec un type d'opportunité de {message}, que ce soit dans le secteur industriel, maritime ou logistique.
         """
+
+    def send_email(sender_email, sender_password, recipient_email, subject, body_text, body_html=None):
+        """
+        Envoie un email via le serveur SMTP de Gmail.
+        
+        :param sender_email: Adresse email de l'expéditeur
+        :param sender_password: Mot de passe ou App Password de Gmail
+        :param recipient_email: Adresse email du destinataire
+        :param subject: Sujet de l'email
+        :param body_text: Contenu en texte brut
+        :param body_html: Contenu en HTML (optionnel)
+        """
+        try:
+            # 📩 Création du message
+            msg = MIMEMultipart("alternative")
+            msg["From"] = sender_email
+            msg["To"] = recipient_email
+            msg["Subject"] = subject
+
+            # Ajouter la version texte
+            part1 = MIMEText(body_text, "plain")
+            msg.attach(part1)
+
+            # Ajouter la version HTML si disponible
+            if body_html:
+                part2 = MIMEText(body_html, "html")
+                msg.attach(part2)
+
+            # Connexion au serveur SMTP Gmail
+            context = ssl.create_default_context()
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+                server.login(sender_email, sender_password)
+                server.sendmail(sender_email, recipient_email, msg.as_string())
+
+            current_app.logger.info("✅ Email envoyé avec succès à", recipient_email)
+
+        except Exception as e:
+            current_app.logger.error("❌ Erreur lors de l'envoi de l'email :", e)
+

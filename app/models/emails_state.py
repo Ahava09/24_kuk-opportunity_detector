@@ -1,5 +1,6 @@
 from app.database import db
 from app.models.state import State
+from app.models.res_partner import ResPartner
 
 class EmailsState(db.Model):
     __tablename__ = "emails_state"
@@ -103,3 +104,7 @@ class EmailsState(db.Model):
         if id_state == self.state_id:
             return True
         return False
+
+    def generate_mail (mailId):
+        emails_state = EmailsState.get_email_state_by_id(mailId)
+        is_accepted = ResPartner.verify_state(emails_state.emails)
