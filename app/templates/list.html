@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mailing.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/list.css') }}">
+</head>
+<body>
+    <!-- 🏠 Barre de Navigation -->
+    {% include 'nav.html' %}
+
+    <!-- 📦 Contenu principal -->
+    <div id="container" class="container">
+        <div id="list">
+            {% if clients is not none %}
+                <!-- Liste des clients -->
+                <h3>Liste des Clients</h3>
+                <button class="btn-popup" id="openModalBtn">Ajouter un Client</button>
+                <br>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Email</th>
+                            <th>Cree le</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for client in clients %}
+                            <tr>
+                                <td>{{ client.id }}</td>
+                                <td>{{ client.name }}</td>
+                                <td>{{ client.email }}</td>
+                                <td>{{ client.created_at }}</td>
+                                <td>
+                                    <button class="btn btn-edit"
+                                        onclick="event.stopPropagation(); populateEditForm('{{ client.id }}', '{{ client.name }}', '{{ client.email }}', '{{ client.phone }}', '{{ client.is_company }}'); openEditModal('{{ client.id }}')">
+                                        Modifier
+                                    </button>
+    
+                                    <!-- Formulaire de suppression -->
+                                    <form action="{{ url_for('api_emails.delete_client', client_id=client.id) }}" method="POST" style="display:inline;">
+                                        <button type="submit" class="btn btn-delete" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce client ?')">Supprimer</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <!-- Modal d'édition unique pour chaque client -->
+                            <div class="modal fade" id="editModal_{{ client.id }}" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Modifier Client</h5>
+                                            <button type="button" class="close" onclick="closeEditModal({{ client.id }})">
+                                                <span>&times;</span>
+                                            </button>
+                                        </div>
+                                        <form action="{{ url_for('api_emails.edit_client', client_id=client.id) }}" method="POST" id="editForm_{{ client.id }}">
+                                            <div class="modal-body">
+                                                <div class="form-group">
+                                                    <label>Nom</label>
+                                                    <input type="text" id="edit_name_{{ client.id }}" name="name" class="form-control" required>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Email</label>
+                                                    <input type="email" id="edit_email_{{ client.id }}" name="email" class="form-control">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Tel</label>
+                                                    <input type="text" id="edit_phone_{{ client.id }}" name="phone" class="form-control">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Est-ce une entreprise ?</label><br>
+                                                    <input type="radio" id="company_yes_{{ client.id }}" name="is_company" value="True" {% if client.is_company %}checked{% endif %}>
+                                                    <label for="company_yes_{{ client.id }}">Oui</label>
+                                                
+                                                    <input type="radio" id="company_no_{{ client.id }}" name="is_company" value="False" {% if not client.is_company %}checked{% endif %}>
+                                                    <label for="company_no_{{ client.id }}">Non</label>
+                                                </div>
+                                                
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" onclick="closeEditModal({{ client.id }})">Fermer</button>
+                                                <button type="submit" class="btn btn-primary">Sauvegarder</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% elif companies is not none %}
+                <!-- Liste des entreprises -->
+                <h3>Liste des Entreprises</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for company in companies %}
+                            <tr>
+                                <td>{{ company.name }}</td>
+                                <td>
+                                    <a href="{{ url_for('api_emails.edit_company', company_id=company.id) }}" class="btn btn-edit">Modifier</a>
+                                    <a href="{{ url_for('api_emails.delete_company', company_id=company.id) }}" class="btn btn-delete">Supprimer</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <a href="{{ url_for('api_emails.create_company') }}" class="btn btn-add">Ajouter une entreprise</a>
+            {% elif client is not none %}
+                <!-- Formulaire d'édition client -->
+                <h3>Modifier Client</h3>
+                <form method="POST" class="form">
+                    <input type="text" name="name" value="{{ client.name }}" required>
+                    <button type="submit" class="btn btn-submit">Mettre à jour</button>
+                </form>
+            {% elif company is not none %}
+                <!-- Formulaire d'édition entreprise -->
+                <h3>Modifier Entreprise</h3>
+                <form method="POST" class="form">
+                    <input type="text" name="name" value="{{ company.name }}" required>
+                    <button type="submit" class="btn btn-submit">Mettre à jour</button>
+                </form>
+            {% else %}
+                <!-- Formulaire de création -->
+                <h3>Ajouter une entité</h3>
+                <form method="POST" class="form">
+                    <input type="text" name="name" placeholder="Nom de l'entité" required>
+                    <button type="submit" class="btn btn-submit">Ajouter</button>
+                </form>
+            {% endif %}
+    
+            <div id="myModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" id="closeModalBtn">&times;</span>
+                    <h3>Ajouter un Nouveau Client</h3>
+                    <form method="POST" action="{{ url_for('api_emails.create_client') }}">
+                        <label for="name">Nom :</label>
+                        <input type="text" id="name" name="name" required><br><br>
+                        <label for="email">Email :</label>
+                        <input type="email" id="email" name="email"><br><br>
+                        <label for="phone">Tel :</label>
+                        <input type="text" id="phone" name="phone"><br><br>
+                        <label for="is_company">Company :</label><br>
+                        <input type="radio" id="company_yes" name="is_company" value="True">
+                        <label for="company_yes">Oui</label>
+                        <input type="radio" id="company_no" name="is_company" value="False" checked>
+                        <label for="company_no">Non</label><br><br>
+                        <button type="submit">Ajouter le Client</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="https://cdn.socket.io/4.1.3/socket.io.min.js"></script>
+
+    <script>
+        
+        const list = document.getElementById("list");
+        document.getElementById("messageIcon").addEventListener("click", function () {
+            sessionStorage.setItem("isFetchTrue", "false"); 
+            window.location.href = "/email";
+        });
+
+        document.getElementById("mailIcon").addEventListener("click", function () {
+            document.getElementById("mailCount").textContent = "MD";
+            sessionStorage.setItem("isFetchTrue", "true"); 
+            window.location.href = "/email";
+        });
+    </script>
+    <script>
+        const modal = document.getElementById('myModal');
+        const openModalBtn = document.getElementById('openModalBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const token = sessionStorage.getItem("token");
+
+        openModalBtn.onclick = function() {
+            modal.classList.add('show');
+            document.querySelector('.modal-content').classList.add('show');
+        }
+
+        closeModalBtn.onclick = function() {
+            modal.classList.remove('show');
+            document.querySelector('.modal-content').classList.remove('show');
+        }
+
+        // Fermer le popup si l'utilisateur clique en dehors de la fenêtre
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.classList.remove('show');
+                document.querySelector('.modal-content').classList.remove('show');
+            }
+        }
+
+        function populateEditForm(clientId, clientName, clientEmail, clientPhone, isCompany) {
+            document.getElementById(`edit_name_${clientId}`).value = clientName;
+            document.getElementById(`edit_email_${clientId}`).value = clientEmail;
+            document.getElementById(`edit_phone_${clientId}`).value = clientPhone;
+            
+            if (isCompany === "True") {
+                document.getElementById(`company_yes_${clientId}`).checked = true;
+            } else {
+                document.getElementById(`company_no_${clientId}`).checked = true;
+            }
+        }
+
+
+        function openEditModal(clientId) {
+            let modal = document.getElementById(`editModal_${clientId}`);
+            modal.classList.add('show');
+            modal.style.display = 'block';
+            modal.removeAttribute('aria-hidden');
+            document.body.classList.add('modal-open');
+        }
+
+        function closeEditModal(clientId) {
+            let modal = document.getElementById(`editModal_${clientId}`);
+            modal.classList.remove('show');
+            modal.style.display = 'none';
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('modal-open');
+        }
+
+    </script>
+</body>
+</html>

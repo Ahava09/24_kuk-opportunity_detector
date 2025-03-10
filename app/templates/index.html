@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+</head>
+<body>
+
+    <div class="container">
+        <h2>🔐 Connexion</h2>
+        <div class="form-container">
+            <input type="email" id="email" placeholder="Adresse e-mail" value="minoraherinirina72@gmail.com" required autocomplete="off">
+            <input type="password" id="password" placeholder="Mot de passe" value="okow yfdx plks owob" required autocomplete="off">
+            <button id="loginButton">📩 Se connecter</button>
+        </div>
+
+        <!-- Loader -->
+        <div id="loading" class="loader"></div>
+    </div>
+
+    <script>
+        document.getElementById("loginButton").addEventListener("click", function () {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const loading = document.getElementById("loading");
+            const loginButton = document.getElementById("loginButton");
+    
+            if (email && password) {
+                // Afficher le loader et désactiver le bouton
+                loading.style.display = "block";
+                loginButton.disabled = true;
+    
+                // Envoyer les identifiants au serveur
+                fetch("/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ "email": email, "password": password })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert("Erreur : " + data.error);
+                    } else {
+                        // ✅ Stocker le token JWT dans `sessionStorage`
+                        sessionStorage.setItem("token", data.token);
+
+                        // ✅ Vérifier si le token a bien été stocké
+                        console.log("🟢 Token stocké :", sessionStorage.getItem("token"));
+    
+                        window.location.href = "/email";
+                    }
+                })
+                .catch(error => {
+                    alert("Erreur de connexion au serveur.");
+                    console.error("Erreur :", error);
+                })
+                .finally(() => {
+                    loading.style.display = "none";
+                    loginButton.disabled = false;
+                });
+            } else {
+                alert("Veuillez remplir tous les champs.");
+            }
+        });
+    </script>
+    
+</body>
+</html>
