@@ -9,3 +9,5 @@ imapclient
 flask-jwt-extended
 flask-socketio
 eventlet
+Flask-Migrate
+gunicorn==20.1.0

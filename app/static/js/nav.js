@@ -35,6 +35,7 @@ function fetchEmails(status) {
         document.getElementById("saveEmails").style.display = "none"; 
         document.getElementById("emailStatesContainer").style.display = "none"; 
     }
+    console.log(url)
     fetch(url, {
         method: "GET",
         headers: {
@@ -165,6 +166,70 @@ function sendMailClient(mailId, defaultMessage = "Nous ne pouvons pas accepter v
     });
 }
 
+function getMailInfo(emailId) {
+    console.log("Opening confirmation modal for mailId: " + emailId);
+
+    // 📡 Envoyer une requête au backend
+    fetch(`api/get_email_info/${emailId}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + sessionStorage.getItem("token")
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("✅ Données reçues :", data);
+
+        // Vérifier si une modal existe déjà et la supprimer pour éviter les doublons
+        let existingModal = document.getElementById("dynamicModal");
+        if (existingModal) {
+            existingModal.remove();
+        }
+
+        // 🔹 Création de la structure HTML de la modal
+        let modal = document.createElement("div");
+        modal.id = "dynamicModal";
+        modal.classList.add("modal");
+
+        modal.innerHTML = `
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h2>Détails de l'Email</h2>
+                <p><strong>Expéditeur :</strong> ${data.client_name || "Inconnu"}</p>
+                <p><strong>Email :</strong> ${data.email_address || "Non disponible"}</p>
+                <p><strong>Téléphone :</strong> ${data.client_phone || "Non disponible"}</p>
+                <p><strong>Entreprise :</strong> ${data.company_name || "Non spécifiée"}</p>
+                <p><strong>Adresse :</strong> ${data.company_street || "Non disponible"}</p>
+                <p><strong>Site Web :</strong> ${data.company_website || "Non disponible"}</p>
+                <p><strong>Objet :</strong> ${data.email_subject || "Sans objet"}</p>
+                <p><strong>Message :</strong></p>
+                <textarea rows="5" readonly>${data.email_body || "Pas de contenu"}</textarea>
+                <button onclick="closedynamicModal()">Fermer</button>
+            </div>
+        `;
+
+        // Ajouter la modal au body
+        document.body.appendChild(modal);
+
+        // Afficher la modal
+        modal.style.display = "block";
+    })
+    .catch(error => {
+        console.log("🔴 Erreur API :", error);
+        alert("⚠️ Impossible de charger les informations.");
+    });
+}
+
+// Fonction pour fermer la modal
+function closedynamicModal() {
+    let modal = document.getElementById("dynamicModal");
+    if (modal) {
+        modal.remove();
+    }
+}
+
+
 function generateAiMessage(mailId) {
     const subject = document.getElementById(`subject-${mailId}`).value;
     const to = document.getElementById(`to-${mailId}`).value;
@@ -196,8 +261,6 @@ function generateAiMessage(mailId) {
         messageTextarea.value = "⚠️ Impossible de générer un message.";
     });
 }
-
-
 
 function confirmRefuse(mailId) {
     const to = document.getElementById(`to-${mailId}`).value;
@@ -284,7 +347,6 @@ window.onclick = function (event) {
 function updateEmailUI(emails, types, state, status) {
     const emailsList = document.getElementById("emails");
     emailsList.innerHTML = "";
-    console.log(emails);
 
     if (emails) {
         if (status === true) {
@@ -319,6 +381,10 @@ function updateEmailUI(emails, types, state, status) {
                     <button id="sendmailButton" class="btn btn-danger" 
                     onclick="event.stopPropagation(); sendMailClient(${mail.id}, '${contenu}', '${mail.email.mail}', '${mail.email.subject}');">
                     Envoyer un mail
+                    </button>
+                    <button id="getmailinfoButton" class="btn btn-danger" 
+                    onclick="event.stopPropagation(); getMailInfo(${mail.email.id});">
+                    Info
                     </button>
                 `;
 

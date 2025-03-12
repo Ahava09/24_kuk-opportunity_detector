@@ -2,21 +2,27 @@ import imaplib
 import email
 import os
 import re
+import json
 from app.models.emails import Emails
 from app.models.mail_type import MailType
+from app.models.res_partner import ResPartner
+from app.models.res_company import ResCompany
 from email.header import decode_header
 from datetime import datetime
 from email.utils import parsedate_to_datetime, parseaddr
 import openai  
 from config import OPENAI_API_KEY
 from datetime import timedelta
-from flask import current_app
+from flask import current_app , Response
 import ssl
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import json
+import re
 
 openai.api_key = OPENAI_API_KEY
+client = openai.Client(api_key=os.getenv("OPENAI_API_KEY") )  
 
 class EmailAnalyze:
     def __init__(self, username, password):
@@ -151,19 +157,6 @@ class EmailAnalyze:
         return emails
 
     def extract_body(self, msg):
-        # Si l'email a plusieurs parties (texte, HTML, etc.)
-        # body = ""
-        # if msg.is_multipart():
-        #     for part in msg.walk():
-        #         content_type = part.get_content_type()
-        #         content_disposition = str(part.get("Content-Disposition"))
-        #         if content_type == "text/plain" and "attachment" not in content_disposition:
-        #             body = part.get_payload(decode=True).decode()
-        #             break
-        # else:
-        #     body = msg.get_payload(decode=True).decode()
-        # return body
-
                 
         body = ""
         if msg.is_multipart():
@@ -208,7 +201,6 @@ class EmailAnalyze:
 
         try:
             print("🤖 Envoi du prompt à ChatGPT...")
-            client = openai.Client(api_key=os.getenv("OPENAI_API_KEY") )  
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo", # gpt-4o
                 temperature=0,
@@ -216,8 +208,6 @@ class EmailAnalyze:
                     {"role": "user", "content": prompt}
                 ]
             )
-
-
             
             answer = response.choices[0].message.content.strip()
             # app.logger.info("🎯 Réponse analysée :", answer)
@@ -238,8 +228,7 @@ class EmailAnalyze:
         try:
             print("🤖 Envoi du prompt à ChatGPT...")
 
-            # openai.api_key = os.getenv("OPENAI_API_KEY") 
-            client = openai.Client(api_key=os.getenv("OPENAI_API_KEY") )  
+            # openai.api_key = os.getenv("OPENAI_API_KEY")  
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo", # gpt-4o
                 temperature=0.7,
@@ -302,3 +291,116 @@ class EmailAnalyze:
         except Exception as e:
             current_app.logger.error("❌ Erreur lors de l'envoi de l'email :", e)
 
+    def extract_info_with_openai(email_body):
+        """
+        Utilise OpenAI pour extraire les informations d'un email.
+        
+        :param email_body: Le texte brut du mail à analyser.
+        :return: Dictionnaire des informations extraites.
+        """
+        prompt = f"""
+        Analyse ce mail et extrait les informations suivantes sous forme de JSON :
+        - Nom et prénom du contact
+        - Adresse email
+        - Numéro de téléphone
+        - Nom de l'entreprise (si disponible)
+        - Adresse de l'entreprise (si disponible)
+        - Site web de l'entreprise (si mentionné)
+
+        Mail :
+        {email_body}
+
+        Répond STRICTEMENT en JSON, sans texte supplémentaire :
+        ```json
+        {{
+        "nom": "",
+        "prenom": "",
+        "email": "",
+        "telephone": "",
+        "entreprise": "",
+        "adresse": "",
+        "site_web": ""
+        }}
+        ```
+        """
+        response = openai.chat.completions.create(
+            model="gpt-3.5-turbo", # gpt-4o
+            messages=[{"role": "system", "content": "Tu es un assistant qui extrait des informations d'email."},
+                    {"role": "user", "content": prompt}]
+        )
+        try:
+            
+            raw_content = response.choices[0].message.content
+
+            # 🛠 Nettoyer le JSON (supprimer les ```json et ``` autour)
+            cleaned_json = re.sub(r'```json|```', '', raw_content).strip()
+
+            # 📌 Convertir la chaîne JSON en dictionnaire
+            extracted_info = json.loads(cleaned_json)  
+
+            return extracted_info
+        
+        except json.JSONDecodeError as e:
+            current_app.logger.error(e)
+            return {"error": f"Erreur JSON : {str(e)}"}
+        except Exception as e:
+            current_app.logger.error(e)
+            return {"error": f"Erreur d'extraction : {str(e)}"}
+
+    def prompt_info_client_company(email_id):
+        """
+        Récupère les informations d'un email et complète les données avec OpenAI si nécessaire.
+
+        :param email_id: ID de l'email dans la base de données
+        :return: Un JSON structuré avec toutes les informations du client et de l'email.
+        """
+
+        # Récupération de l'email
+        email = Emails.query.get(email_id)
+        if not email:
+            return {"error": "Email non trouvé"}
+        sender_email = email.mail.strip().lower()
+
+        # Recherche du client (`ResPartner`) et de son entreprise (`ResCompany`)
+        partner = ResPartner.query.filter_by(email=sender_email).first()
+        # company = ResCompany.query.filter_by(email=partner.email).first() if partner else None
+
+        # Vérifier si certaines infos sont manquantes
+        missing_info = not partner or not partner.phone or not partner.name 
+        if missing_info:
+            extracted_data = EmailAnalyze.extract_info_with_openai(email.body)
+        else:
+            extracted_data = {}
+        current_app.logger.info(extracted_data) 
+        # Construction du dictionnaire structuré
+        try :
+            info = {
+                "email_id": email.id,
+                "email_date": email.receive_at.strftime("%Y-%m-%d %H:%M:%S"),
+                "email_subject": email.subject,
+                "email_sender": email.sender,
+                "email_address": sender_email,
+                "email_body": email.body,
+                "already_answered": email.already_answered,
+                "type_name": email.type_name,
+
+                # Informations du client (ResPartner) enrichies
+                "client_id": partner.id if partner else None,
+                "client_name": partner.name if partner else extracted_data.get("nom"),
+                "client_phone": partner.phone if partner else extracted_data.get("telephone"),
+                "is_company": partner.is_company if partner else None,
+
+                # Informations de l'entreprise (ResCompany) enrichies
+                "company_id": None,
+                "company_name": extracted_data.get("entreprise"),
+                "company_phone":  None,
+                "company_email":  None,
+                "company_street": extracted_data.get("adresse"),
+                "company_city": None,
+                "company_zip": None,
+                "company_website": extracted_data.get("site_web"),
+            }
+
+            return Response(json.dumps(info, default=str), mimetype="application/json")
+        except Exception as e:
+            current_app.logger.error(e)

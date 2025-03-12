@@ -9,16 +9,15 @@ from app.models.mail_type import MailType
 from app.models.res_partner import ResPartner
 from app import create_app, socketio
 from app.database import db
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from config import JWT_SECRET_KEY, JWT_ACCESS_TOKEN_EXPIRES
 from datetime import datetime
 import traceback
-import time
-import threading
-from imapclient import IMAPClient
+from flask_migrate import Migrate
 from flask_socketio import emit
 
 app = create_app()
+migrate = Migrate(app, db)
 
 app.config["JWT_SECRET_KEY"] =   JWT_SECRET_KEY
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] =  JWT_ACCESS_TOKEN_EXPIRES
@@ -266,6 +265,7 @@ def generate_ai_message():
     except Exception as e:
         app.logger.error(e)
         return jsonify({"error": str(e)}), 500
+
 
 
 if __name__ == "__main__":

@@ -29,7 +29,8 @@ services:
       - .:/24kuk  
     working_dir: /24kuk  
     environment:
-      - FLASK_ENV=development 
+      - FLASK_APP=run.py
+      - FLASK_ENV=development
     command: python run.py
 
 volumes:

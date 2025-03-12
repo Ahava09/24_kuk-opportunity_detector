@@ -138,6 +138,13 @@ def send_refuse_client(mailId):
 
     except Exception as e:
         return jsonify({"message": str(e)}), 500
+    
+
+@api_emails_blueprint.route('/get_email_info/<int:email_id>', methods=['GET'])
+def get_email_info(email_id):
+    json = EmailAnalyze.prompt_info_client_company(email_id)
+    current_app.logger.info(json)
+    return json
 
 # @api_emails_blueprint.route("/emails", methods=["GET"])
 # def get_emails():
