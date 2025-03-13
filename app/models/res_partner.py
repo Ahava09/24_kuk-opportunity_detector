@@ -70,6 +70,7 @@ class ResPartner(db.Model):
                 print(f"Partenaire {existing_partner.name} existe déjà.")
         else:
             print("Email introuvable")
+            
     @staticmethod    
     def get_partner(emails):
         partner = ResPartner(

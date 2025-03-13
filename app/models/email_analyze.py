@@ -7,6 +7,7 @@ from app.models.emails import Emails
 from app.models.mail_type import MailType
 from app.models.res_partner import ResPartner
 from app.models.res_company import ResCompany
+from app.models.partner_company import PartnerCompany
 from email.header import decode_header
 from datetime import datetime
 from email.utils import parsedate_to_datetime, parseaddr
@@ -249,8 +250,8 @@ class EmailAnalyze:
     def message_chat(message):
         print("Reformulation du message pour le critère")
         return f"""
-        Analyse le contenu de cet email pour déterminer si l'opportunité décrite est une opportunité de {message} pour l'entreprise dans son secteur d'activité.
-        Répond uniquement par un nombre entre 0 et 100, représentant le pourcentage d'adéquation avec un type d'opportunité de {message}, que ce soit dans le secteur industriel, maritime ou logistique.
+        Analyse le contenu de cet email pour déterminer c'est une opportunité de {message}.
+        Répond uniquement par un nombre entre 0 et 100.
         """
 
     def send_email(sender_email, sender_password, recipient_email, subject, body_text, body_html=None):
@@ -363,17 +364,17 @@ class EmailAnalyze:
 
         # Recherche du client (`ResPartner`) et de son entreprise (`ResCompany`)
         partner = ResPartner.query.filter_by(email=sender_email).first()
-        # company = ResCompany.query.filter_by(email=partner.email).first() if partner else None
-
-        # Vérifier si certaines infos sont manquantes
-        missing_info = not partner or not partner.phone or not partner.name 
-        if missing_info:
-            extracted_data = EmailAnalyze.extract_info_with_openai(email.body)
+        current_app.logger.info(partner)
+        company = PartnerCompany.get_company(partner.id) if partner else None
+        if partner:
+            extracted_data = {}  # ✅ Aucune récupération via OpenAI si toutes les infos existent
         else:
-            extracted_data = {}
-        current_app.logger.info(extracted_data) 
-        # Construction du dictionnaire structuré
-        try :
+            extracted_data = EmailAnalyze.extract_info_with_openai(email.body)  # 🔹 Appel OpenAI uniquement si nécessaire
+
+        current_app.logger.info("🔍 Infos OpenAI récupérées :", extracted_data)
+
+        # 🔹 Construction du dictionnaire structuré
+        try:
             info = {
                 "email_id": email.id,
                 "email_date": email.receive_at.strftime("%Y-%m-%d %H:%M:%S"),
@@ -384,23 +385,26 @@ class EmailAnalyze:
                 "already_answered": email.already_answered,
                 "type_name": email.type_name,
 
-                # Informations du client (ResPartner) enrichies
+                # 🔹 Informations du client (`ResPartner`)
                 "client_id": partner.id if partner else None,
                 "client_name": partner.name if partner else extracted_data.get("nom"),
                 "client_phone": partner.phone if partner else extracted_data.get("telephone"),
                 "is_company": partner.is_company if partner else None,
 
-                # Informations de l'entreprise (ResCompany) enrichies
-                "company_id": None,
-                "company_name": extracted_data.get("entreprise"),
-                "company_phone":  None,
-                "company_email":  None,
-                "company_street": extracted_data.get("adresse"),
-                "company_city": None,
-                "company_zip": None,
-                "company_website": extracted_data.get("site_web"),
+                # 🔹 Informations de l'entreprise (`ResCompany`)
+                "company_id": company.id if company else None,
+                "company_name": company.name if company else extracted_data.get("entreprise"),
+                "company_phone": company.phone if company else None,
+                "company_email": company.email if company else None,
+                "company_street": company.street if company else extracted_data.get("adresse"),
+                "company_city": company.city if company else None,
+                "company_zip": company.zip if company else None,
+                "company_website": company.website if company else extracted_data.get("site_web"),
             }
 
+            # ✅ Retourne un JSON propre
             return Response(json.dumps(info, default=str), mimetype="application/json")
+
         except Exception as e:
-            current_app.logger.error(e)
+            current_app.logger.error("❌ Erreur dans la récupération des données :", e)
+            return jsonify({"error": str(e)})

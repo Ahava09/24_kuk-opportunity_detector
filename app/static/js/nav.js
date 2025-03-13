@@ -111,7 +111,7 @@ function sendMailClient(mailId, defaultMessage = "Nous ne pouvons pas accepter v
     const confirmationModal = `
         <div id="confirmationModal-${mailId}" class="modal">
             <div class="modal-content">
-                <span class="close" id="closeModalBtn-${mailId}">&times;</span>
+                <span class="close" id="DynamicBtn-${mailId}">&times;</span>
                 <h3>Répondre au client</h3>
                 <form id="mailForm-${mailId}">
                     <label for="to-${mailId}">À :</label>
@@ -205,7 +205,11 @@ function getMailInfo(emailId) {
                 <p><strong>Objet :</strong> ${data.email_subject || "Sans objet"}</p>
                 <p><strong>Message :</strong></p>
                 <textarea rows="5" readonly>${data.email_body || "Pas de contenu"}</textarea>
-                <button onclick="closedynamicModal()">Fermer</button>
+                
+                <div style="margin-top: 10px;">
+                    <button onclick="saveClientCompany(${emailId}, '${data.client_name}', '${data.email_address}', '${data.client_phone}', '${data.company_name}', '${data.company_street}', '${data.company_website}')">Enregistrer</button>
+                    <button onclick="closedynamicModal()">Fermer</button>
+                </div>
             </div>
         `;
 
@@ -218,6 +222,41 @@ function getMailInfo(emailId) {
     .catch(error => {
         console.log("🔴 Erreur API :", error);
         alert("⚠️ Impossible de charger les informations.");
+    });
+}
+
+function saveClientCompany(emailId, clientName, clientEmail, clientPhone, companyName, companyStreet, companyWebsite) {
+    console.log("📡 Envoi des données à l'API d'enregistrement...");
+
+    let payload = {
+        email_id: emailId,
+        client_name: clientName !== "Inconnu" ? clientName : null,
+        client_email: clientEmail !== "Non disponible" ? clientEmail : null,
+        client_phone: clientPhone !== "Non disponible" ? clientPhone : null,
+        company_name: companyName !== "Non spécifiée" ? companyName : null,
+        company_street: companyStreet !== "Non disponible" ? companyStreet : null,
+        company_website: companyWebsite !== "Non disponible" ? companyWebsite : null
+    };
+
+    fetch("api/save_client_company", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + sessionStorage.getItem("token")
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("✅ Enregistrement réussi :", data);
+        alert("✅ Client et entreprise enregistrés avec succès !");
+        
+        // Fermer la modal après enregistrement
+        Dynamic();
+    })
+    .catch(error => {
+        console.log("🔴 Erreur lors de l'enregistrement :", error);
+        alert("⚠️ Échec de l'enregistrement.");
     });
 }
 
@@ -283,7 +322,7 @@ function confirmRefuse(mailId) {
     .then(response => {
         if (response.ok) {
             alert("Email envoyé avec succès !");
-            closeModal(`confirmationModal-${mailId}`);
+            Dynamic(`confirmationModal-${mailId}`);
         } else {
             response.json().then(data => {
                 alert("Erreur : " + data.message);
@@ -296,7 +335,7 @@ function confirmRefuse(mailId) {
     });
 }
 
-function closeModal(modalId) {
+function Dynamic(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.remove();

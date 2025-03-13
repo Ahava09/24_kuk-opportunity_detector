@@ -1,11 +1,22 @@
-from flask import Blueprint, current_app, jsonify, render_template, request, redirect, url_for
+from flask import Blueprint, current_app, jsonify, render_template, send_file, request, redirect, url_for, Response
 from app.models.res_company import ResCompany
 from app.models.res_partner import ResPartner
 from app.models.emails_state import EmailsState
 from app.models.email_analyze import EmailAnalyze
+from app.models.partner_company import PartnerCompany
 from app.models.state import State
 from app.database import db
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from werkzeug.utils import secure_filename
+import os
+import io
+# Dossier où enregistrer les logos
+UPLOAD_FOLDER = "app/static/uploads/company/logos"
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
+
+# Vérifier si l'extension du fichier est autorisée
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 api_emails_blueprint = Blueprint('api_emails', __name__)
 
@@ -45,15 +56,59 @@ def create_client():
     return render_template('list.html')
 
 # Route pour créer une entreprise
-@api_emails_blueprint.route('/company/create', methods=['GET', 'POST'])
+@api_emails_blueprint.route("/create_company", methods=["POST"])
 def create_company():
-    if request.method == 'POST':
-        name = request.form['name']
-        new_company = ResCompany(name=name)
+    try:
+        name = request.form.get("name")
+        email = request.form.get("email")
+        phone = request.form.get("phone")
+        street = request.form.get("street")
+        city = request.form.get("city")
+        zip_code = request.form.get("zip")
+        website = request.form.get("website")
+        logo = request.files.get("logo")
+
+        if not name:
+            return jsonify({"error": "Le nom de l'entreprise est requis."}), 400
+
+        # Vérifier si l'entreprise existe déjà
+        existing_company = ResCompany.query.filter_by(name=name).first()
+        if existing_company:
+            return jsonify({"error": "Cette entreprise existe déjà."}), 400
+
+        # 📁 Vérifier et créer le dossier si nécessaire
+        # if not os.path.exists(UPLOAD_FOLDER):
+        #     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+        # 📸 Sauvegarde du fichier et stockage du nom
+        # logo_filename = None
+        # if logo and allowed_file(logo.filename):
+        #     filename = secure_filename(logo.filename)
+        #     logo_path = os.path.join(UPLOAD_FOLDER, filename)
+        #     logo.save(logo_path)  # Sauvegarde du fichier
+        #     logo_filename = filename  # Stocke seulement le nom du fichier
+
+        # 🔹 Création et sauvegarde de l'entreprise
+        new_company = ResCompany(
+            name=name,
+            email=email,
+            phone=phone,
+            street=street,
+            city=city,
+            zip=zip_code,
+            website=website
+        )
+        if logo:
+            new_company.logo = logo.read()  # Stocke en binaire
+        current_app.logger.info(new_company)
         db.session.add(new_company)
         db.session.commit()
+
         return redirect(url_for('api_emails.companies'))
-    return render_template('list.html', )
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
 
 # Route pour éditer un client
 @api_emails_blueprint.route('/client/edit/<int:client_id>', methods=['POST'])
@@ -73,11 +128,50 @@ def edit_client(client_id):
 @api_emails_blueprint.route('/company/edit/<int:company_id>', methods=['GET', 'POST'])
 def edit_company(company_id):
     company = ResCompany.query.get_or_404(company_id)
-    if request.method == 'POST':
-        company.name = request.form['name']
-        db.session.commit()
-        return redirect(url_for('api_emails.companies'))
-    return render_template('list.html', company=company)
+    try:
+        if request.method == 'POST':
+            company = ResCompany.query.get(company_id)
+
+            if not company:
+                return jsonify({"error": "Entreprise non trouvée"}), 404
+
+            company.name = request.form.get("name")
+            company.email = request.form.get("email")
+            company.phone = request.form.get("phone")
+            company.street = request.form.get("street")
+            company.city = request.form.get("city")
+            company.zip = request.form.get("zip")
+            company.website = request.form.get("website")
+
+            # Gestion du logo
+            logo = request.files.get("logo")
+            if logo:
+                company.logo = logo.read()  # Stocke en binaire
+
+            db.session.commit()
+            return redirect(url_for('api_emails.companies'))
+        return render_template('list.html', company=company)
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+@api_emails_blueprint.route("/company_logo/<int:company_id>")
+def get_company_logo(company_id):
+    company = ResCompany.query.get(company_id)
+
+    if company and company.logo:
+        try:
+            # Vérifie si les données sont valides
+            if not company.logo:
+                return Response("Image vide", status=404, mimetype="text/plain")
+
+            return send_file(io.BytesIO(company.logo), mimetype="image/png")
+
+        except Exception as e:
+            return Response(f"Erreur lors de la récupération de l'image: {str(e)}", status=500)
+
+    return Response("Logo non trouvé", status=404, mimetype="text/plain")
 
 # Route pour supprimer un client
 @api_emails_blueprint.route('/client/delete/<int:client_id>', methods=['POST'])
@@ -145,6 +239,50 @@ def get_email_info(email_id):
     json = EmailAnalyze.prompt_info_client_company(email_id)
     current_app.logger.info(json)
     return json
+
+@api_emails_blueprint.route("/save_client_company", methods=["POST"])
+def save_client_company():
+    data = request.json
+
+    try:
+        email_id = data.get("email_id")
+        client_name = data.get("client_name")
+        client_email = data.get("client_email")
+        client_phone = data.get("client_phone")
+        company_name = data.get("company_name")
+        company_street = data.get("company_street")
+        company_website = data.get("company_website")
+
+        # Vérifier si le client existe déjà
+        partner = ResPartner.query.filter_by(email=client_email).first()
+        if not partner:
+            partner = ResPartner(
+                name=client_name,
+                email=client_email,
+                phone=client_phone,
+                is_company=False
+            )
+            partner.save()
+
+        # Vérifier si l'entreprise existe déjà
+        company = ResCompany.query.filter_by(name=company_name).first()
+        if not company and company_name:
+            company = ResCompany(
+                name=company_name,
+                street=company_street,
+                website=company_website
+            )
+            company.save()
+            pc = PartnerCompany(partner.id, company.id)
+            pc.save
+        if email_id:
+            accept = State.is_partner()
+            email = EmailsState.update_state_id(email_id, accept)
+        return jsonify({"message": "Client et entreprise enregistrés avec succès", "status": "success"}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e), "status": "failed"}), 500
+
 
 # @api_emails_blueprint.route("/emails", methods=["GET"])
 # def get_emails():
