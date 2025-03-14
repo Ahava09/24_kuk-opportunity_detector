@@ -1,7 +1,8 @@
-from flask import jsonify, request, render_template
+from flask import jsonify, request, render_template, Response, send_file
 from sqlalchemy.exc import SQLAlchemyError
 from app.models.email_analyze import EmailAnalyze
 from app.models.emails_partner import EmailsPartner
+from app.models.email_attachment import EmailAttachment
 from app.models.emails import Emails
 from app.models.state import State
 from app.models.emails_state import EmailsState
@@ -15,6 +16,8 @@ from datetime import datetime
 import traceback
 from flask_migrate import Migrate
 from flask_socketio import emit
+import io
+import base64
 
 app = create_app()
 migrate = Migrate(app, db)
@@ -81,6 +84,7 @@ def save_emails():
             for email_data in emails:
                 try:
                     percentage = email_data.get("percentage", 0)
+                    app.logger.info(email_data["type"])
                     mail_type = MailType.select_by_type_name(email_data["type"])
 
                     if not mail_type:
@@ -98,6 +102,28 @@ def save_emails():
                         mail_type_id=mail_type.id
                     )
                     db.session.add(new_email)
+                    db.session.flush()
+            
+                    for attachment in email_data.get("attachments", []):
+                        clean_filename = attachment["filename"].split("?")[0]  # 🔹 Retirer "?email=..."
+                        file_id = f"{email_data['mail']}_{clean_filename}"  # ✅ Utiliser le bon format
+
+                        app.logger.info("🔎 Recherche dans cache avec clé : %s", file_id)
+
+                        attachment_data = attachments_cache.get(file_id)  # 🔹 Récupérer depuis le cache
+
+                        if attachment_data:
+                            app.logger.info("✅ Pièce jointe trouvée dans cache :", attachment_data)
+                            new_attachment = EmailAttachment(
+                                email_id=new_email.id,
+                                filename=attachment_data["filename"],
+                                content_type=attachment_data["content_type"],
+                                data=attachment_data["data"]
+                            )
+                            db.session.add(new_attachment)
+                        else:
+                            app.logger.warning("❌ Pièce jointe non trouvée dans cache : %s", file_id)
+
 
                     partner = ResPartner.verify_partner(new_email)
                     if partner is None:
@@ -144,10 +170,34 @@ def save_emails():
         app.logger.error(f"Erreur générale : {str(e)}")
         return jsonify({"error": str(e)}), 500
 
+@app.route("/download_attachment/<filename>")
+def download_attachment(filename):
+    """
+    Permet de télécharger une pièce jointe depuis la mémoire, sans rappeler get_unread_emails_since.
+    """
+    global attachments_cache
+
+    email_sender = request.args.get("email")
+    file_id = f"{email_sender}_{filename}"  # On recrée la clé unique
+
+    attachment = attachments_cache.get(file_id)  # 🔹 Récupération depuis la mémoire
+    if not attachment:
+        return Response("Pièce jointe non trouvée", status=404)
+
+    return send_file(
+        io.BytesIO(attachment["data"]),
+        mimetype=attachment["content_type"],
+        as_attachment=True,
+        download_name=attachment["filename"]
+    )
+
+# Stockage temporaire des pièces jointes en mémoire (clé = nom du fichier)
+attachments_cache = {}
 
 @app.route("/get_emails", methods=["GET"])
 @jwt_required()
 def get_emails():
+    global attachments_cache  # Utilisation de la mémoire partagée
     current_user = get_jwt_identity()    # ✅ Récupérer email et mot de passe du token
     app.logger.info(current_user)
     username = current_user["email"]
@@ -173,14 +223,53 @@ def get_emails():
         emails = email_client.get_unread_emails_since(date_since, date_before, mail_type_id)
         app.logger.info(emails)
         new_emails = []  # Liste pour stocker les objets à insérer
+        attachments_cache.clear()
 
-        for email in emails:
+        for e in emails:
             try:
+                email = Emails (
+                    subject = e["subject"], 
+                    sender = e["sender"], 
+                    mail = e["mail"],
+                    body = e["body"],
+                    receive_at = e["receive_at"],
+                    path = e["path"],
+                    percentage = e["percentage"],
+                    mail_type_id = e["mail_type_id"]
+                )
                 existing_email = email.verify()
 
                 if existing_email:
                     app.logger.info(email.percentage)
-                    new_emails.append(email)
+                    email_obj = {
+                        "subject": e["subject"],
+                        "sender": e["sender"],
+                        "mail": e["mail"],
+                        "body": e["body"],
+                        "receive_at": e["receive_at"],
+                        "path": e["path"],
+                        "percentage": e["percentage"],
+                        "mail_type_id": e["mail_type_id"],
+                        "attachments": []
+                    }
+
+                    # 📎 Stocker les pièces jointes en mémoire
+                    for attachment in e["attachments"]:
+                        clean_filename = attachment["filename"].split("?")[0]  # 🔹 Retirer "?email=..."
+                        file_id = f"{e['mail']}_{clean_filename}"  # Clé propre
+
+                        attachments_cache[file_id] = {
+                            "filename": clean_filename,
+                            "content_type": attachment["content_type"],
+                            "data": attachment["data"]
+                        }
+
+                        email_obj["attachments"].append({
+                            "filename": clean_filename  # ✅ Envoyer uniquement le nom du fichier propre
+                        })
+
+                    new_emails.append(email_obj)
+
                     continue
 
             except SQLAlchemyError as e:
@@ -188,9 +277,8 @@ def get_emails():
                 app.logger.error(f"Erreur SQLAlchemy: {str(e)}")
                 return jsonify({"error": "Erreur lors de l'insertion en base"}), 500
             
-        emails_json = [e.to_dict() for e in new_emails]
         types = MailType.get_all_json()
-        return jsonify({"emails": emails_json, "types": types})
+        return jsonify({"emails": new_emails, "types": types})
 
 
     except Exception as e:
@@ -202,17 +290,22 @@ def get_emails():
 @jwt_required()
 def get_emails_bdd():
     try:
-
         mails = EmailsState.get_all_json()
         state = State.get_all_json()
-        return jsonify({ "emails_bdd":mails, "state": state})
 
+        # Ajouter les pièces jointes pour chaque email
+        for mail in mails:
+            email_id = mail["emails_id"]
+            attachments = EmailAttachment.query.filter_by(email_id=email_id).all()
+            mail["attachments"] = [attachment.to_dict() for attachment in attachments]
+
+        return jsonify({"emails_bdd": mails, "state": state})
 
     except Exception as e:
         app.logger.error(f"Erreur serveur: {str(e)}")
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
-   
+
 
 @app.route("/update_email_state", methods=["POST"])
 @jwt_required()

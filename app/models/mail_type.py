@@ -39,6 +39,8 @@ class MailType(db.Model):
     def select_by_type_name(type_name):
         """ Récupère un enregistrement MailType par son type_name """
         mail_type = MailType.query.filter_by(type_name=type_name).first()
-        if mail_type:
-            return mail_type
-        return None
+        
+        if mail_type == None:
+            mt = MailType (type_name)
+            mail_type = mt.save()
+        return mail_type

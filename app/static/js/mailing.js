@@ -142,7 +142,15 @@ document.getElementById("saveEmails").addEventListener("click", function () {
         // 📆 Nettoyage de la date
         const rawDate = emailItem.querySelector("p:nth-child(4)").textContent.trim();
         const cleanDate = rawDate.replace("📆 Reçu le :", "").trim();  
+ 
 
+        let attachments = [];
+        let attachmentLinks = emailItem.querySelectorAll("ul li a");
+        attachmentLinks.forEach(link => {
+            attachments.push({
+                filename: decodeURIComponent(link.getAttribute("href").split("?")[0].split("/").pop())  // ✅ Supprime les paramètres après "?"
+            });
+        });
         const emailData = {
             subject: emailItem.querySelector("p:nth-child(2)") ? emailItem.querySelector("p:nth-child(2)").textContent.trim() : '',
             sender: senderName,  // 🟢 Nom de l'expéditeur
@@ -151,8 +159,13 @@ document.getElementById("saveEmails").addEventListener("click", function () {
             body: emailItem.querySelector("p:nth-child(5)") ? emailItem.querySelector("p:nth-child(5)").textContent.replace("Boite  :", "").trim() : '',
             path: emailItem.querySelector("a") ? emailItem.querySelector("a").getAttribute("href") : '',
             percentage: emailItem.querySelector("p:nth-child(7)") ? emailItem.querySelector("p:nth-child(7)").textContent.replace("% Probabilité :", "").trim() : '',
-            type: emailItem.querySelector("p:nth-child(8)") ? emailItem.querySelector("p:nth-child(8)").textContent.replace("📌 Type :", "").trim() : ''
+            type: emailItem.querySelector("p:nth-child(8)") 
+            ? emailItem.querySelector("p:nth-child(8)").textContent.replace("📌 Type :", "").trim() 
+            : "None",
+            attachments: attachments
         };
+        console.log("------------------------------------");
+        console.log(attachments);
         selectedEmails.push(emailData);
     });
     console.log("🟢 Emails sélectionnés :", selectedEmails);
@@ -172,16 +185,19 @@ document.getElementById("saveEmails").addEventListener("click", function () {
     })
     .then(response => response.json())
     .then(data => {
-        // alert(data.message);
+        alert(data.message);
         // Supprimer les emails enregistrés
         selectedEmails.forEach(email => {
             // Trouver et supprimer les éléments correspondants à ces emails
             const emailElements = document.querySelectorAll(".email-item");
             emailElements.forEach(emailItem => {
-                const emailSender = emailItem.querySelector("p:nth-child(3)").textContent.replace("📨 Expéditeur :", "").trim();
-                const emailSubject = emailItem.querySelector("p:nth-child(2)").textContent.trim();
-
-                if (emailSender === email.sender && emailSubject === email.subject) {
+                const rawSender = emailItem.querySelector("p:nth-child(3)") ? emailItem.querySelector("p:nth-child(3)").textContent.replace("📨 Expéditeur :", "").trim() : '';
+            
+                const senderMatch = rawSender.match(/^(.*?) - ([\w\.-]+@[\w\.-]+\.\w+)$/);
+                let emailSender = senderMatch ? senderMatch[2].trim() : '';
+                const emailSubject = emailItem.querySelector("p:nth-child(2)") ? emailItem.querySelector("p:nth-child(2)").textContent.trim() : ''
+                console.log(emailSender === email.sender)
+                if (emailSender === email.mail && emailSubject === email.subject) {
                     emailItem.remove(); // Supprimer l'élément du DOM
                 }
             });

@@ -205,7 +205,13 @@ function getMailInfo(emailId) {
                 <p><strong>Objet :</strong> ${data.email_subject || "Sans objet"}</p>
                 <p><strong>Message :</strong></p>
                 <textarea rows="5" readonly>${data.email_body || "Pas de contenu"}</textarea>
-                
+                <h3>Détails de l'Opportunité</h3>
+                <p><strong>Projet :</strong> ${ data.DET.description_projet }</p>
+                <p><strong>Spécifications :</strong> ${ data.DET.specifications }</p>
+                <p><strong>Matériaux :</strong> ${ data.DET.materiaux_equipements }</p>
+                <p><strong>Entreprise Demandeuse :</strong> ${ data.DAE.entreprise_demandeuse }</p>
+                <p><strong>Date Limite :</strong> ${ data.DAE.date_limite_reponse }</p>
+                <p><strong>Budget Estimé :</strong> ${ data.DAE.budget_estime }</p>
                 <div style="margin-top: 10px;">
                     <button onclick="saveClientCompany(${emailId}, '${data.client_name}', '${data.email_address}', '${data.client_phone}', '${data.company_name}', '${data.company_street}', '${data.company_website}')">Enregistrer</button>
                     <button onclick="closedynamicModal()">Fermer</button>
@@ -347,6 +353,22 @@ function openEmailModal(mail) {
     const modalBody = document.getElementById("modalBodyEmail");
     const modalFooter = document.getElementById("modalFooterEmail");
 
+    // 📎 Vérification des pièces jointes
+    let attachmentsHTML = "";
+    if (mail.attachments && mail.attachments.length > 0) {
+        attachmentsHTML += `<p>📎 Pièces jointes :</p><ul>`;
+        mail.attachments.forEach(att => {
+            attachmentsHTML += `
+                <li>
+                    <a href="${window.location.origin}/download_attachment/${encodeURIComponent(att.filename)}?email=${encodeURIComponent(mail.email.mail)}" 
+                        target="_blank">
+                        📂 ${att.filename}
+                    </a>
+                </li>`;
+        });
+        attachmentsHTML += `</ul>`;
+    }
+
     modalBody.innerHTML = `
         <h2>${mail.email.subject}</h2>
         <p>📨 Expéditeur : ${mail.email.sender} ${mail.email.mail} </p>
@@ -355,6 +377,7 @@ function openEmailModal(mail) {
         <p> Body : ${mail.email.body}</p>
         <p>% Probabilité : ${mail.email.percentage}</p>
         <p>📌 Type : ${mail.email.type_name}</p>
+        ${attachmentsHTML}  <!-- 📎 Ajout des pièces jointes -->
     `;// Vérification de l'état du client
     if (mail.state.name_state ===  "Nouveau Client") {
         modalFooter.innerHTML = `
@@ -397,6 +420,23 @@ function updateEmailUI(emails, types, state, status) {
             emailItem.classList.add("email-item");
 
             if (status === false) {
+                
+
+                // 📎 Vérification des pièces jointes
+                let attachmentsHTML = "";
+                if (mail.attachments && mail.attachments.length > 0) {
+                    attachmentsHTML += `<p>📎 Pièces jointes :</p><ul>`;
+                    mail.attachments.forEach(att => {
+                        attachmentsHTML += `
+                            <li>
+                                <a href="${window.location.origin}/download_attachment/${encodeURIComponent(att.filename)}?email=${encodeURIComponent(mail.mail)}" 
+                                   target="_blank">
+                                    📂 ${att.filename}
+                                </a>
+                            </li>`;
+                    });
+                    attachmentsHTML += `</ul>`;
+                }
                 emailItem.innerHTML = `
                     <input type="checkbox" class="email-checkbox">
                     <p><b>${mail.subject}</b></p>
@@ -406,6 +446,8 @@ function updateEmailUI(emails, types, state, status) {
                     <a href="${mail.path}" target="_blank">📩 Voir l'email</a>
                     <p>% Probabilité : ${mail.percentage }</p>
                     <p>📌 Type : ${mail.type_name }</p>
+                    <a href="${mail.path}" target="_blank">📩 Voir l'email</a>
+                    ${attachmentsHTML}  <!-- Ajout des pièces jointes -->
                 `;
                 emailsList.appendChild(emailItem);
             } else {

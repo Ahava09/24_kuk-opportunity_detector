@@ -93,7 +93,6 @@ INSERT INTO res_company (name, street, city, zip, phone, email, website, created
 CREATE TABLE res_partner (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    company_id INTEGER REFERENCES res_company(id) ON DELETE SET NULL,
     email VARCHAR(255) UNIQUE,
     phone VARCHAR(50),
     is_company BOOLEAN DEFAULT FALSE,
@@ -101,7 +100,7 @@ CREATE TABLE res_partner (
 );
 
 
-INSERT INTO res_partner (name, company_id, email, phone, is_company, created_at) VALUES
+INSERT INTO res_partner (name, email, phone, is_company, created_at) VALUES
 ('John Doe', 1, 'john.doe@techsolutions.com', '+33678901234', FALSE, NOW()),
 ('Jane Smith', 1, 'jane.smith@techsolutions.com', '+33678905678', FALSE, NOW()),
 ('Global Investors', 2, 'info@globalinvestors.com', '+12125558888', TRUE, NOW());
@@ -110,4 +109,10 @@ CREATE TABLE emails_partner (
     id SERIAL PRIMARY KEY,
     partner_id INTEGER REFERENCES res_partner(id) ON DELETE CASCADE,
     emails_id INTEGER REFERENCES emails(id) ON DELETE CASCADE
+);
+
+create table partner_company (
+    id  SERIAL PRIMARY KEY,
+    partner_id INTEGER REFERENCES res_partner(id) ON DELETE CASCADE,
+    company_id INTEGER REFERENCES res_company(id) ON DELETE CASCADE
 );
