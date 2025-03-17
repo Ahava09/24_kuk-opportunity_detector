@@ -116,3 +116,10 @@ create table partner_company (
     partner_id INTEGER REFERENCES res_partner(id) ON DELETE CASCADE,
     company_id INTEGER REFERENCES res_company(id) ON DELETE CASCADE
 );
+
+delete from emails_state;
+delete from res_company;
+delete from partner_company;
+delete from emails_state;
+delete from res_partner;
+delete from emails;

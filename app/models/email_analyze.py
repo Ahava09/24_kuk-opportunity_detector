@@ -29,6 +29,8 @@ import time
 
 openai.api_key = OPENAI_API_KEY
 client = openai.Client(api_key=os.getenv("OPENAI_API_KEY") )  
+DATA_STORAGE_PATH = "app/static/data/email_data_storage.json"
+
 
 class EmailAnalyze:
     def __init__(self, username, password):
@@ -198,6 +200,9 @@ class EmailAnalyze:
                     })
         return attachments
 
+    
+    def safe_json(value, default=""):
+        return value if value is not None else default
 
     def analyze_email_with_chatgpt(self, email, message):
         prompt = f"""
@@ -328,143 +333,109 @@ class EmailAnalyze:
 
         return file_ids
 
-    def extract_info_with_openai(email_body, file_ids): 
-        """
-        Envoie un email et ses fichiers joints à OpenAI Assistant pour extraire les DET et DAE.
-        """
-        prompt = f"""
-            📩 **Email reçu :**  
-            {email_body}
+    def ensure_storage_exists():
+        """Vérifie et crée le dossier et le fichier JSON si nécessaire."""
+        directory = os.path.dirname(DATA_STORAGE_PATH)
+        
+        # 📂 Création du dossier s'il n'existe pas
+        if not os.path.exists(directory):
+            os.makedirs(directory, exist_ok=True)
+            current_app.logger.info(f"📁 Dossier {directory} créé.")
 
-            🚀 Analyse ce message et les fichiers joints pour extraire :
-            - **DET (Détails Éléments et Techniques)** → spécifications techniques, équipements demandés, contraintes.
-            - **DAE (Détails Initiaux de la Demande)** → nature de la demande, date limite, critères de sélection.
+        # 📄 Création du fichier JSON vide `{}` s'il n'existe pas ou est corrompu
+        if not os.path.exists(DATA_STORAGE_PATH) or os.stat(DATA_STORAGE_PATH).st_size == 0:
+            with open(DATA_STORAGE_PATH, "w", encoding="utf-8") as file:
+                json.dump({}, file, indent=4, ensure_ascii=False)  # Initialiser avec `{}` vide
+            current_app.logger.info(f"📄 Fichier {DATA_STORAGE_PATH} créé avec contenu vide.")
 
-            Répond STRICTEMENT en JSON :
-            ```json
-            {{
-                "DET": {{
-                    "description_projet": "",
-                    "elements_techniques": "",
-                    "specifications": "",
-                    "materiaux_equipements": "",
-                    "normes_reglementations": "",
-                    "contraintes_techniques": "",
-                    "quantite_estimee": "",
-                    "lieu_execution": ""
-                }},
-                "DAE": {{
-                    "demande_initiale": "",
-                    "demandeur": "",
-                    "entreprise_demandeuse": "",
-                    "contact_demandeur": {{
-                        "telephone": "",
-                        "email": ""
-                    }},
-                    "date_limite_reponse": "",
-                    "contexte": "",
-                    "criteres_selection": "",
-                    "budget_estime": "",
-                    "delai_execution": "",
-                    "modalites_paiement": ""
-                }}
-            }}
-            ```
-        """
+    def save_email_data(email_id, data):
+        """📁 Sauvegarde les données d'un email traité dans un fichier JSON."""
         try:
-            assistant_id = "asst_Tlud1UfX5yxgoAbHbG75L71P"  
-            thread = openai.beta.threads.create()
-            thread_id = thread.id
+            EmailAnalyze.ensure_storage_exists()  # ✅ Vérifier que le stockage est prêt
 
-            # 📎 Étape 1 : Ajouter les fichiers AU THREAD
-            for file_id in file_ids:
-                openai.beta.threads.messages.create(
-                    thread_id=thread_id,
-                    role="user",
-                    content=f"Fichier joint pour analyse : {file_id}",
-                    attachments=[{"file_id": file_id,
-                    "tools": [{"type": "file_search"}]}]
-                )
-                current_app.logger.info(f"📎 Fichier ajouté au thread : {file_id}")
+            with open(DATA_STORAGE_PATH, "r", encoding="utf-8") as file:
+                email_data = json.load(file)
 
-            # 📩 Étape 2 : Ajouter l'email au thread (sans fichier)
-            openai.beta.threads.messages.create(
-                thread_id=thread_id,
-                role="user",
-                content=prompt
-            )
+            email_data[email_id] = data  # Mise à jour des données
+            
+            with open(DATA_STORAGE_PATH, "w", encoding="utf-8") as file:
+                json.dump(email_data, file, indent=4, ensure_ascii=False)
 
-            # 🚀 Étape 3 : Lancer l'Assistant (SANS file_ids ici)
-            run = openai.beta.threads.runs.create(
-                thread_id=thread_id,
-                assistant_id=assistant_id
-            )
+            current_app.logger.info(f"✅ Données sauvegardées pour l'email ID {email_id}")
 
-            # 🔄 Étape 4 : Attendre la réponse (Timeout = 60s)
-            timeout = 60
-            start_time = time.time()
-            while time.time() - start_time < timeout:
-                run_status = openai.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run.id)
-                if run_status.status == "completed":
-                    break
-                time.sleep(2)
-
-            # 📥 Étape 5 : Récupérer la réponse
-            messages = openai.beta.threads.messages.list(thread_id=thread_id)
-            assistant_response = messages.data[0].content[0].text.value
-
-            # 📌 Vérifier la réponse avant parsing
-            current_app.logger.info(f"🔍 Réponse brute OpenAI : {assistant_response}")
-
-            # 🔹 Étape 1 : Nettoyer le formatage ` ```json ... ``` `
-            cleaned_response = re.sub(r"```json|```", "", assistant_response).strip()
-
-            # 🔹 Étape 2 : Convertir en JSON
-            extracted_info = json.loads(cleaned_response)
-
-            # 🔹 Étape 3 : Vérifier les clés
-            det_data = extracted_info.get("DET", {})
-            dae_data = extracted_info.get("DAE", {})
-
-            return {"DET": det_data, "DAE": dae_data}
-
-        except json.JSONDecodeError as e:
-            current_app.logger.error(f"❌ Erreur parsing JSON OpenAI : {str(e)}")
-            return {"error": "Erreur JSON"}
         except Exception as e:
-            current_app.logger.error(f"❌ Erreur OpenAI : {str(e)}")
-            return {"error": str(e)}
+            current_app.logger.error(f"❌ Erreur lors de la sauvegarde des données : {e}")
 
-    def prompt_info_client_company(email_id):
-        """
-        Récupère les informations d'un email et complète les données avec OpenAI si nécessaire.
-
-        :param email_id: ID de l'email dans la base de données
-        :return: Un JSON structuré avec toutes les informations du client et de l'email.
-        """
-
-        # 📩 Récupération de l'email
-        email = Emails.query.get(email_id)
-        if not email:
-            return {"error": "Email non trouvé"}
-        sender_email = email.mail.strip().lower()
-
-        # 🔎 Recherche du client (`ResPartner`) et de son entreprise (`ResCompany`)
-        partner = ResPartner.query.filter_by(email=sender_email).first()
-        company = PartnerCompany.get_company(partner.id) if partner else None
-
-    # 📎 Récupération des pièces jointes
-        attachments = EmailAttachment.query.filter_by(email_id=email.id).all()
-
-        # 🚀 Envoi de toutes les pièces jointes à OpenAI
-        file_ids = EmailAnalyze.upload_files_to_openai(attachments)
-
-        # 🛠️ Extraction des DET et DAE via OpenAI
-        extracted_data = EmailAnalyze.extract_info_with_openai(email.body, file_ids)
-        current_app.logger.info("🔍 Infos OpenAI récupérées :", extracted_data)
-
-        # 🔹 Construction du dictionnaire structuré
+    def load_email_data(email_id):
+        """📁 Charge les données d'un email s'il a déjà été traité."""
         try:
+            EmailAnalyze.ensure_storage_exists()  # ✅ Vérifier que le stockage est prêt
+            with open(DATA_STORAGE_PATH, "r", encoding="utf-8") as file:
+                email_data = json.load(file)
+                email_id_str = str(email_id)  # ✅ Convertir en str
+                current_app.logger.info(f"📂 Vérification de l'email ID {email_id_str}")
+                current_app.logger.info(email_data.get(email_id_str))  # 🔍 Vérification des logs
+                return email_data.get(email_id_str)  # ✅ Chercher avec `str`
+        except Exception as e:
+            current_app.logger.error(f"❌ Erreur lors du chargement des données : {e}")
+        return None  # Retourne None si l'email n'a pas été trouvé
+    
+    def prompt_info_client_company(email_id):
+        try:
+            # 🚀 Vérifier si les données existent déjà dans le fichier JSON
+            current_app.logger.info(email_id)
+            cached_data = EmailAnalyze.load_email_data(email_id)
+            if cached_data:
+                current_app.logger.info(f"📂 Données chargées depuis le cache pour l'email ID {email_id}")
+                return Response(json.dumps(cached_data, default=str), mimetype="application/json")
+
+            email = Emails.query.get(email_id)
+            if not email:
+                return Response(json.dumps({"error": "Email non trouvé"}, default=str), mimetype="application/json"), 404
+
+            sender_email = email.mail.strip().lower()
+
+            # 🔎 Recherche du client (`ResPartner`) et de son entreprise (`ResCompany`)
+            partner = ResPartner.query.filter_by(email=sender_email).first()
+            company = PartnerCompany.get_company(partner.id) if partner else None
+
+            attachments = EmailAttachment.query.filter_by(email_id=email.id).all()
+
+            # 🚀 Envoi de toutes les pièces jointes à OpenAI
+            file_ids = EmailAnalyze.upload_files_to_openai(attachments)
+            extracted_data = EmailAnalyze.extract_info_with_openai(email.body, file_ids)
+
+            # Vérification et correction des données extraites
+            if isinstance(extracted_data, str):
+                try:
+                    extracted_data = json.loads(extracted_data)
+                except json.JSONDecodeError:
+                    current_app.logger.error("❌ Erreur JSON : Impossible de parser la réponse OpenAI")
+                    extracted_data = {"DAE": {}, "DET": {}}
+
+            demandeur = extracted_data.get("DAE", {}).get("demandeur", {})
+
+            if isinstance(demandeur, str):
+                current_app.logger.error(f"⚠️ Erreur : 'demandeur' est une chaîne au lieu d'un dictionnaire : {demandeur}")
+                demandeur = {}
+
+            partner_data = {
+                "id": getattr(partner, "id", None),
+                "name": getattr(partner, "name", None),
+                "phone": getattr(partner, "phone", None),
+                "is_company": getattr(partner, "is_company", False),
+            } if partner else {}
+
+            company_data = {
+                "id": getattr(company, "id", None),
+                "name": getattr(company, "name", None),
+                "phone": getattr(company, "phone", None),
+                "email": getattr(company, "email", None),
+                "street": getattr(company, "street", None),
+                "website": getattr(company, "website", None),
+            } if company else {}
+
+            # 🔹 Construction du dictionnaire structuré
             info = {
                 "email_id": email.id,
                 "email_date": email.receive_at.strftime("%Y-%m-%d %H:%M:%S"),
@@ -473,34 +444,187 @@ class EmailAnalyze:
                 "email_address": sender_email,
                 "email_body": email.body,
                 "already_answered": email.already_answered,
-                "type_name": email.type_name,
+                
+                # ✅ Client (`ResPartner`)
+                "client_id": partner_data.get("id", ""),
+                "client_name": partner_data.get("name", demandeur.get("nom", "Non spécifié")),
+                "client_phone": partner_data.get("phone", demandeur.get("telephone", "Non spécifié")),
+                "is_company": partner_data.get("is_company", False),
 
-                # 🔹 Informations du client (`ResPartner`)
-                "client_id": partner.id if partner else None,
-                "client_name": partner.name if partner else None,
-                "client_phone": partner.phone if partner else None,
-                "is_company": partner.is_company if partner else None,
+                # ✅ Entreprise (`ResCompany`)
+                "company_id": company_data.get("id", ""),
+                "company_name": company_data.get("name", extracted_data.get("DAE", {}).get("entreprise_demandeuse", "Non spécifié")),
+                "company_phone": company_data.get("phone", demandeur.get("telephone", "Non spécifié")),
+                "company_email": company_data.get("email", demandeur.get("email", "Non spécifié")),
+                "company_street": company_data.get("street", ""),
+                "company_website": company_data.get("website", ""),
 
-                # 🔹 Informations de l'entreprise (`ResCompany`)
-                "company_id": company.id if company else None,
-                "company_name": company.name if company else None,
-                "company_phone": company.phone if company else None,
-                "company_email": company.email if company else None,
-                "company_street": company.street if company else None,
-                "company_website": company.website if company else None,
-
-                # 🛠️ DET & DAE récupérés depuis OpenAI
-                "DET": extracted_data["DET"],
-                "DAE": extracted_data["DAE"]
+                # DAE & DET
+                "DET": extracted_data.get("DET", {}),
+                "DAE": extracted_data.get("DAE", {})
             }
+
+            # ✅ Sauvegarde des données dans le fichier JSON
+            EmailAnalyze.save_email_data(email_id, info)
+
+            # ✅ Vérifier que toutes les données sont bien sérialisables avant de logger
+            log_safe_info = json.dumps(info, default=str, indent=4, ensure_ascii=False)
+            current_app.logger.info(log_safe_info)
 
             return Response(json.dumps(info, default=str), mimetype="application/json")
 
         except Exception as e:
-            current_app.logger.error("❌ Erreur dans la récupération des données :", e)
-            return jsonify({"error": str(e)})
+            current_app.logger.error(f"❌ Erreur générale : {e}")
+            return Response(json.dumps({"error": str(e)}, default=str), mimetype="application/json"), 500
 
+    def extract_info_with_openai(email_body, file_ids):
+        """
+        Envoie un email et ses fichiers joints à OpenAI Assistant pour extraire les DET et DAE.
+        """
+        prompt = f"""
+        📩 **Email reçu & Pièces Jointes**  
+        {email_body}  
 
+        🚀 **Analyse ce message et les fichiers joints** pour extraire **les informations essentielles pour une opportunité commerciale** compatible avec Odoo CRM.  
+
+        **Détails Initiaux de la Demande (DAE) :**  
+        - Objet de la demande (Exemple : Demande de prix, Demande d’information, Appel d’offre)  
+        - Demandeur (Nom et Prénom du contact)  
+        - Entreprise demandeuse  
+        - Coordonnées du contact (email, téléphone)  
+        - Date limite de réponse/livraison
+        - Contexte de la demande  
+        - Critères de sélection  
+        - Budget estimé  
+        - Délai d’exécution attendu  
+        - Modalités de paiement  
+
+        **Détails Éléments et Techniques (DET) :**  
+        - Description du projet  
+        - **Catégories d’articles demandés** (Exemple : Mécanique, Électronique, Électricité...)
+        - **Lieu d’exécution**
+        - **Articles pour chaque catégorie**, incluant :
+          - **Nom du produit**
+          - **Spécifications techniques** (dimensions, matériaux, normes...)
+          - **Quantité estimée**
+          - **Contraintes techniques**
+
+        **📌 Format de réponse STRICTEMENT en JSON structuré par catégories :**
+        ```json
+        {{
+            "DAE": {{
+                "objet_demande": "",
+                "demandeur": {{
+                    "nom": "",
+                    "prenom": "",
+                    "email": "",
+                    "telephone": ""
+                }},
+                "entreprise_demandeuse": "",
+                "date_limite_reponse": "",
+                "contexte": "",
+                "criteres_selection": "",
+                "budget_estime": "",
+                "delai_execution": "",
+                "modalites_paiement": ""
+            }},
+            "DET": {{
+                "description_projet": "",
+                "lieu_execution": ""
+                "categories": {{
+                    "Nom_Categorie_1": [
+                        {{
+                            "nom_produit": "",
+                            "specifications_techniques": "",
+                            "quantite_estimee": "",
+                            "contraintes_techniques": ""
+                        }},
+                        {{
+                            "nom_produit": "",
+                            "specifications_techniques": "",
+                            "quantite_estimee": "",
+                            "contraintes_techniques": ""
+                        }}
+                    ],
+                    "Nom_Categorie_2": [
+                        {{
+                            "nom_produit": "",
+                            "specifications_techniques": "",
+                            "quantite_estimee": "",
+                            "contraintes_techniques": ""
+                        }}
+                    ]
+                }}
+            }}
+        }}
+        ```
+    """
+
+        try:
+            assistant_id = "asst_Tlud1UfX5yxgoAbHbG75L71P"  # Remplace avec ton Assistant ID
+            thread = openai.beta.threads.create()
+            thread_id = thread.id
+
+            # 📎 Ajout des fichiers au thread
+            for file_id in file_ids:
+                openai.beta.threads.messages.create(
+                    thread_id=thread_id,
+                    role="user",
+                    content="Fichier joint pour analyse.",
+                    attachments=[{
+                        "file_id": file_id,
+                        "tools": [{"type": "file_search"}]
+                    }]
+                )
+                current_app.logger.info(f"📎 Fichier ajouté au thread : {file_id}")
+
+            # 📩 Ajouter le texte de l'email au thread
+            openai.beta.threads.messages.create(
+                thread_id=thread_id,
+                role="user",
+                content=prompt
+            )
+
+            # 🚀 Lancer l'Assistant
+            run = openai.beta.threads.runs.create(
+                thread_id=thread_id,
+                assistant_id=assistant_id
+            )
+
+            # 🔄 Attendre la réponse (Timeout = 60s)
+            timeout = 60
+            start_time = time.time()
+            while time.time() - start_time < timeout:
+                run_status = openai.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run.id)
+                if run_status.status == "completed":
+                    break
+                time.sleep(2)
+
+            # 📥 Récupérer la réponse
+            messages = openai.beta.threads.messages.list(thread_id=thread_id)
+            assistant_response = messages.data[0].content[0].text.value
+
+            # 🔹 Nettoyer la réponse JSON
+            cleaned_response = assistant_response.strip()
+            # ✅ Vérifier si la réponse contient des délimiteurs JSON ```json ... ```
+            json_match = re.search(r"```json(.*?)```", cleaned_response, re.DOTALL)
+            if json_match:
+                cleaned_response = json_match.group(1).strip()
+
+            # 🔹 Convertir en JSON
+            extracted_info = json.loads(cleaned_response)
+            
+            current_app.logger.info(f"🔍 Réponse brute OpenAI : {extracted_info}")
+            return extracted_info
+
+        except json.JSONDecodeError as e:
+            current_app.logger.error(f"❌ Erreur parsing JSON OpenAI : {str(e)}")
+            return {"error": "Erreur JSON, impossible de convertir la réponse"}
+        except Exception as e:
+            current_app.logger.error(f"❌ Erreur OpenAI : {str(e)}")
+            return {"error": str(e)}
+
+    
     # def extract_info_company_with_openai(email_body):
     #     """
     #     Utilise OpenAI pour extraire les informations d'un email.

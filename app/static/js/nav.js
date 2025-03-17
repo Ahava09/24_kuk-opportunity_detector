@@ -111,7 +111,7 @@ function sendMailClient(mailId, defaultMessage = "Nous ne pouvons pas accepter v
     const confirmationModal = `
         <div id="confirmationModal-${mailId}" class="modal">
             <div class="modal-content">
-                <span class="close" id="DynamicBtn-${mailId}">&times;</span>
+                <span class="close" onclick="closeModal('confirmationModal-${mailId}')">&times;</span>
                 <h3>Répondre au client</h3>
                 <form id="mailForm-${mailId}">
                     <label for="to-${mailId}">À :</label>
@@ -120,15 +120,18 @@ function sendMailClient(mailId, defaultMessage = "Nous ne pouvons pas accepter v
                     <label for="subject-${mailId}">Objet :</label>
                     <input type="text" id="subject-${mailId}" value="${defaultSubject}" placeholder="Objet du mail" required>
             
+                    <label for="message-${mailId}">Message :</label>
                     <textarea id="message-${mailId}" placeholder="Motif du refus">${defaultMessage}</textarea>
-                    
-                    <!-- 🔥 Le bouton AI qui sera ajouté dynamiquement -->
-                    <div id="aiButtonContainer-${mailId}" style="display: none;">
-                        <button type="button" class="btn btn-primary mt-2" id="generateAiBtn-${mailId}">🔮 Générer avec AI</button>
+
+                    <!-- 🔥 Conteneur du bouton AI -->
+                    <div id="aiButtonContainer-${mailId}" style="display: none; margin-top: 10px;">
+                        <button type="button" class="btn btn-primary" id="generateAiBtn-${mailId}">🔮 Générer avec AI</button>
                     </div>
 
-                    <button type="button" class="btn btn-danger mt-2" id="confirmRefuseBtn-${mailId}">Envoyer</button>
-                    <button type="button" class="btn btn-secondary mt-2" onclick="closeModal('confirmationModal-${mailId}')">Annuler</button>
+                    <div style="margin-top: 10px;">
+                        <button type="button" class="btn btn-danger" id="confirmRefuseBtn-${mailId}">Envoyer</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('confirmationModal-${mailId}')">Annuler</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -138,36 +141,39 @@ function sendMailClient(mailId, defaultMessage = "Nous ne pouvons pas accepter v
     document.body.insertAdjacentHTML("beforeend", confirmationModal);
     document.getElementById(`confirmationModal-${mailId}`).style.display = "block";
 
-    // Ajouter l'événement pour envoyer l'email
+    // Sélection des éléments après l'ajout au DOM
+    const messageTextarea = document.getElementById(`message-${mailId}`);
+    const aiButtonContainer = document.getElementById(`aiButtonContainer-${mailId}`);
+    const aiButton = document.getElementById(`generateAiBtn-${mailId}`);
+
+    // 🚀 Détecter si du texte est ajouté dans la `textarea`
+    function toggleAiButton() {
+        if (messageTextarea.value.trim().length > 0) {
+            aiButtonContainer.style.display = "block";
+        } else {
+            aiButtonContainer.style.display = "none"; 
+        }
+    }
+
+    messageTextarea.addEventListener("input", toggleAiButton);
+    toggleAiButton(); 
+    aiButton.addEventListener("click", function () {
+        generateAiMessage(mailId);
+    });
+
     document.getElementById(`confirmRefuseBtn-${mailId}`).addEventListener("click", function () {
         confirmRefuse(mailId);
     });
-
-    // Ajouter l'événement pour fermer le modal
-    document.getElementById(`closeModalBtn-${mailId}`).addEventListener("click", function () {
-        closeModal(`confirmationModal-${mailId}`);
-    });
-
-    // 🚀 Détecter si du texte est ajouté dans la `textarea`
-    const messageTextarea = document.getElementById(`message-${mailId}`);
-    const aiButtonContainer = document.getElementById(`aiButtonContainer-${mailId}`);
-
-    messageTextarea.addEventListener("input", function () {
-        if (messageTextarea.value.trim().length > 0) {
-            aiButtonContainer.style.display = "block";  // 🔥 Afficher le bouton si du texte est présent
-        } else {
-            aiButtonContainer.style.display = "none";   // 🔥 Cacher le bouton si la zone est vide
-        }
-    });
-
-    // 🚀 Ajouter l'événement pour générer un texte avec AI
-    document.getElementById(`generateAiBtn-${mailId}`).addEventListener("click", function () {
-        generateAiMessage(mailId);
-    });
 }
+
 
 function getMailInfo(emailId) {
     console.log("Opening confirmation modal for mailId: " + emailId);
+
+    const loading = document.getElementById("loading");
+    if (loading) {
+        loading.style.display = "block";
+    }
 
     // 📡 Envoyer une requête au backend
     fetch(`api/get_email_info/${emailId}`, {
@@ -191,30 +197,89 @@ function getMailInfo(emailId) {
         let modal = document.createElement("div");
         modal.id = "dynamicModal";
         modal.classList.add("modal");
+        let detTableHTML = `<h3>📦 Produits / Matériaux demandés</h3>`;
 
+        if (data.DET?.categories) {
+            Object.entries(data.DET.categories).forEach(([category, products]) => {
+                detTableHTML += `
+                    <h4 class="category-title">${category}</h4>
+                    <table class="styled-table">
+                        <thead>
+                            <tr>
+                                <th>Nom du produit</th>
+                                <th>Spécifications</th>
+                                <th>Quantité</th>
+                                <th>Contraintes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+        
+                products.forEach(product => {
+                    detTableHTML += `
+                        <tr>
+                            <td>${product.nom_produit || "Non spécifié"}</td>
+                            <td>${product.specifications_techniques || "Non spécifié"}</td>
+                            <td>${product.quantite_estimee || "Non spécifié"}</td>
+                            <td>${product.contraintes_techniques || "Non spécifié"}</td>
+                        </tr>
+                    `;
+                });
+        
+                detTableHTML += `</tbody></table>`;
+            });
+        } else {
+            detTableHTML += `<p class="no-products">Aucun produit/matériau spécifié.</p>`;
+        }
+        // 📌 Contenu de la modal
         modal.innerHTML = `
             <div class="modal-content">
-                <span class="close" onclick="closeModal()">&times;</span>
-                <h2>Détails de l'Email</h2>
-                <p><strong>Expéditeur :</strong> ${data.client_name || "Inconnu"}</p>
-                <p><strong>Email :</strong> ${data.email_address || "Non disponible"}</p>
-                <p><strong>Téléphone :</strong> ${data.client_phone || "Non disponible"}</p>
-                <p><strong>Entreprise :</strong> ${data.company_name || "Non spécifiée"}</p>
-                <p><strong>Adresse :</strong> ${data.company_street || "Non disponible"}</p>
-                <p><strong>Site Web :</strong> ${data.company_website || "Non disponible"}</p>
-                <p><strong>Objet :</strong> ${data.email_subject || "Sans objet"}</p>
-                <p><strong>Message :</strong></p>
-                <textarea rows="5" readonly>${data.email_body || "Pas de contenu"}</textarea>
-                <h3>Détails de l'Opportunité</h3>
-                <p><strong>Projet :</strong> ${ data.DET.description_projet }</p>
-                <p><strong>Spécifications :</strong> ${ data.DET.specifications }</p>
-                <p><strong>Matériaux :</strong> ${ data.DET.materiaux_equipements }</p>
-                <p><strong>Entreprise Demandeuse :</strong> ${ data.DAE.entreprise_demandeuse }</p>
-                <p><strong>Date Limite :</strong> ${ data.DAE.date_limite_reponse }</p>
-                <p><strong>Budget Estimé :</strong> ${ data.DAE.budget_estime }</p>
+
                 <div style="margin-top: 10px;">
                     <button onclick="saveClientCompany(${emailId}, '${data.client_name}', '${data.email_address}', '${data.client_phone}', '${data.company_name}', '${data.company_street}', '${data.company_website}')">Enregistrer</button>
                     <button onclick="closedynamicModal()">Fermer</button>
+                </div>
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h2>Détails de l'Email</h2>
+                
+                <div class="tabs">
+                    <button class="tab-button active" onclick="openTab(event, 'tab-email')">📩 Email</button>
+                    <button class="tab-button" onclick="openTab(event, 'tab-dae')">📄 DAE</button>
+                    <button class="tab-button" onclick="openTab(event, 'tab-det')">⚙️ DET</button>
+                </div>
+
+                <div id="tab-email" class="tab-content active">
+                    <p><strong>Expéditeur :</strong> ${data.client_name || "Inconnu"}</p>
+                    <p><strong>Email :</strong> ${data.email_address || "Non disponible"}</p>
+                    <p><strong>Téléphone :</strong> ${data.client_phone || "Non disponible"}</p>
+                    <p><strong>Entreprise :</strong> ${data.company_name || "Non spécifiée"}</p>
+                    <p><strong>Adresse :</strong> ${data.company_street || "Non disponible"}</p>
+                    <p><strong>Site Web :</strong> ${data.company_website || "Non disponible"}</p>
+                    <p><strong>Objet :</strong> ${data.email_subject || "Sans objet"}</p>
+                    <p><strong>Message :</strong></p>
+                    <textarea rows="5" readonly>${data.email_body || "Pas de contenu"}</textarea>
+                </div>
+
+                <div id="tab-dae" class="tab-content">
+                    <h3>Détails Initiaux de la Demande (DAE)</h3>
+                    <p><strong>Objet de la demande :</strong> ${data.DAE?.objet_demande || "Non spécifié"}</p>
+                    <p><strong>Demandeur :</strong> ${data.DAE?.demandeur?.nom || "Non spécifié"} ${data.DAE?.demandeur?.prenom || ""}</p>
+                    <p><strong>Email :</strong> ${data.DAE?.demandeur?.email || "Non spécifié"}</p>
+                    <p><strong>Téléphone :</strong> ${data.DAE?.demandeur?.telephone || "Non spécifié"}</p>
+                    <p><strong>Entreprise :</strong> ${data.DAE?.entreprise_demandeuse || "Non spécifié"}</p>
+                    <p><strong>Date limite de réponse :</strong> ${data.DAE?.date_limite_reponse || "Non spécifiée"}</p>
+                    <p><strong>Contexte :</strong> ${data.DAE?.contexte || "Non spécifié"}</p>
+                    <p><strong>Critères de sélection :</strong> ${data.DAE?.criteres_selection || "Non spécifié"}</p>
+                    <p><strong>Budget estimé :</strong> ${data.DAE?.budget_estime || "Non spécifié"}</p>
+                    <p><strong>Délai d'exécution :</strong> ${data.DAE?.delai_execution || "Non spécifié"}</p>
+                    <p><strong>Modalités de paiement :</strong> ${data.DAE?.modalites_paiement || "Non spécifié"}</p>
+                </div>
+
+                <div id="tab-det" class="tab-content">
+                    <h3>Détails Éléments et Techniques (DET)</h3>
+                    <p><strong>Description du projet :</strong> ${data.DET?.description_projet || "Non spécifié"}</p>
+                    <h3>📍 Lieu d'exécution : ${data.DET?.lieu_execution || "Non spécifié"}</h3>
+                    ${detTableHTML}
                 </div>
             </div>
         `;
@@ -227,8 +292,30 @@ function getMailInfo(emailId) {
     })
     .catch(error => {
         console.log("🔴 Erreur API :", error);
-        alert("⚠️ Impossible de charger les informations.");
+        alert(error);
+    })
+    .finally(() => {
+        if (loading) {
+            loading.style.display = "none";
+        }
     });
+}
+
+
+function openTab(evt, tabId) {
+    let tabContents = document.querySelectorAll(".tab-content");
+    let tabButtons = document.querySelectorAll(".tab-button");
+
+    tabContents.forEach(tab => {
+        tab.style.display = "none";
+    });
+
+    tabButtons.forEach(btn => {
+        btn.classList.remove("active");
+    });
+
+    document.getElementById(tabId).style.display = "block";
+    evt.currentTarget.classList.add("active");
 }
 
 function saveClientCompany(emailId, clientName, clientEmail, clientPhone, companyName, companyStreet, companyWebsite) {
@@ -271,6 +358,14 @@ function closedynamicModal() {
     let modal = document.getElementById("dynamicModal");
     if (modal) {
         modal.remove();
+    }
+}
+
+
+function closeModal(modal) {
+    let element = document.getElementById(modal);
+    if (element) {
+        element.remove();
     }
 }
 
