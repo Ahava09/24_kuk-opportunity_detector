@@ -13,7 +13,7 @@ from email.header import decode_header
 from datetime import datetime
 from email.utils import parsedate_to_datetime, parseaddr
 import openai  
-from config import OPENAI_API_KEY
+from config import OPENAI_API_KEY, ASSISTANT_ID
 from datetime import timedelta
 from flask import current_app , Response
 import ssl
@@ -30,7 +30,7 @@ import time
 openai.api_key = OPENAI_API_KEY
 client = openai.Client(api_key=os.getenv("OPENAI_API_KEY") )  
 DATA_STORAGE_PATH = "app/static/data/email_data_storage.json"
-
+assistant_id = ASSISTANT_ID
 
 class EmailAnalyze:
     def __init__(self, username, password):
@@ -560,8 +560,7 @@ class EmailAnalyze:
         ```
     """
 
-        try:
-            assistant_id = "asst_Tlud1UfX5yxgoAbHbG75L71P"  # Remplace avec ton Assistant ID
+        try:  # Remplace avec ton Assistant ID
             thread = openai.beta.threads.create()
             thread_id = thread.id
 
