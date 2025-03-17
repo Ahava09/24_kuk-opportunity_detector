@@ -1,0 +1,177 @@
+{
+    "15": {
+        "email_id": 15,
+        "email_date": "2025-02-20 18:06:42",
+        "email_subject": "Fwd: [DEVIS_ADP2500202_BAAUSTRAL].pdf",
+        "email_sender": "Christian Lowinsky",
+        "email_address": "christian.lowinsky@phareindustries.com",
+        "email_body": "Boite: Bien cordialement, *Site internet Phare Industries < Christian Lowinsky *PHARE INDUSTRIES* [image: mobilePhone] (+262) 0692 43 52 83 <(+262)+0692+43+52+83> [image: emailAddress] christian.lowinsky@phareindustries.com  [image: address] 9 rue Pierre Marinier, 97438 Sainte-Marie ---------- Forwarded message --------- De : ALCINOUS Andy  Date: jeu. 23 janv. 2025 à 08:08 Subject: [DEVIS_ADP2500202_BAAUSTRAL].pdf To: Christian Lowinsky , Thomas Pause , Yan MAILLOT  Cc: Achats Pôle AUSTRAL  Bonjour J espère que vous allez bien Veuillez trouver ci-joint une demande de prix pour le navire AUSTRAL. Merci de me confirmer votre meilleure offre et disponibilité. Dans l’attente de votre retour Vous souhaitant bonne réception Cordialement * Andy ALCINOÜS* Assistant achat et approvisionnement Pôle Austral *Purchasing officer* * Southern Seas Activities* *Portable : +262(0) 692 91 39 69 * *Ligne Directe : **+262 263 04 49 69* 4 rue Charles Dickens Darse de Pêche –Magasin 10 CS21245 - 97829 Le Port Cedex – La Réunion Standard: +262 (0)262 42 02 73 < < <",
+        "already_answered": false,
+        "client_id": 6,
+        "client_name": "Christian Lowinsky",
+        "client_phone": null,
+        "is_company": false,
+        "company_id": "",
+        "company_name": "Pôle Austral",
+        "company_phone": "+262(0) 692 91 39 69",
+        "company_email": "",
+        "company_street": "",
+        "company_website": "",
+        "DET": {
+            "description_projet": "Demande de prix pour le navire AUSTRAL.",
+            "lieu_execution": "Le Port, La Réunion",
+            "categories": {
+                "Hydraulique": [
+                    {
+                        "nom_produit": "Courroie pompe hydraulique canots",
+                        "specifications_techniques": {
+                            "reference": "VECO 200 - SPA 1030 x 12",
+                            "taille": "1030 x 12",
+                            "type": "SPA"
+                        },
+                        "quantite_estimee": "10",
+                        "contraintes_techniques": "Les spécifications doivent répondre aux besoins du navire AUSTRAL."
+                    }
+                ],
+                "Mécanique": [
+                    {
+                        "nom_produit": "Courroie pompe lavage & cale",
+                        "specifications_techniques": {
+                            "reference": "B 60/17 01585/ 17x1525 Li",
+                            "taille": "17x1525 Li",
+                            "type": "B 60/17"
+                        },
+                        "quantite_estimee": "8",
+                        "contraintes_techniques": "Les spécifications doivent répondre aux besoins du navire AUSTRAL."
+                    }
+                ]
+            }
+        },
+        "DAE": {
+            "objet_demande": "demande de prix",
+            "demandeur": {
+                "nom": "ALCINOÜS",
+                "prenom": "Andy",
+                "email": "",
+                "telephone": "+262(0) 692 91 39 69"
+            },
+            "entreprise_demandeuse": "Pôle Austral",
+            "date_limite_reponse": "23/01/2025",
+            "contexte": "La présente commande est destinée à un navire francisé affecté à la navigation maritime et elle est par suite non assujettie à la TVA, en application des dispositions fiscales en vigueur.",
+            "criteres_selection": "",
+            "budget_estime": "",
+            "delai_execution": "",
+            "modalites_paiement": ""
+        }
+    },
+    "16": {
+        "email_id": 16,
+        "email_date": "2025-02-21 06:59:43",
+        "email_subject": "Fwd: Vanne de coque AT MAS3 URGENT",
+        "email_sender": "Christian Lowinsky",
+        "email_address": "christian.lowinsky@phareindustries.com",
+        "email_body": "Boite: Bonjour Mino, Pour en parler Merci Bien à toi, *Site internet Phare Industries < Christian Lowinsky *PHARE INDUSTRIES* [image: mobilePhone] (+262) 0692 43 52 83 <(+262)+0692+43+52+83> [image: emailAddress] christian.lowinsky@phareindustries.com  [image: address] 9 rue Pierre Marinier, 97438 Sainte-Marie ---------- Forwarded message --------- De : DEUPHON Lisa  Date: ven. 21 févr. 2025 à 08:28 Subject: TR: Vanne de coque AT MAS3 URGENT To: Christian Lowinsky  Cc: Achats Pôle AUSTRAL  Bonjour, Pouvez-vous me transmettre un devis pour les éléments ci-dessous svp. - Vanne DN65 Sortie frigo vivre - Vanne DN150 Aspiration frigo fret Vous souhaitant une bonne réception. *Cordialement / Best regards*, * Lisa DEUPHON* Adjointe responsable achats Purchasing department * Portable : +262(0) 692 91 39 64* * Ligne directe : +262(0) 263 04 49 64* 4 rue Charles Dickens Darse de Pêche –Magasin 10 CS21245 - 97829 Le Port Cedex – La Réunion Standard: +262 (0)262 42 02 73 < < < *De :* CASSUBIE Mathieu  *Envoyé :* vendredi 21 février 2025 07:42 *À :* Achats Pôle AUSTRAL  *Cc :* Technique Pole Austral  *Objet :* Vanne de coque AT MAS3 URGENT Bonjour, Est-ce qu’il serait possible de trouver une vanne de coque DN150 et DN65 (avec certificat BV) urgemment s’il vous plait ? Pour le Mascareignes. DN65 Sortie frigo vivre DN150 Aspiration frigo fret Merci de votre retour Cordialement, Mathieu CASSUBIE Technicien de maintenance et GMAO Gsm : 06 92 64 46 32 Standard : +262 (0)262 42 02 73 Site Web sapmer.com < < <",
+        "already_answered": false,
+        "client_id": 6,
+        "client_name": "Christian Lowinsky",
+        "client_phone": null,
+        "is_company": false,
+        "company_id": "",
+        "company_name": "Phare Industries",
+        "company_phone": "+262(0) 692 91 39 64",
+        "company_email": "",
+        "company_street": "",
+        "company_website": "",
+        "DET": {
+            "description_projet": "Fourniture de vannes pour le Mascareignes",
+            "lieu_execution": "Mascareignes",
+            "categories": {
+                "Mecanique": [
+                    {
+                        "nom_produit": "Vanne DN65 Sortie frigo vivre",
+                        "specifications_techniques": "DN65, certification BV",
+                        "quantite_estimee": "",
+                        "contraintes_techniques": "Sortie frigo vivre"
+                    },
+                    {
+                        "nom_produit": "Vanne DN150 Aspiration frigo fret",
+                        "specifications_techniques": "DN150, certification BV",
+                        "quantite_estimee": "",
+                        "contraintes_techniques": "Aspiration frigo fret"
+                    }
+                ]
+            }
+        },
+        "DAE": {
+            "objet_demande": "Demande de devis",
+            "demandeur": {
+                "nom": "DEUPHON",
+                "prenom": "Lisa",
+                "email": "",
+                "telephone": "+262(0) 692 91 39 64"
+            },
+            "entreprise_demandeuse": "Phare Industries",
+            "date_limite_reponse": "",
+            "contexte": "Urgent, besoin de vannes pour le Mascareignes",
+            "criteres_selection": "",
+            "budget_estime": "",
+            "delai_execution": "",
+            "modalites_paiement": ""
+        }
+    },
+    "17": {
+        "email_id": 17,
+        "email_date": "2025-02-21 07:02:50",
+        "email_subject": "Re: Vanne de coque AT MAS3 URGENT",
+        "email_sender": "Christian Lowinsky",
+        "email_address": "christian.lowinsky@phareindustries.com",
+        "email_body": "Boite: Bonjour, Je vous remercie pour votre demande. Pouvez vous me transmettre une photo de la pièce svp ? [image: image.png]vanne opercule ? [image: image.png]Vanne papillon ? Je vous remercie Bien cordialement, *Site internet Phare Industries < Christian Lowinsky *PHARE INDUSTRIES* [image: mobilePhone] (+262) 0692 43 52 83 <(+262)+0692+43+52+83> [image: emailAddress] christian.lowinsky@phareindustries.com  [image: address] 9 rue Pierre Marinier, 97438 Sainte-Marie Le ven. 21 févr. 2025 à 08:28, DEUPHON Lisa  a écrit : > Bonjour, > > > > Pouvez-vous me transmettre un devis pour les éléments ci-dessous svp. > > - Vanne DN65 Sortie frigo vivre > - Vanne DN150 Aspiration frigo fret > > > > Vous souhaitant une bonne réception. > > > > *Cordialement / Best regards*, > > > > * Lisa DEUPHON* > > Adjointe responsable achats > > Purchasing department > > * Portable : +262(0) 692 91 39 64* > > * Ligne directe : +262(0) 263 04 49 64* > > 4 rue Charles Dickens > > Darse de Pêche –Magasin 10 > > CS21245 - 97829 Le Port Cedex – La Réunion > > Standard: +262 (0)262 42 02 73 > > < > < > > < > > > > > > > > *De :* CASSUBIE Mathieu  > *Envoyé :* vendredi 21 février 2025 07:42 > *À :* Achats Pôle AUSTRAL  > *Cc :* Technique Pole Austral  > *Objet :* Vanne de coque AT MAS3 URGENT > > > > Bonjour, > > > > Est-ce qu’il serait possible de trouver une vanne de coque DN150 et DN65 > (avec certificat BV) urgemment s’il vous plait ? Pour le Mascareignes. > > DN65 Sortie frigo vivre > DN150 Aspiration frigo fret > > > > Merci de votre retour > > Cordialement, > > > > Mathieu CASSUBIE > > Technicien de maintenance et GMAO > > Gsm : 06 92 64 46 32 > > Standard : > > +262 (0)262 42 02 73 > > Site Web > > sapmer.com < > > < > < > > > > >",
+        "already_answered": false,
+        "client_id": 6,
+        "client_name": "Christian Lowinsky",
+        "client_phone": null,
+        "is_company": false,
+        "company_id": "",
+        "company_name": "",
+        "company_phone": "+262(0) 692 91 39 64",
+        "company_email": "",
+        "company_street": "",
+        "company_website": "",
+        "DET": {
+            "description_projet": "Fourniture de vannes pour Mascareignes",
+            "lieu_execution": "La Réunion",
+            "categories": {
+                "Mecanique": [
+                    {
+                        "nom_produit": "Vanne DN65 Sortie frigo vivre",
+                        "specifications_techniques": "DN65, certificat BV",
+                        "quantite_estimee": "",
+                        "contraintes_techniques": "Certification Bureau Veritas"
+                    },
+                    {
+                        "nom_produit": "Vanne DN150 Aspiration frigo fret",
+                        "specifications_techniques": "DN150, certificat BV",
+                        "quantite_estimee": "",
+                        "contraintes_techniques": "Certification Bureau Veritas"
+                    }
+                ]
+            }
+        },
+        "DAE": {
+            "objet_demande": "Demande de devis",
+            "demandeur": {
+                "nom": "DEUPHON",
+                "prenom": "Lisa",
+                "email": "",
+                "telephone": "+262(0) 692 91 39 64"
+            },
+            "entreprise_demandeuse": "",
+            "date_limite_reponse": "",
+            "contexte": "Besoin urgent de vannes pour le Mascareignes",
+            "criteres_selection": "Certificat BV (Bureau Veritas)",
+            "budget_estime": "",
+            "delai_execution": "Urgent",
+            "modalites_paiement": ""
+        }
+    }
+}
