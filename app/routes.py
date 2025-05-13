@@ -2,14 +2,19 @@ from flask import Blueprint, current_app, jsonify, render_template, send_file, r
 from app.models.res_company import ResCompany
 from app.models.res_partner import ResPartner
 from app.models.emails_state import EmailsState
-from app.models.email_analyze import EmailAnalyze
+from app.models.email_analyze import EmailAnalyze, sanitize_data
+from app.models.crm_odoo import structure_lead_payload_for_odoo
 from app.models.partner_company import PartnerCompany
 from app.models.state import State
 from app.database import db
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
-import os
+from flask_socketio import emit
 import io
+from config import  MAKE_WEBHOOK_URL
+import requests
+import json
+
 # Dossier où enregistrer les logos
 UPLOAD_FOLDER = "app/static/uploads/company/logos"
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
@@ -24,6 +29,17 @@ api_emails_blueprint = Blueprint('api_emails', __name__)
 @api_emails_blueprint.route('/clients')
 def clients():
     all_clients = ResPartner.query.all()
+    # clt = [client.to_dict() for client in all_clients]
+    # clean_data = sanitize_data(clt)
+    # current_app.logger.info(f"Réponse Webhook: {clean_data}")
+    # try:
+    #     response = requests.get(MAKE_WEBHOOK_URL, json=clean_data)
+    #     response.raise_for_status()
+    #     current_app.logger.info(f"Réponse Webhook: {response.status_code}, {response.text}")
+    # except requests.exceptions.RequestException as e:
+    #     current_app.logger.error(f"Erreur d'envoi au webhook: {str(e)}")
+    #     if response is not None:
+    #         current_app.logger.error(f"Détails de l'erreur Webhook: {response.text}")
     return render_template('list.html', clients=all_clients, title="Gestion Client")
 
 # Route pour afficher la liste des entreprises
@@ -36,6 +52,7 @@ def companies():
 @api_emails_blueprint.route('/client/create', methods=['GET', 'POST'])
 def create_client():
     if request.method == 'POST':
+        from app import socketio
         # Get form data
         name = request.form['name']
         email = request.form['email']
@@ -44,10 +61,12 @@ def create_client():
 
         # Create new client object
         new_client = ResPartner(name=name, email=email, phone=phone, is_company=is_company)
-        
-        # Add to session and commit to database
-        db.session.add(new_client)
-        db.session.commit()
+        if new_client == None:
+            db.session.add(new_client)
+            db.session.commit()
+            socketio.emit("new_partner", {
+                "new_partner": new_client.to_dict()
+            })
 
         # Redirect to client list page
         return redirect(url_for('api_emails.clients'))
@@ -59,6 +78,7 @@ def create_client():
 @api_emails_blueprint.route("/create_company", methods=["POST"])
 def create_company():
     try:
+        from app import socketio
         name = request.form.get("name")
         email = request.form.get("email")
         phone = request.form.get("phone")
@@ -76,18 +96,6 @@ def create_company():
         if existing_company:
             return jsonify({"error": "Cette entreprise existe déjà."}), 400
 
-        # 📁 Vérifier et créer le dossier si nécessaire
-        # if not os.path.exists(UPLOAD_FOLDER):
-        #     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-        # 📸 Sauvegarde du fichier et stockage du nom
-        # logo_filename = None
-        # if logo and allowed_file(logo.filename):
-        #     filename = secure_filename(logo.filename)
-        #     logo_path = os.path.join(UPLOAD_FOLDER, filename)
-        #     logo.save(logo_path)  # Sauvegarde du fichier
-        #     logo_filename = filename  # Stocke seulement le nom du fichier
-
         # 🔹 Création et sauvegarde de l'entreprise
         new_company = ResCompany(
             name=name,
@@ -103,6 +111,11 @@ def create_company():
         current_app.logger.info(new_company)
         db.session.add(new_company)
         db.session.commit()
+        if new_company:
+            socketio.emit("new_company", {
+                "new_company": new_company.to_dict()
+            })
+            current_app.logger.info(f"✅ Entreprise enregistrée : {new_company.name}")
 
         return redirect(url_for('api_emails.companies'))
 
@@ -233,103 +246,80 @@ def send_refuse_client(mailId):
     except Exception as e:
         return jsonify({"message": str(e)}), 500
     
-
 @api_emails_blueprint.route('/get_email_info/<int:email_id>', methods=['GET'])
 def get_email_info(email_id):
-    json = EmailAnalyze.prompt_info_client_company(email_id)
-    current_app.logger.info(json)
-    return json
-
-@api_emails_blueprint.route("/save_client_company", methods=["POST"])
-def save_client_company():
-    data = request.json
-
     try:
-        email_id = data.get("email_id")
-        client_name = data.get("client_name")
-        client_email = data.get("client_email")
-        client_phone = data.get("client_phone")
-        company_name = data.get("company_name")
-        company_street = data.get("company_street")
-        company_website = data.get("company_website")
+        # Obtenir la réponse formatée
+        flask_response = EmailAnalyze.prompt_info_client_company(email_id)
+        payload = json.loads(flask_response.get_data(as_text=True))
+        structured_payload = structure_lead_payload_for_odoo(payload)
+        current_app.logger.info("-----------------------------------------")
+        current_app.logger.info(structured_payload)
+        # ✅ Envoyer au Webhook Make via POST
+        response = requests.post(MAKE_WEBHOOK_URL, json=structured_payload)
+        response.raise_for_status()
 
-        # Vérifier si le client existe déjà
-        partner = ResPartner.query.filter_by(email=client_email).first()
-        if not partner:
-            partner = ResPartner(
-                name=client_name,
-                email=client_email,
-                phone=client_phone,
-                is_company=False
-            )
-            partner.save()
+        current_app.logger.info(f"✅ Webhook envoyé: {response.status_code}, {response.text}")
+        return flask_response
 
-        # Vérifier si l'entreprise existe déjà
-        company = ResCompany.query.filter_by(name=company_name).first()
-        if not company and company_name:
-            company = ResCompany(
-                name=company_name,
-                street=company_street,
-                website=company_website
-            )
-            company.save()
-            pc = PartnerCompany(partner.id, company.id)
-            pc.save
-        if email_id:
-            accept = State.is_partner()
-            email = EmailsState.update_state_id(email_id, accept)
-        return jsonify({"message": "Client et entreprise enregistrés avec succès", "status": "success"}), 200
+    except requests.exceptions.RequestException as e:
+        current_app.logger.error(f"❌ Erreur d'envoi au webhook: {str(e)}")
+        return flask_response, 500
 
     except Exception as e:
+        current_app.logger.error(f"❌ Erreur serveur: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+@api_emails_blueprint.route("/save_client_company/<int:email_id>", methods=["GET"])
+def save_client_company(email_id):
+    try:
+        from app import socketio
+        current_app.logger.info(f"📩 Traitement de l'email ID : {email_id}")
+        
+        # 🏢 Récupérer les données de l'email
+        res_partner = ResPartner.save_partner_from_json(email_id)
+        res_company = ResCompany.save_company_from_json(email_id)
+
+        # ✅ Envoyer les nouvelles données aux clients via WebSocket (si elles existent)
+        if res_partner:
+            socketio.emit("new_partner", {
+                "new_partner": res_partner.to_dict()
+            })
+            current_app.logger.info(f"✅ Partenaire enregistré : {res_partner.name}")
+
+        if res_company:
+            socketio.emit("new_company", {
+                "new_company": res_company.to_dict()
+            })
+            current_app.logger.info(f"✅ Entreprise enregistrée : {res_company.name}")
+
+        # 🔄 Associer le partenaire et l'entreprise (s'ils existent tous les deux)
+        if res_partner and res_company:
+            pc = PartnerCompany(res_partner.id, res_company.id)
+            pc.save()
+            current_app.logger.info(f"🔗 Association Partenaire <-> Entreprise créée.")
+
+        return jsonify({
+            "message": "Client et entreprise enregistrés avec succès",
+            "status": "success"
+        }), 200
+
+    except Exception as e:
+        current_app.logger.error(f"❌ Erreur lors de la sauvegarde : {e}")
         return jsonify({"error": str(e), "status": "failed"}), 500
 
+@api_emails_blueprint.route("/download_attachment/<filename>")
+def download_attachment(filename):
+    from app.models.email_attachment import EmailAttachment
+    email_id = request.args.get("email")
 
-# @api_emails_blueprint.route("/emails", methods=["GET"])
-# def get_emails():
-#     try:
-
-#         with db.session.begin():
-#             emails = Emails.query.all()
-            
-#             if not emails:
-#                 return jsonify({"message": "No emails found"}), 404
-            
-#             return jsonify([{
-#                 "id": email.id,
-#                 "subject": email.subject,
-#                 "receive_date": email.receive_at.strftime("%Y-%m-%d %H:%M:%S"),
-#                 "path": email.path,
-#                 "is_negoce": email.is_negoce
-#             } for email in emails])
-        
-#     except Exception as e:
-#         return jsonify({"error": str(e)}), 500
-
-# @api_emails_blueprint.route("/searchCriteria", methods=["GET"])
-# def search_emails():
-    # search_term = request.args.get("criterion", "").strip()
-
-    # if not search_term:
-    #     render_template("email.html")
-
-    # matching_emails = Email.query.filter(
-    #     (Emails.subject.ilike(f"%{search_term}%")) |
-    #     (Emails.body.ilike(f"%{search_term}%"))|
-    #     (Emails.sender.ilike(f"%{search_term}%"))|
-    #     (cast(Emails.receive_at, String).ilike(f"%{search_term}%"))
-    # ).all()
-    # print(search_term)
-
-    # if not matching_emails:
-    #     return jsonify({"error": "Aucun email trouvé"}), 404
-
-    # emails_json = [{
-    #     "id": email.id,
-    #     "subject": email.subject,
-    #     "from": email.sender,
-    #     "body": email.body,
-    #     "receive_at": email.receive_at.strftime("%Y-%m-%d %H:%M:%S"),
-    #     "is_negoce": email.is_negoce
-    # } for email in matching_emails]
-
-    # return jsonify({"emails": emails_json, "count": len(emails_json)})
+    attachment = EmailAttachment.exists(email_id, filename)
+    if not attachment:
+        return Response("Pièce jointe non trouvée", status=404)
+    current_app.logger.info(attachment)
+    return send_file(
+        io.BytesIO(attachment.data),
+        mimetype=attachment.content_type,
+        as_attachment=True,
+        download_name=attachment.filename
+    )

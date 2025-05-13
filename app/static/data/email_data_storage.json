@@ -1,177 +1,1768 @@
 {
-    "15": {
-        "email_id": 15,
-        "email_date": "2025-02-20 18:06:42",
-        "email_subject": "Fwd: [DEVIS_ADP2500202_BAAUSTRAL].pdf",
+    "51": {
+        "email_id": 51,
+        "email_date": "2025-05-02 15:57:48",
+        "email_subject": "Fwd: Sapmer",
         "email_sender": "Christian Lowinsky",
         "email_address": "christian.lowinsky@phareindustries.com",
-        "email_body": "Boite: Bien cordialement, *Site internet Phare Industries < Christian Lowinsky *PHARE INDUSTRIES* [image: mobilePhone] (+262) 0692 43 52 83 <(+262)+0692+43+52+83> [image: emailAddress] christian.lowinsky@phareindustries.com  [image: address] 9 rue Pierre Marinier, 97438 Sainte-Marie ---------- Forwarded message --------- De : ALCINOUS Andy  Date: jeu. 23 janv. 2025 à 08:08 Subject: [DEVIS_ADP2500202_BAAUSTRAL].pdf To: Christian Lowinsky , Thomas Pause , Yan MAILLOT  Cc: Achats Pôle AUSTRAL  Bonjour J espère que vous allez bien Veuillez trouver ci-joint une demande de prix pour le navire AUSTRAL. Merci de me confirmer votre meilleure offre et disponibilité. Dans l’attente de votre retour Vous souhaitant bonne réception Cordialement * Andy ALCINOÜS* Assistant achat et approvisionnement Pôle Austral *Purchasing officer* * Southern Seas Activities* *Portable : +262(0) 692 91 39 69 * *Ligne Directe : **+262 263 04 49 69* 4 rue Charles Dickens Darse de Pêche –Magasin 10 CS21245 - 97829 Le Port Cedex – La Réunion Standard: +262 (0)262 42 02 73 < < <",
+        "email_body": "Boite: Bonjour, Pour chiffrage Bien cordialement, *Site internet Phare Industries < Christian Lowinsky *PHARE INDUSTRIES* [image: mobilePhone] (+262) 0692 43 52 83 <(+262)+0692+43+52+83> [image: emailAddress] christian.lowinsky@phareindustries.com  [image: address] 7 Parc d’Activite de la Mare, 97438 Sainte-Marie",
         "already_answered": false,
-        "client_id": 6,
-        "client_name": "Christian Lowinsky",
-        "client_phone": null,
+        "client_id": "",
+        "client_name": "ALCINOUS Andy",
+        "client_email": "",
+        "client_phone": "",
         "is_company": false,
         "company_id": "",
-        "company_name": "Pôle Austral",
-        "company_phone": "+262(0) 692 91 39 69",
+        "company_name": "SAPMER",
+        "company_phone": "02.62.42.02.73",
         "company_email": "",
-        "company_street": "",
+        "company_street": "DARSE DE PECHE - MAGASIN 10 BP 2012 97823 LE PORT FRANCE",
         "company_website": "",
+        "company_logo": "",
+        "path_mail": "https://mail.google.com/mail/u/0/#search/rfc822msgid:CAOuuWmfX2n3s9UOjreuiB9rExtLKBwrLg2wBWu1Yjs0HRC1+tA@mail.gmail.com",
+        "probability": "85",
         "DET": {
-            "description_projet": "Demande de prix pour le navire AUSTRAL.",
-            "lieu_execution": "Le Port, La Réunion",
-            "categories": {
-                "Hydraulique": [
-                    {
-                        "nom_produit": "Courroie pompe hydraulique canots",
-                        "specifications_techniques": {
-                            "reference": "VECO 200 - SPA 1030 x 12",
-                            "taille": "1030 x 12",
-                            "type": "SPA"
-                        },
-                        "quantite_estimee": "10",
-                        "contraintes_techniques": "Les spécifications doivent répondre aux besoins du navire AUSTRAL."
-                    }
-                ],
-                "Mécanique": [
-                    {
-                        "nom_produit": "Courroie pompe lavage & cale",
-                        "specifications_techniques": {
-                            "reference": "B 60/17 01585/ 17x1525 Li",
-                            "taille": "17x1525 Li",
-                            "type": "B 60/17"
-                        },
-                        "quantite_estimee": "8",
-                        "contraintes_techniques": "Les spécifications doivent répondre aux besoins du navire AUSTRAL."
-                    }
-                ]
-            }
+            "description_projet": "",
+            "lieu_execution": "",
+            "fournisseur": "PHARE INDUSTRIES",
+            "produits": [
+                {
+                    "designation_client": "ZACONSO - Raccod inox couder 90° Femelle/Feme 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, couder 90°, Femelle/Femelle, 1/2\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox couder 90° Mal/Femelle \n1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, couder 90°, Mâle/Femelle, 1\"1/4",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox couder 90° Mal/Femelle 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, couder 90°, Mâle/Femelle, 1\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox couder 90° Mal/Femelle 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, couder 90°, Mâle/Femelle, 3/4\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox couder 90° Mal/Femelle 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, couder 90°, Mâle/Femelle, 1/2\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox couder 90° Mal/Mal 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, couder 90°, Mâle/Mâle, 1\"1/4",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox couder 90° Mal/Mal 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, couder 90°, Mâle/Mâle, 1\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox couder 90° Mal/Mal 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, couder 90°, Mâle/Mâle, 3/4\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox couder 90° Mal/Mal 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, couder 90°, Mâle/Mâle, 1/2\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox mamelon réducteur Mal/Mal",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, mamelon réducteur, Mâle/Mâle",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox mamelon réducteur \nMal/Femell",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, mamelon réducteur, Mâle/Femelle",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox Mal/Femelle 1\" - 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, Mâle/Femelle, 1\" - 1\"1/4",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox Mal/Femelle 1\" - 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, Mâle/Femelle, 1\" - 3/4\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox Mal/Femelle 3/4\" - 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, Mâle/Femelle, 3/4\" - 1\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox Mal/Femelle 1/2\" - 1\"1/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, Mâle/Femelle, 1/2\" - 1\"1/4\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox Mal/Femelle 1/2\" - 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, Mâle/Femelle, 1/2\" - 1\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox Mal/Femelle 1/2\" - 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, Mâle/Femelle, 1/2\" - 3/4\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord inox manchon réduit \nFemelle/Femelle",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, manchon réduit, Femelle/Femelle",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Manchon inox droite/droite Mal /Mal 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, droite/droite, Mâle/Mâle, 1\"1/4",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Manchon inox droite/droite Mal /Mal 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, droite/droite, Mâle/Mâle, 1\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Manchon inox droite/droite Mal /Mal 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, droite/droite, Mâle/Mâle, 3/4\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Manchon inox droite/droite Mal /Mal 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, droite/droite, Mâle/Mâle, 1/2\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Manchon inox droite/droite \nFemelle /Femelle 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, droite/droite, Femelle/Femelle, 1\"1/4",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Manchon inox droite/droite \nFemelle /Femelle 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, droite/droite, Femelle/Femelle, 1\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Manchon inox droite/droite \nFemelle /Femelle 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, droite/droite, Femelle/Femelle, 3/4\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Manchon inox droite/droite \nFemelle /Femelle 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, droite/droite, Femelle/Femelle, 1/2\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Bouchon femelle inox 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, femelle, 1\"1/4",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Bouchon femelle inox 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, femelle, 1\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Bouchon femelle inox 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, femelle, 3/4\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Bouchon femelle inox 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, femelle, 1/2\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Bouchon mal inox 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, mâle, 1\"1/4",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Bouchon mal inox 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, mâle, 1\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Bouchon mal inox 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, mâle, 3/4\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Bouchon mal inox 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, mâle, 1/2\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Mal/Mal 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, union, Mâle/Mâle, 1\"1/4",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Mal/Mal 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, union, Mâle/Mâle, 1\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Mal/Mal 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, union, Mâle/Mâle, 3/4\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Mal/Mal 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, union, Mâle/Mâle, 1/2\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Mal/Femelle 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, union, Mâle/Femelle, 1\"1/4",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Mal/Femelle 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, union, Mâle/Femelle, 1\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Mal/Femelle 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, union, Mâle/Femelle, 3/4\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Mal/Femelle 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, union, Mâle/Femelle, 1/2\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Femelle/Femelle 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, union, Femelle/Femelle, 1\"1/4",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Femelle/Femelle 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, union, Femelle/Femelle, 1\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Femelle/Femelle 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, union, Femelle/Femelle, 3/4\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Femelle/Femelle 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, union, Femelle/Femelle, 1/2\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord Té inox Fem/Fem/Fem 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, Té, Femelle/Femelle/Femelle, 1\"1/4",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord Té inox Fem/Fem/Fem 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, Té, Femelle/Femelle/Femelle, 1\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord Té inox Fem/Fem/Fem 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, Té, Femelle/Femelle/Femelle, 3/4\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord Té inox Fem/Fem/Fem 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, Té, Femelle/Femelle/Femelle, 1/2\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccod inox couder 90° Femelle/Feme 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, couder 90°, Femelle/Femelle, 1\"1/4",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccod inox couder 90° Femelle/Feme 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, couder 90°, Femelle/Femelle, 1\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccod inox couder 90° Femelle/Feme 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "inox, couder 90°, Femelle/Femelle, 3/4\"",
+                    "quantite_estimee": "5,00",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                }
+            ]
         },
-        "DAE": {
-            "objet_demande": "demande de prix",
+        "DEA": {
+            "objet_demande": "DEMANDE DE PRIX",
             "demandeur": {
-                "nom": "ALCINOÜS",
+                "nom": "ALCINOUS",
                 "prenom": "Andy",
                 "email": "",
+                "telephone": ""
+            },
+            "entreprise_demandeuse": "SAPMER",
+            "adresse_entreprise": "DARSE DE PECHE - MAGASIN 10 BP 2012 97823 LE PORT FRANCE",
+            "reference_demande": "ADP2500777",
+            "maree_associee": "A2425-M1 DARSE DE PÊCHE MAGASIN 23",
+            "date_limite_reponse": "22/04/25",
+            "date_limite_livraison": "29/04/25",
+            "contexte": "Commande destinée à un navire francisé affecté à la navigation maritime.",
+            "criteres_selection": "",
+            "budget_estime": "",
+            "delai_execution": "",
+            "modalites_paiement": "",
+            "exoneration_tva": "Commande destinée à un navire francisé non assujettie à la TVA, articles 262-II-al 2 à 7 du CGI.",
+            "adresse_livraison": "MAGASIN 23 SEC, 97420 Le Port - La Réunion, FRANCE",
+            "coordonnees_entreprise": {
+                "email": "",
+                "telephone": "02.62.42.02.73",
+                "site_web": ""
+            }
+        }
+    },
+    "196": {
+        "email_id": 196,
+        "email_date": "2025-05-05 12:00:17",
+        "email_subject": "Poste",
+        "email_sender": "mr@phareindustries.com",
+        "email_address": "mr@phareindustries.com",
+        "email_body": "Client : Cilam SA Contact : Bertrand Payet Fluide : Vapeur Pression de service: 13b Température: non communiquée Soupape : Dn32/50 Pression tarage : 7b Qté : 1u",
+        "already_answered": false,
+        "client_id": "",
+        "client_name": "Payet Bertrand",
+        "client_email": "",
+        "client_phone": "",
+        "is_company": false,
+        "company_id": "",
+        "company_name": "Cilam SA",
+        "company_phone": "",
+        "company_email": "",
+        "company_street": "",
+        "company_website": "",
+        "company_logo": "",
+        "path_mail": "https://mail.google.com/mail/u/0/#search/rfc822msgid:CAP2umDz_0LY5r986nTnwZouA8VEyJteLp7G5xz7BmeYqxY_ksA@mail.gmail.com",
+        "DET": {
+            "description_projet": "",
+            "lieu_execution": "",
+            "fournisseur": "",
+            "produits": [
+                {
+                    "designation_client": "Soupape : Dn32/50 Pression tarage : 7b Qté : 1u",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Dn32/50, Pression tarage : 7b",
+                    "quantite_estimee": "1",
+                    "contraintes_techniques": "Fluide : Vapeur, Pression de service: 13b, Température: non communiquée",
+                    "certification_requise": ""
+                }
+            ]
+        },
+        "DEA": {
+            "objet_demande": "",
+            "demandeur": {
+                "nom": "Payet",
+                "prenom": "Bertrand",
+                "email": "",
+                "telephone": ""
+            },
+            "entreprise_demandeuse": "Cilam SA",
+            "adresse_entreprise": "",
+            "reference_demande": "",
+            "maree_associee": "",
+            "date_limite_reponse": "",
+            "date_limite_livraison": "",
+            "contexte": "",
+            "criteres_selection": "",
+            "budget_estime": "",
+            "delai_execution": "",
+            "modalites_paiement": "",
+            "exoneration_tva": "",
+            "adresse_livraison": "",
+            "coordonnees_entreprise": {
+                "email": "",
+                "telephone": "",
+                "site_web": ""
+            }
+        }
+    },
+    "200": {
+        "email_id": 200,
+        "email_date": "2025-05-02 11:57:48",
+        "email_subject": "Fwd: Sapmer",
+        "email_sender": "christian.lowinsky@phareindustries.com",
+        "email_address": "christian.lowinsky@phareindustries.com",
+        "email_body": "Bonjour, Pour chiffrage Bien cordialement, *Site internet Phare Industries < Christian Lowinsky *PHARE INDUSTRIES* [image: mobilePhone] (+262) 0692 43 52 83 <(+262)+0692+43+52+83> [image: emailAddress] christian.lowinsky@phareindustries.com <christian.lowinsky@phareindustries.ocm> [image: address] 7 Parc d’Activite de la Mare, 97438 Sainte-Marie",
+        "already_answered": false,
+        "client_id": "",
+        "client_name": "Lowinsky Christian",
+        "client_email": "",
+        "client_phone": "+262 0692 43 52 83",
+        "is_company": false,
+        "company_id": "",
+        "company_name": "PHARE INDUSTRIES",
+        "company_phone": "+262 0692 43 52 83",
+        "company_email": "christian.lowinsky@phareindustries.com",
+        "company_street": "7 Parc d’Activite de la Mare, 97438 Sainte-Marie",
+        "company_website": "",
+        "company_logo": "",
+        "path_mail": "https://mail.google.com/mail/u/0/#search/rfc822msgid:CAOuuWmfX2n3s9UOjreuiB9rExtLKBwrLg2wBWu1Yjs0HRC1+tA@mail.gmail.com",
+        "DET": {
+            "description_projet": "Fourniture de raccords et réducteurs inox divers à destination de la maintenance navale pour SAPMER.",
+            "lieu_execution": "DARSE DE PECHE - MAGASIN 10, BP 2012, 97823 LE PORT, FRANCE",
+            "fournisseur": "PHARE INDUSTRIES",
+            "produits": [
+                {
+                    "designation_client": "ZACONSO - Manchon inox droite/droite Mal /Mal 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Manchon inox droite/droite Mal /Mal 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Manchon inox droite/droite Mal /Mal 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Manchon inox droite/droite Mal /Mal 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Manchon inox droite/droite Femelle /Femelle 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Manchon inox droite/droite Femelle /Femelle 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Manchon inox droite/droite Femelle /Femelle 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Manchon inox droite/droite Femelle /Femelle 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord Té inox Fem/Fem/Fem 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccod inox couder 90° Femelle/Feme 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccod inox couder 90° Femelle/Feme 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccod inox couder 90° Femelle/Feme 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccod inox couder 90° Femelle/Feme 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox couder 90° Mal/Femelle 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox couder 90° Mal/Femelle 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox couder 90° Mal/Femelle 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox couder 90° Mal/Femelle 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox couder 90° Mal/Mal 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox couder 90° Mal/Mal 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox couder 90° Mal/Mal 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox couder 90° Mal/Mal 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox mamelon réducteur Mal/Mal",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox mamelon réducteur Mal/Femell",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox Mal/Femelle 1\" - 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox Mal/Femelle 1\" - 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox Mal/Femelle 3/4\" - 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox Mal/Femelle 1/2\" - 1\"1/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox Mal/Femelle 1/2\" - 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox Mal/Femelle 1/2\" - 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord inox manchon réduit Femelle/Femelle",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Bouchon femelle inox 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Bouchon femelle inox 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Bouchon femelle inox 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Bouchon femelle inox 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Bouchon mal inox 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Bouchon mal inox 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Bouchon mal inox 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Bouchon mal inox 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Mal/Mal 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Mal/Mal 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Mal/Mal 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Mal/Mal 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Mal/Femelle 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Mal/Femelle 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Mal/Femelle 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Mal/Femelle 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Femelle/Femelle 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Femelle/Femelle 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Femelle/Femelle 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Femelle/Femelle 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord Té inox Fem/Fem/Fem 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord Té inox Fem/Fem/Fem 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord Té inox Fem/Fem/Fem 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                }
+            ]
+        },
+        "DEA": {
+            "objet_demande": "DEMANDE DE PRIX",
+            "demandeur": {
+                "nom": "Lowinsky",
+                "prenom": "Christian",
+                "email": "christian.lowinsky@phareindustries.com",
+                "telephone": "+262 0692 43 52 83"
+            },
+            "entreprise_demandeuse": "PHARE INDUSTRIES",
+            "adresse_entreprise": "7 Parc d’Activite de la Mare, 97438 Sainte-Marie",
+            "reference_demande": "ADP2500777",
+            "maree_associee": "A2425-M1 DARSE DE PÊCHE MAGASIN 23",
+            "date_limite_reponse": "22/04/25",
+            "date_limite_livraison": "29/04/25",
+            "contexte": "Commande destinée à un navire francisé affecté à la navigation maritime. Non assujettie à la TVA, application des articles 262-II-al 2 à 7 du CGI.",
+            "criteres_selection": "",
+            "budget_estime": "",
+            "delai_execution": "",
+            "modalites_paiement": "",
+            "exoneration_tva": "Oui, commande destinée à un navire francisé et non assujettie à la TVA (articles 262-II-al 2 à 7 du CGI).",
+            "adresse_livraison": "MAGASIN 23 SEC, 97420 Le Port - La Réunion, FRANCE",
+            "coordonnees_entreprise": {
+                "email": "christian.lowinsky@phareindustries.com",
+                "telephone": "+262 0692 43 52 83",
+                "site_web": ""
+            }
+        }
+    },
+    "201": {
+        "email_id": 201,
+        "email_date": "2025-05-04 14:38:53",
+        "email_subject": "Poste détente UHT",
+        "email_sender": "christian.lowinsky@phareindustries.com",
+        "email_address": "christian.lowinsky@phareindustries.com",
+        "email_body": "Poste détente UHT Client : Cilam SA Contact : Bertrand Payet Fluide : Vapeur Pression de service: 13b Température: non communiquée Soupape : Dn32/50 Pression tarage : 7b Qté : 1u Soupape Dn25/40 Pression tarage : 12b Qté : 1u Robinet a soupape : dn15 Pression de service : 13b Qté : 1u Cordialement, Christian LOWINSKY 0692 435283",
+        "already_answered": false,
+        "client_id": "",
+        "client_name": "LOWINSKY Christian",
+        "client_email": "",
+        "client_phone": "0692 435283",
+        "is_company": false,
+        "company_id": "",
+        "company_name": "Cilam SA",
+        "company_phone": "",
+        "company_email": "",
+        "company_street": "",
+        "company_website": "",
+        "company_logo": "",
+        "path_mail": "https://mail.google.com/mail/u/0/#search/rfc822msgid:8002AECD-DD38-4539-9252-D7632C6DF892@phareindustries.com",
+        "probability": 95.0,
+        "DET": {
+            "description_projet": "Poste détente UHT Client : Cilam SA Contact : Bertrand Payet Fluide : Vapeur Pression de service: 13b Température: non communiquée",
+            "lieu_execution": "",
+            "fournisseur": "",
+            "produits": [
+                {
+                    "designation_client": "Soupape : Dn32/50 Pression tarage : 7b Qté : 1u",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Dn32/50",
+                    "quantite_estimee": "1",
+                    "contraintes_techniques": "Pression tarage : 7b",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "Soupape Dn25/40 Pression tarage : 12b Qté : 1u",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Dn25/40",
+                    "quantite_estimee": "1",
+                    "contraintes_techniques": "Pression tarage : 12b",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "Robinet a soupape : dn15 Pression de service : 13b Qté : 1u",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "dn15",
+                    "quantite_estimee": "1",
+                    "contraintes_techniques": "Pression de service : 13b",
+                    "certification_requise": ""
+                }
+            ]
+        },
+        "DEA": {
+            "objet_demande": "Poste détente UHT",
+            "demandeur": {
+                "nom": "LOWINSKY",
+                "prenom": "Christian",
+                "email": "",
+                "telephone": "0692 435283"
+            },
+            "entreprise_demandeuse": "Cilam SA",
+            "adresse_entreprise": "",
+            "reference_demande": "",
+            "maree_associee": "",
+            "date_limite_reponse": "",
+            "date_limite_livraison": "",
+            "contexte": "",
+            "criteres_selection": "",
+            "budget_estime": "",
+            "delai_execution": "",
+            "modalites_paiement": "",
+            "exoneration_tva": "",
+            "adresse_livraison": "",
+            "coordonnees_entreprise": {
+                "email": "",
+                "telephone": "",
+                "site_web": ""
+            }
+        }
+    },
+    "206": {
+        "email_id": 206,
+        "email_date": "2025-03-01 10:48:00",
+        "email_subject": "Fwd: [DEVIS_ADP2500479_BAALBIUS].pdf",
+        "email_sender": "mr@phareindustries.com",
+        "email_address": "mr@phareindustries.com",
+        "email_body": "---------- Forwarded message --------- De : ALCINOUS Andy <aalcinous@sapmer.com> Date: jeu. 27 févr. 2025 à 07:53 Subject: RE: [DEVIS_ADP2500479_BAALBIUS].pdf To: Christian Lowinsky <christian.lowinsky@phareindustries.com>, Achats Pôle AUSTRAL <achatspoleaustral@sapmer.com> Cc: Yan MAILLOT <ym@phareindustries.com>, mr@phareindustries.com < mr@phareindustries.com>, Yannick Boyer <yannick.boyer@ephiscience.re> Bonjour Veuillez trouver ci-joint le bon de commande en reponse au devis N° 402 pour le navire ALBIUS Vous souhaitant bonne réception Cordialement * Andy ALCINOÜS* Assistant achat et approvisionnement Pôle Austral *Purchasing officer* * Southern Seas Activities* *Portable : +262(0) 692 91 39 69 * *Ligne Directe : **+262 263 04 49 69* 4 rue Charles Dickens Darse de Pêche –Magasin 10 CS21245 - 97829 Le Port Cedex – La Réunion Standard: +262 (0)262 42 02 73 < < < *De :* Christian Lowinsky <christian.lowinsky@phareindustries.com> *Envoyé :* mardi 25 février 2025 10:04 *À :* ALCINOUS Andy <aalcinous@sapmer.com>; Achats Pôle AUSTRAL < achatspoleaustral@sapmer.com> *Cc :* Yan MAILLOT <ym@phareindustries.com>; mr@phareindustries.com; Yannick Boyer <yannick.boyer@ephiscience.re> *Objet :* Re: [DEVIS_ADP2500479_BAALBIUS].pdf Bonjour, Suite à votre demande vous trouverez ci-joint notre proposition concernant l'affaire citée en objet. Bien cordialement, *Site internet Phare Industries < Christian Lowinsky *PHARE INDUSTRIES* [image: mobilePhone] (+262) 0692 43 52 83 <(+262)+0692+43+52+83> [image: emailAddress] christian.lowinsky@phareindustries.com <christian.lowinsky@phareindustries.ocm> [image: address] 9 rue Pierre Marinier, 97438 Sainte-Marie Le mar. 25 févr. 2025 à 08:44, ALCINOUS Andy <aalcinous@sapmer.com> a écrit : Bonjour J espère que vous allez bien Veuillez trouver ci-joint une demande de prix pour le navire ALBIUS. Merci de me confirmer votre meilleure offre et disponibilité. Dans l’attente de votre retour Vous souhaitant bonne réception Cordialement * Andy ALCINOÜS* Assistant achat et approvisionnement Pôle Austral *Purchasing officer* *Southern Seas Activities* *Portable : +262(0) 692 91 39 69 * *Ligne Directe : **+262 263 04 49 69* 4 rue Charles Dickens Darse de Pêche –Magasin 10 CS21245 - 97829 Le Port Cedex – La Réunion Standard: +262 (0)262 42 02 73 < < <",
+        "already_answered": false,
+        "client_id": "",
+        "client_name": "ALCINOUS Andy",
+        "client_email": "",
+        "client_phone": "+262(0) 692 91 39 69",
+        "is_company": false,
+        "company_id": "",
+        "company_name": "SAPMER",
+        "company_phone": "02.62.42.02.73",
+        "company_email": "",
+        "company_street": "DARSE DE PECHE - MAGASIN 10 BP 2012, 97823 LE PORT, FRANCE",
+        "company_website": "",
+        "company_logo": "",
+        "path_mail": "https://mail.google.com/mail/u/0/#search/rfc822msgid:CAP2umDy8dD6jZ+Q8+rBPL81mSz+fxoed8PPiR=vXNmwqUvriHQ@mail.gmail.com",
+        "probability": 100.0,
+        "DET": {
+            "description_projet": "Fourniture de manchons et prestation de livraison pour le navire ALBIUS",
+            "lieu_execution": "MAGASIN 23 SEC, Le Port, La Réunion, France",
+            "fournisseur": "PHARE INDUSTRIES",
+            "produits": [
+                {
+                    "designation_client": "ZACONSO - manchons FF DN32 DN25\nGirpi ref : FMA32\nDAA-ALB-\n001592",
+                    "reference_fournisseur": "FMA32",
+                    "specifications_techniques": "manchons FF DN32 DN25",
+                    "quantite_estimee": "10",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "TCONSO - FORFAIT LIVRAISON",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "1",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "PLHTA90FF32 HTA COUDE 90° FF 32\nManchon femelle HTA\nØ 32 mm - DN25\nÀ coller - PVC-C",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "HTA COUDE 90° FF 32; Manchon femelle HTA; Ø 32 mm - DN25; À coller - PVC-C",
+                    "quantite_estimee": "10",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "LP FORFAIT LIVRAISON",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "1",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                }
+            ]
+        },
+        "DEA": {
+            "objet_demande": "Demande de prix pour le navire ALBIUS",
+            "demandeur": {
+                "nom": "ALCINOUS",
+                "prenom": "Andy",
+                "email": "aalcinous@sapmer.com",
                 "telephone": "+262(0) 692 91 39 69"
             },
-            "entreprise_demandeuse": "Pôle Austral",
-            "date_limite_reponse": "23/01/2025",
-            "contexte": "La présente commande est destinée à un navire francisé affecté à la navigation maritime et elle est par suite non assujettie à la TVA, en application des dispositions fiscales en vigueur.",
+            "entreprise_demandeuse": "SAPMER",
+            "adresse_entreprise": "DARSE DE PECHE - MAGASIN 10 BP 2012, 97823 LE PORT, FRANCE",
+            "reference_demande": "ACD2500704 / DAA-ALB-001592 / MACHINE / P3",
+            "maree_associee": "A2425-M3",
+            "date_limite_reponse": "27/03/2025",
+            "date_limite_livraison": "01/03/2025",
+            "contexte": "Devis demandé pour fourniture de pièces pour le navire ALBIUS suite à une consultation.",
+            "criteres_selection": "",
+            "budget_estime": "",
+            "delai_execution": "À confirmer lors de la commande",
+            "modalites_paiement": "30 jours fin de mois",
+            "exoneration_tva": "commande destinée à un navire francisé affecté à la navigation maritime et non assujettie à la TVA",
+            "adresse_livraison": "MAGASIN 23 SEC",
+            "coordonnees_entreprise": {
+                "email": "",
+                "telephone": "02.62.42.02.73",
+                "site_web": ""
+            }
+        }
+    },
+    "207": {
+        "email_id": 207,
+        "email_date": "2025-03-19 11:56:13",
+        "email_subject": "Fwd: [DEVIS_ADP2500211_BAALBIUS].pdf",
+        "email_sender": "christian.lowinsky@phareindustries.com",
+        "email_address": "christian.lowinsky@phareindustries.com",
+        "email_body": "Bien cordialement, *Site internet Phare Industries < Christian Lowinsky *PHARE INDUSTRIES* [image: mobilePhone] (+262) 0692 43 52 83 <(+262)+0692+43+52+83> [image: emailAddress] christian.lowinsky@phareindustries.com <christian.lowinsky@phareindustries.ocm> [image: address] 9 rue Pierre Marinier, 97438 Sainte-Marie ---------- Forwarded message --------- De : ALCINOUS Andy <aalcinous@sapmer.com> Date: ven. 24 janv. 2025 à 10:59 Subject: [DEVIS_ADP2500211_BAALBIUS].pdf To: Christian Lowinsky <christian.lowinsky@phareindustries.com>, Yan MAILLOT <ym@phareindustries.com>, Thomas Pause <thomas@phareindustries.com> Cc: Achats Pôle AUSTRAL <achatspoleaustral@sapmer.com> Bonjour J espère que vous allez bien Veuillez trouver ci-joint une demande de prix pour le navire ALBIUS. Merci de me confirmer votre meilleure offre et disponibilité. Dans l’attente de votre retour Vous souhaitant bonne réception Cordialement * Andy ALCINOÜS* Assistant achat et approvisionnement Pôle Austral *Purchasing officer* * Southern Seas Activities* *Portable : +262(0) 692 91 39 69 * *Ligne Directe : **+262 263 04 49 69* 4 rue Charles Dickens Darse de Pêche –Magasin 10 CS21245 - 97829 Le Port Cedex – La Réunion Standard: +262 (0)262 42 02 73 < < <",
+        "already_answered": false,
+        "client_id": "",
+        "client_name": "ALCINOUS Andy",
+        "client_email": "",
+        "client_phone": "+262(0) 692 91 39 69",
+        "is_company": false,
+        "company_id": "",
+        "company_name": "SAPMER",
+        "company_phone": "02.62.42.02.73",
+        "company_email": "",
+        "company_street": "DARSE DE PECHE - MAGASIN 10 BP 2012, 97823 LE PORT, FRANCE",
+        "company_website": "",
+        "company_logo": "",
+        "path_mail": "https://mail.google.com/mail/u/0/#search/rfc822msgid:CAOuuWmeyjb3Oy6rGEbSx5NDBjvLHNXmnPFjtc4G_CLjpOT05Ng@mail.gmail.com",
+        "probability": 95.0,
+        "DET": {
+            "description_projet": "Fourniture de vannes à sphère pour le navire ALBIUS",
+            "lieu_execution": "Le Port, La Réunion, France",
+            "fournisseur": "PHARE INDUSTRIES",
+            "produits": [
+                {
+                    "designation_client": "ZARECHA - vanne à sphère -PVC-EPDM-DN80 FF union a coller",
+                    "reference_fournisseur": "Meca-fluid ref : BATTI.034.080",
+                    "specifications_techniques": "PVC-EPDM-DN80 FF union a coller",
+                    "quantite_estimee": "2",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                }
+            ]
+        },
+        "DEA": {
+            "objet_demande": "Demande de prix pour le navire ALBIUS",
+            "demandeur": {
+                "nom": "ALCINOUS",
+                "prenom": "Andy",
+                "email": "aalcinous@sapmer.com",
+                "telephone": "+262(0) 692 91 39 69"
+            },
+            "entreprise_demandeuse": "SAPMER",
+            "adresse_entreprise": "DARSE DE PECHE - MAGASIN 10 BP 2012, 97823 LE PORT, FRANCE",
+            "reference_demande": "ADP2500211",
+            "maree_associee": "A2425-M3",
+            "date_limite_reponse": "24/01/2025",
+            "date_limite_livraison": "01/03/2025",
+            "contexte": "Demande de prix pour fourniture d'une vanne à sphère pour navire francisé affecté à la navigation maritime, exonérée de TVA conformément aux dispositions fiscales.",
             "criteres_selection": "",
             "budget_estime": "",
             "delai_execution": "",
-            "modalites_paiement": ""
+            "modalites_paiement": "",
+            "exoneration_tva": "Oui, non assujetti à la TVA (articles 262-II-al 2 à 7 CGI)",
+            "adresse_livraison": "MAGASIN 23 SEC, DARSE DE PÊCHE, MAGASIN 23, 97420 Le Port - La Réunion, FRANCE",
+            "coordonnees_entreprise": {
+                "email": "",
+                "telephone": "02.62.42.02.73",
+                "site_web": ""
+            }
         }
     },
-    "16": {
-        "email_id": 16,
-        "email_date": "2025-02-21 06:59:43",
-        "email_subject": "Fwd: Vanne de coque AT MAS3 URGENT",
-        "email_sender": "Christian Lowinsky",
-        "email_address": "christian.lowinsky@phareindustries.com",
-        "email_body": "Boite: Bonjour Mino, Pour en parler Merci Bien à toi, *Site internet Phare Industries < Christian Lowinsky *PHARE INDUSTRIES* [image: mobilePhone] (+262) 0692 43 52 83 <(+262)+0692+43+52+83> [image: emailAddress] christian.lowinsky@phareindustries.com  [image: address] 9 rue Pierre Marinier, 97438 Sainte-Marie ---------- Forwarded message --------- De : DEUPHON Lisa  Date: ven. 21 févr. 2025 à 08:28 Subject: TR: Vanne de coque AT MAS3 URGENT To: Christian Lowinsky  Cc: Achats Pôle AUSTRAL  Bonjour, Pouvez-vous me transmettre un devis pour les éléments ci-dessous svp. - Vanne DN65 Sortie frigo vivre - Vanne DN150 Aspiration frigo fret Vous souhaitant une bonne réception. *Cordialement / Best regards*, * Lisa DEUPHON* Adjointe responsable achats Purchasing department * Portable : +262(0) 692 91 39 64* * Ligne directe : +262(0) 263 04 49 64* 4 rue Charles Dickens Darse de Pêche –Magasin 10 CS21245 - 97829 Le Port Cedex – La Réunion Standard: +262 (0)262 42 02 73 < < < *De :* CASSUBIE Mathieu  *Envoyé :* vendredi 21 février 2025 07:42 *À :* Achats Pôle AUSTRAL  *Cc :* Technique Pole Austral  *Objet :* Vanne de coque AT MAS3 URGENT Bonjour, Est-ce qu’il serait possible de trouver une vanne de coque DN150 et DN65 (avec certificat BV) urgemment s’il vous plait ? Pour le Mascareignes. DN65 Sortie frigo vivre DN150 Aspiration frigo fret Merci de votre retour Cordialement, Mathieu CASSUBIE Technicien de maintenance et GMAO Gsm : 06 92 64 46 32 Standard : +262 (0)262 42 02 73 Site Web sapmer.com < < <",
+    "202": {
+        "email_id": 202,
+        "email_date": "2025-03-25 11:39:08",
+        "email_subject": "Fwd: MANO SEP 10B D63 RV G1/2 \"BW",
+        "email_sender": "mr@phareindustries.com",
+        "email_address": "mr@phareindustries.com",
+        "email_body": "---------- Forwarded message --------- De : Mino raherinirina <mr@phareindustries.com> Date: lun. 24 mars 2025 à 13:54 Subject: Re: MANO SEP 10B D63 RV G1/2 \"BW To: Christian Lowinsky <christian.lowinsky@phareindustries.com> Bonjour, Merci pour les informations Cordialement Mino Le lun. 24 mars 2025 à 13:48, Christian Lowinsky < christian.lowinsky@phareindustries.com> a écrit : > Bonjour Mino, > Pour ton information. > > Bien à toi, > > > > *Site internet Phare Industries < > > Christian Lowinsky > *PHARE INDUSTRIES* > [image: mobilePhone] (+262) 0692 43 52 83 <(+262)+0692+43+52+83> > [image: emailAddress] christian.lowinsky@phareindustries.com > <christian.lowinsky@phareindustries.ocm> > [image: address] 9 rue Pierre Marinier, 97438 Sainte-Marie > < > > > > > ---------- Forwarded message --------- > De : <bertrand_payet@cilam.com> > Date: lun. 24 mars 2025 à 11:04 > Subject: MANO SEP 10B D63 RV G1/2 \"BW > To: Christian Lowinsky <christian.lowinsky@phareindustries.com> > Cc: <didier_payet@cilam.com> > > > Bonjour Christian suite a notre échange téléphonique peux tu stp me faire > une proposition pour 4 MANO SEP 10B D63 RV G1/2 \"BW ? > > Cordialement . >",
         "already_answered": false,
-        "client_id": 6,
-        "client_name": "Christian Lowinsky",
-        "client_phone": null,
+        "client_id": "",
+        "client_name": "Payet Bertrand",
+        "client_email": "",
+        "client_phone": "",
         "is_company": false,
         "company_id": "",
-        "company_name": "Phare Industries",
-        "company_phone": "+262(0) 692 91 39 64",
-        "company_email": "",
+        "company_name": "CILAM",
+        "company_phone": "",
+        "company_email": "bertrand_payet@cilam.com",
         "company_street": "",
         "company_website": "",
+        "company_logo": "",
+        "path_mail": "https://mail.google.com/mail/u/0/#search/rfc822msgid:CAP2umDxGeLoWLjT3Zv2_hgMMAbS4M56D-R18yfow9QFTUYi8tQ@mail.gmail.com",
+        "probability": 90.0,
         "DET": {
-            "description_projet": "Fourniture de vannes pour le Mascareignes",
-            "lieu_execution": "Mascareignes",
-            "categories": {
-                "Mecanique": [
-                    {
-                        "nom_produit": "Vanne DN65 Sortie frigo vivre",
-                        "specifications_techniques": "DN65, certification BV",
-                        "quantite_estimee": "",
-                        "contraintes_techniques": "Sortie frigo vivre"
-                    },
-                    {
-                        "nom_produit": "Vanne DN150 Aspiration frigo fret",
-                        "specifications_techniques": "DN150, certification BV",
-                        "quantite_estimee": "",
-                        "contraintes_techniques": "Aspiration frigo fret"
-                    }
-                ]
-            }
+            "description_projet": "",
+            "lieu_execution": "",
+            "fournisseur": "PHARE INDUSTRIES",
+            "produits": [
+                {
+                    "designation_client": "MANO SEP 10B D63 RV G1/2 \"BW",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "D63, RV G1/2, 10B",
+                    "quantite_estimee": "4",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                }
+            ]
         },
-        "DAE": {
-            "objet_demande": "Demande de devis",
+        "DEA": {
+            "objet_demande": "MANO SEP 10B D63 RV G1/2 \"BW",
             "demandeur": {
-                "nom": "DEUPHON",
-                "prenom": "Lisa",
-                "email": "",
-                "telephone": "+262(0) 692 91 39 64"
+                "nom": "Payet",
+                "prenom": "Bertrand",
+                "email": "bertrand_payet@cilam.com",
+                "telephone": ""
             },
-            "entreprise_demandeuse": "Phare Industries",
+            "entreprise_demandeuse": "CILAM",
+            "adresse_entreprise": "",
+            "reference_demande": "",
+            "maree_associee": "",
             "date_limite_reponse": "",
-            "contexte": "Urgent, besoin de vannes pour le Mascareignes",
+            "date_limite_livraison": "",
+            "contexte": "Suite à un échange téléphonique entre Bertrand Payet et Christian Lowinsky concernant une demande de devis.",
             "criteres_selection": "",
             "budget_estime": "",
             "delai_execution": "",
-            "modalites_paiement": ""
+            "modalites_paiement": "",
+            "exoneration_tva": "",
+            "adresse_livraison": "",
+            "coordonnees_entreprise": {
+                "email": "bertrand_payet@cilam.com",
+                "telephone": "",
+                "site_web": ""
+            }
         }
     },
-    "17": {
-        "email_id": 17,
-        "email_date": "2025-02-21 07:02:50",
-        "email_subject": "Re: Vanne de coque AT MAS3 URGENT",
-        "email_sender": "Christian Lowinsky",
+    "203": {
+        "email_id": 203,
+        "email_date": "2025-05-02 11:57:48",
+        "email_subject": "Fwd: Sapmer",
+        "email_sender": "christian.lowinsky@phareindustries.com",
         "email_address": "christian.lowinsky@phareindustries.com",
-        "email_body": "Boite: Bonjour, Je vous remercie pour votre demande. Pouvez vous me transmettre une photo de la pièce svp ? [image: image.png]vanne opercule ? [image: image.png]Vanne papillon ? Je vous remercie Bien cordialement, *Site internet Phare Industries < Christian Lowinsky *PHARE INDUSTRIES* [image: mobilePhone] (+262) 0692 43 52 83 <(+262)+0692+43+52+83> [image: emailAddress] christian.lowinsky@phareindustries.com  [image: address] 9 rue Pierre Marinier, 97438 Sainte-Marie Le ven. 21 févr. 2025 à 08:28, DEUPHON Lisa  a écrit : > Bonjour, > > > > Pouvez-vous me transmettre un devis pour les éléments ci-dessous svp. > > - Vanne DN65 Sortie frigo vivre > - Vanne DN150 Aspiration frigo fret > > > > Vous souhaitant une bonne réception. > > > > *Cordialement / Best regards*, > > > > * Lisa DEUPHON* > > Adjointe responsable achats > > Purchasing department > > * Portable : +262(0) 692 91 39 64* > > * Ligne directe : +262(0) 263 04 49 64* > > 4 rue Charles Dickens > > Darse de Pêche –Magasin 10 > > CS21245 - 97829 Le Port Cedex – La Réunion > > Standard: +262 (0)262 42 02 73 > > < > < > > < > > > > > > > > *De :* CASSUBIE Mathieu  > *Envoyé :* vendredi 21 février 2025 07:42 > *À :* Achats Pôle AUSTRAL  > *Cc :* Technique Pole Austral  > *Objet :* Vanne de coque AT MAS3 URGENT > > > > Bonjour, > > > > Est-ce qu’il serait possible de trouver une vanne de coque DN150 et DN65 > (avec certificat BV) urgemment s’il vous plait ? Pour le Mascareignes. > > DN65 Sortie frigo vivre > DN150 Aspiration frigo fret > > > > Merci de votre retour > > Cordialement, > > > > Mathieu CASSUBIE > > Technicien de maintenance et GMAO > > Gsm : 06 92 64 46 32 > > Standard : > > +262 (0)262 42 02 73 > > Site Web > > sapmer.com < > > < > < > > > > >",
+        "email_body": "Bonjour, Pour chiffrage Bien cordialement, *Site internet Phare Industries < Christian Lowinsky *PHARE INDUSTRIES* [image: mobilePhone] (+262) 0692 43 52 83 <(+262)+0692+43+52+83> [image: emailAddress] christian.lowinsky@phareindustries.com <christian.lowinsky@phareindustries.ocm> [image: address] 7 Parc d’Activite de la Mare, 97438 Sainte-Marie",
         "already_answered": false,
-        "client_id": 6,
-        "client_name": "Christian Lowinsky",
-        "client_phone": null,
+        "client_id": "",
+        "client_name": "Lowinsky Christian",
+        "client_email": "",
+        "client_phone": "(+262) 0692 43 52 83",
         "is_company": false,
         "company_id": "",
-        "company_name": "",
-        "company_phone": "+262(0) 692 91 39 64",
-        "company_email": "",
-        "company_street": "",
+        "company_name": "PHARE INDUSTRIES",
+        "company_phone": "(+262) 0692 43 52 83",
+        "company_email": "christian.lowinsky@phareindustries.com",
+        "company_street": "7 Parc d’Activite de la Mare, 97438 Sainte-Marie, FRANCE",
         "company_website": "",
+        "company_logo": "",
+        "path_mail": "https://mail.google.com/mail/u/0/#search/rfc822msgid:CAOuuWmfX2n3s9UOjreuiB9rExtLKBwrLg2wBWu1Yjs0HRC1+tA@mail.gmail.com",
+        "probability": 95.0,
         "DET": {
-            "description_projet": "Fourniture de vannes pour Mascareignes",
-            "lieu_execution": "La Réunion",
-            "categories": {
-                "Mecanique": [
-                    {
-                        "nom_produit": "Vanne DN65 Sortie frigo vivre",
-                        "specifications_techniques": "DN65, certificat BV",
-                        "quantite_estimee": "",
-                        "contraintes_techniques": "Certification Bureau Veritas"
-                    },
-                    {
-                        "nom_produit": "Vanne DN150 Aspiration frigo fret",
-                        "specifications_techniques": "DN150, certificat BV",
-                        "quantite_estimee": "",
-                        "contraintes_techniques": "Certification Bureau Veritas"
-                    }
-                ]
-            }
+            "description_projet": "Fourniture de raccords, manchons, bouchons et réductions inox pour usage sur navire francisé F/V AUSTRAL FK692717.",
+            "lieu_execution": "Darse de pêche, Magasin 23, 97420 Le Port - La Réunion",
+            "fournisseur": "PHARE INDUSTRIES",
+            "produits": [
+                {
+                    "designation_client": "ZACONSO - Raccord Té inox Fem/Fem/Fem 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, Fem/Fem/Fem, 1/2\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccod inox couder 90° Femelle/Feme 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, coudé 90°, Femelle/Femelle, 1\"1/4",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccod inox couder 90° Femelle/Feme 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, coudé 90°, Femelle/Femelle, 1\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccod inox couder 90° Femelle/Feme 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, coudé 90°, Femelle/Femelle, 3/4\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccod inox couder 90° Femelle/Feme 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, coudé 90°, Femelle/Femelle, 1/2\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox couder 90° Mal/Femelle 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, coudé 90°, Mâle/Femelle, 1\"1/4",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox couder 90° Mal/Femelle 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, coudé 90°, Mâle/Femelle, 1\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox couder 90° Mal/Femelle 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, coudé 90°, Mâle/Femelle, 3/4\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox couder 90° Mal/Femelle 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, coudé 90°, Mâle/Femelle, 1/2\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox couder 90° Mal/Mal 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, coudé 90°, Mâle/Mâle, 1\"1/4",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox couder 90° Mal/Mal 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, coudé 90°, Mâle/Mâle, 1\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox couder 90° Mal/Mal 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, coudé 90°, Mâle/Mâle, 3/4\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox couder 90° Mal/Mal 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, coudé 90°, Mâle/Mâle, 1/2\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox mamelon réducteur Mal/Mal",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, mamelon réducteur, Mâle/Mâle",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox mamelon réducteur Mal/Mal",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, mamelon réducteur, Mâle/Mâle",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox mamelon réducteur Mal/Mal",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, mamelon réducteur, Mâle/Mâle",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Réducteur inox mamelon réducteur Mal/Mal",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, mamelon réducteur, Mâle/Mâle",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Manchon inox droite/droite Mal /Mal 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, droite/droite, Mâle/Mâle, 1\"1/4",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Manchon inox droite/droite Mal /Mal 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, droite/droite, Mâle/Mâle, 1\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Manchon inox droite/droite Mal /Mal 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, droite/droite, Mâle/Mâle, 3/4\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Manchon inox droite/droite Mal /Mal 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, droite/droite, Mâle/Mâle, 1/2\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Manchon inox droite/droite Femelle /Femelle 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, droite/droite, Femelle/Femelle, 1\"1/4",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Manchon inox droite/droite Femelle /Femelle 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, droite/droite, Femelle/Femelle, 1\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Manchon inox droite/droite Femelle /Femelle 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, droite/droite, Femelle/Femelle, 3/4\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Manchon inox droite/droite Femelle /Femelle 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, droite/droite, Femelle/Femelle, 1/2\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Bouchon femelle inox 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, femelle, 1\"1/4",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Bouchon femelle inox 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, femelle, 1\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Bouchon femelle inox 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, femelle, 3/4\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Bouchon femelle inox 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, femelle, 1/2\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Bouchon mal inox 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, mâle, 1\"1/4",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Bouchon mal inox 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, mâle, 1\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Bouchon mal inox 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, mâle, 3/4\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Bouchon mal inox 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, mâle, 1/2\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Mal/Mal 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, union, Mâle/Mâle, 1\"1/4",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Mal/Mal 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, union, Mâle/Mâle, 1\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Mal/Mal 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, union, Mâle/Mâle, 3/4\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Mal/Mal 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, union, Mâle/Mâle, 1/2\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Mal/Femelle 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, union, Mâle/Femelle, 1\"1/4",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Mal/Femelle 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, union, Mâle/Femelle, 1\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Mal/Femelle 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, union, Mâle/Femelle, 3/4\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Mal/Femelle 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, union, Mâle/Femelle, 1/2\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Femelle/Femelle 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, union, Femelle/Femelle, 1\"1/4",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Femelle/Femelle 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, union, Femelle/Femelle, 1\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Femelle/Femelle 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, union, Femelle/Femelle, 3/4\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord union inox Femelle/Femelle 1/2\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, union, Femelle/Femelle, 1/2\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord Té inox Fem/Fem/Fem 1\"1/4",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, Té, Fem/Fem/Fem, 1\"1/4",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord Té inox Fem/Fem/Fem 1\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, Té, Fem/Fem/Fem, 1\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZACONSO - Raccord Té inox Fem/Fem/Fem 3/4\"",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Inox, Té, Fem/Fem/Fem, 3/4\"",
+                    "quantite_estimee": "5",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                }
+            ]
         },
-        "DAE": {
-            "objet_demande": "Demande de devis",
+        "DEA": {
+            "objet_demande": "Demande de prix",
             "demandeur": {
-                "nom": "DEUPHON",
-                "prenom": "Lisa",
-                "email": "",
-                "telephone": "+262(0) 692 91 39 64"
+                "nom": "Lowinsky",
+                "prenom": "Christian",
+                "email": "christian.lowinsky@phareindustries.com",
+                "telephone": "(+262) 0692 43 52 83"
             },
-            "entreprise_demandeuse": "",
-            "date_limite_reponse": "",
-            "contexte": "Besoin urgent de vannes pour le Mascareignes",
-            "criteres_selection": "Certificat BV (Bureau Veritas)",
+            "entreprise_demandeuse": "PHARE INDUSTRIES",
+            "adresse_entreprise": "7 Parc d’Activite de la Mare, 97438 Sainte-Marie, FRANCE",
+            "reference_demande": "ADP2500777",
+            "maree_associee": "A2425-M1",
+            "date_limite_reponse": "22/04/25",
+            "date_limite_livraison": "29/04/25",
+            "contexte": "Commande destinée à un navire francisé affecté à la navigation maritime et non assujettie à la TVA selon articles 262-II-al 2 à 7 du code général des impôts.",
+            "criteres_selection": "",
             "budget_estime": "",
-            "delai_execution": "Urgent",
-            "modalites_paiement": ""
+            "delai_execution": "",
+            "modalites_paiement": "",
+            "exoneration_tva": "Oui",
+            "adresse_livraison": "MAGASIN 23 SEC, DARSE DE PECHE MAGASIN 23, 97420 Le Port - La Réunion, FRANCE",
+            "coordonnees_entreprise": {
+                "email": "christian.lowinsky@phareindustries.com",
+                "telephone": "(+262) 0692 43 52 83",
+                "site_web": ""
+            }
         }
     }
 }

@@ -29,3 +29,7 @@ class EmailAttachment(db.Model):
             "content_type": self.content_type,
             "created_at": self.created_at.isoformat() if self.created_at else None
         }
+
+    @classmethod
+    def exists(cls, email_id, file_name):
+        return cls.query.filter_by(email_id = email_id, filename=file_name).first()

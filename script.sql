@@ -121,5 +121,7 @@ delete from emails_state;
 delete from res_company;
 delete from partner_company;
 delete from emails_state;
+delete from emails_partner;
 delete from res_partner;
+delete from email_attachments;
 delete from emails;

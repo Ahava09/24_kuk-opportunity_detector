@@ -6,14 +6,13 @@ import json
 from app.models.emails import Emails
 from app.models.mail_type import MailType
 from app.models.res_partner import ResPartner
-from app.models.res_company import ResCompany
 from app.models.partner_company import PartnerCompany
 from app.models.email_attachment import EmailAttachment
 from email.header import decode_header
 from datetime import datetime
 from email.utils import parsedate_to_datetime, parseaddr
 import openai  
-from config import OPENAI_API_KEY, ASSISTANT_ID
+from config import OPENAI_API_KEY, ASSISTANT_ID, DATA_STORAGE_PATH, DIRECTORY_LOGO_COMPANY
 from datetime import timedelta
 from flask import current_app , Response
 import ssl
@@ -23,13 +22,13 @@ from email.mime.text import MIMEText
 import json
 import re
 import io
-import openai
+import openai 
 import re
 import time
+import base64
 
 openai.api_key = OPENAI_API_KEY
 client = openai.Client(api_key=os.getenv("OPENAI_API_KEY") )  
-DATA_STORAGE_PATH = "app/static/data/email_data_storage.json"
 assistant_id = ASSISTANT_ID
 
 class EmailAnalyze:
@@ -69,14 +68,12 @@ class EmailAnalyze:
     
     def get_unread_emails_since(self, date_since, date_before, mail_type_id=0):
         self.connect()
-        # Vérifier si la date est déjà un objet datetime
         if isinstance(date_since, str):
             date_since = datetime.strptime(date_since, "%d-%b-%Y")  # Format : DD-MMM-YYYY
         
         if isinstance(date_before, str):
             date_before = datetime.strptime(date_before, "%d-%b-%Y")
 
-        # Gérer le cas où date_since est null (On prend date_before - 3 jours)
         if not date_since and date_before:
             date_before = date_before - timedelta(days=3)  # Recherche avant 3 jours de date_before
             date_since = date_before - timedelta(days=365)  # Choisir une date lointaine avant `date_before - 3 jours`
@@ -141,9 +138,6 @@ class EmailAnalyze:
                             type = MailType("None")
                             type.save()  # Enregistrer dans la base
                     percentage = 0
-                    if mail_type_id != 0 or not type.type_name or type.type_name.strip() != "None":
-                        p = self.analyze_email_with_chatgpt(new_email, type.type_name)
-                        percentage = p
                     
                     attachments = self.extract_attachments(msg) 
                     new_email = {
@@ -157,6 +151,9 @@ class EmailAnalyze:
                         "mail_type_id" : type.id,
                         "attachments": attachments
                     }
+                    if mail_type_id != 0 or not type.type_name or type.type_name.strip() != "None":
+                        p = self.analyze_email_with_chatgpt(new_email, type.type_name)
+                        new_email["percentage"] = p
 
                     emails.append(new_email)
                     
@@ -204,39 +201,8 @@ class EmailAnalyze:
     def safe_json(value, default=""):
         return value if value is not None else default
 
-    def analyze_email_with_chatgpt(self, email, message):
-        prompt = f"""
-        {EmailAnalyze.message_chat(message)}
-        
-        --- Début de l'email ---
-        {email.subject}
-        {email.body}
-        --- Fin de l'email ---
-        """
-        # app.logger.info(prompt)
-
-        try:
-            print("🤖 Envoi du prompt à ChatGPT...")
-            response = client.chat.completions.create(
-                model="gpt-3.5-turbo", # gpt-4o
-                temperature=0,
-                messages=[
-                    {"role": "user", "content": prompt}
-                ]
-            )
-            
-            answer = response.choices[0].message.content.strip()
-            # app.logger.info("🎯 Réponse analysée :", answer)
-
-            email.percentage = answer 
-            return email.percentage
-
-        except Exception as e:
-            current_app.logger.error(e)
-            print("❌ Erreur lors de l'analyse :", e)
-
     def generate_message_mail(recipient,subject,message):
-        current_app.logger.info(message)
+        # current_app.logger.info(message)
         prompt = f"Rédige un email professionnel à {recipient} sur '{subject}'.\n"
         if message:
             prompt += f"Voici une ébauche fournie par l'utilisateur :\n{message}\nAméliore-la et rends-la plus professionnelle."
@@ -261,6 +227,109 @@ class EmailAnalyze:
             current_app.logger.info(e)
             print("❌ Erreur lors de l'analyse :", e)
 
+    # def analyze_email_with_chatgpt(self, email, message):
+
+    #     prompt = f"""
+    #     {EmailAnalyze.message_chat(message)}
+        
+    #     --- Début de l'email ---
+    #     {email["subject"]}
+    #     {email["body"]}
+    #     --- Fin de l'email ---
+    #     """
+
+    #     try:
+    #         print("🤖 Envoi du prompt à ChatGPT...")
+    #         response = client.chat.completions.create(
+    #             model="gpt-3.5-turbo",
+    #             temperature=0,
+    #             messages=[
+    #                 {"role": "user", "content": prompt}
+    #             ]
+    #         )
+            
+    #         answer = response.choices[0].message.content.strip()
+    #         current_app.logger.info(f"🎯 Pourcentage détecté : {answer}")
+
+    #         return answer
+
+    #     except Exception as e:
+    #         current_app.logger.error(e)
+    #         print("❌ Erreur lors de l'analyse :", e)
+
+    def analyze_email_with_chatgpt(self, email_dict, message):
+
+        prompt = f"""
+    {EmailAnalyze.message_chat(message)}
+
+    --- Début de l'email ---
+    Objet : {email_dict['subject']}
+    Corps :
+    {email_dict['body']}
+    --- Fin de l'email ---
+
+    Analyse également les documents joints pour déterminer si c’est une opportunité de type {message}.
+    Répond uniquement par un nombre entre 0 et 100.
+    """
+
+        try:
+            # 1. Créer un thread
+            thread = client.beta.threads.create()
+            thread_id = thread.id
+
+            # 2. Uploader les fichiers
+            file_ids = []
+            for att in email_dict.get("attachments", []):
+                file_data = io.BytesIO(att["data"])
+                res = client.files.create(
+                    file=(att["filename"], file_data, att["content_type"]),
+                    purpose="assistants"
+                )
+                file_ids.append(res.id)
+
+                # 3. Ajouter le fichier au thread
+                client.beta.threads.messages.create(
+                    thread_id=thread_id,
+                    role="user",
+                    content=f"Fichier joint : {att['filename']}",
+                    attachments=[{"file_id": res.id, "tools": [{"type": "file_search"}]}]
+                )
+
+            # 4. Ajouter le corps de mail
+            client.beta.threads.messages.create(
+                thread_id=thread_id,
+                role="user",
+                content=prompt
+            )
+
+            # 5. Lancer le thread
+            run = client.beta.threads.runs.create(
+                thread_id=thread_id,
+                assistant_id="asst_Mw04qJqRqQrT3zpqdOeuHYu8"
+            )
+
+            # 6. Attente de complétion
+            for _ in range(30):
+                status = client.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run.id)
+                if status.status == "completed":
+                    break
+                time.sleep(2)
+
+            # 7. Récupérer la réponse
+            messages = client.beta.threads.messages.list(thread_id=thread_id)
+            answer = messages.data[0].content[0].text.value.strip()
+
+            # 8. Extraire le pourcentage
+            percentage_match = re.search(r"\b(\d{1,3})\b", answer)
+            if percentage_match:
+                return int(percentage_match.group(1))
+            return 0
+
+        except Exception as e:
+            current_app.logger.error(f"❌ Erreur OpenAI : {e}")
+            return 0
+
+    
     @staticmethod 
     def message_chat(message):
         print("Reformulation du message pour le critère")
@@ -324,7 +393,7 @@ class EmailAnalyze:
                     file=("attachment.pdf", file_data, attachment.content_type),  # 🔹 Correction ici
                     purpose="assistants"
                 )
-                file_ids.append(response.id)  # ✅ Correction ici
+                file_ids.append(response.id)  
                 
                 current_app.logger.error(f"✅ Fichier {attachment.filename} envoyé avec succès, ID: {response.id}")
 
@@ -373,8 +442,8 @@ class EmailAnalyze:
             with open(DATA_STORAGE_PATH, "r", encoding="utf-8") as file:
                 email_data = json.load(file)
                 email_id_str = str(email_id)  # ✅ Convertir en str
-                current_app.logger.info(f"📂 Vérification de l'email ID {email_id_str}")
-                current_app.logger.info(email_data.get(email_id_str))  # 🔍 Vérification des logs
+                # current_app.logger.info(f"📂 Vérification de l'email ID {email_id_str}")
+                # current_app.logger.info(email_data.get(email_id_str))  # 🔍 Vérification des logs
                 return email_data.get(email_id_str)  # ✅ Chercher avec `str`
         except Exception as e:
             current_app.logger.error(f"❌ Erreur lors du chargement des données : {e}")
@@ -383,12 +452,14 @@ class EmailAnalyze:
     def prompt_info_client_company(email_id):
         try:
             # 🚀 Vérifier si les données existent déjà dans le fichier JSON
-            current_app.logger.info(email_id)
+            current_app.logger.info(f"📂 Vérification des données en cache pour l'email ID {email_id}")
             cached_data = EmailAnalyze.load_email_data(email_id)
             if cached_data:
                 current_app.logger.info(f"📂 Données chargées depuis le cache pour l'email ID {email_id}")
-                return Response(json.dumps(cached_data, default=str), mimetype="application/json")
+                current_app.logger.info(json.dumps(cached_data, default=str))
+                return Response(json.dumps(cached_data, default=str, indent=4, ensure_ascii=False), mimetype="application/json")
 
+            # 📩 Récupération de l'email
             email = Emails.query.get(email_id)
             if not email:
                 return Response(json.dumps({"error": "Email non trouvé"}, default=str), mimetype="application/json"), 404
@@ -399,33 +470,36 @@ class EmailAnalyze:
             partner = ResPartner.query.filter_by(email=sender_email).first()
             company = PartnerCompany.get_company(partner.id) if partner else None
 
+            # 📎 Récupération des pièces jointes
             attachments = EmailAttachment.query.filter_by(email_id=email.id).all()
 
             # 🚀 Envoi de toutes les pièces jointes à OpenAI
             file_ids = EmailAnalyze.upload_files_to_openai(attachments)
-            extracted_data = EmailAnalyze.extract_info_with_openai(email.body, file_ids)
+            extracted_data = EmailAnalyze.extract_info_with_openai(email.subject,email.body, file_ids)
 
-            # Vérification et correction des données extraites
+            # 🛠 Vérification et correction des données extraites
             if isinstance(extracted_data, str):
                 try:
                     extracted_data = json.loads(extracted_data)
                 except json.JSONDecodeError:
                     current_app.logger.error("❌ Erreur JSON : Impossible de parser la réponse OpenAI")
-                    extracted_data = {"DAE": {}, "DET": {}}
+                    extracted_data = {"DEA": {}, "DET": {}}
 
-            demandeur = extracted_data.get("DAE", {}).get("demandeur", {})
-
+            demandeur = extracted_data.get("DEA", {}).get("demandeur", {})
             if isinstance(demandeur, str):
                 current_app.logger.error(f"⚠️ Erreur : 'demandeur' est une chaîne au lieu d'un dictionnaire : {demandeur}")
                 demandeur = {}
 
+            # ✅ Vérification des informations du partenaire
             partner_data = {
                 "id": getattr(partner, "id", None),
                 "name": getattr(partner, "name", None),
+                "email": getattr(partner, "email", None),
                 "phone": getattr(partner, "phone", None),
                 "is_company": getattr(partner, "is_company", False),
             } if partner else {}
 
+            # ✅ Vérification des informations de l'entreprise
             company_data = {
                 "id": getattr(company, "id", None),
                 "name": getattr(company, "name", None),
@@ -435,6 +509,13 @@ class EmailAnalyze:
                 "website": getattr(company, "website", None),
             } if company else {}
 
+            # 📌 Sauvegarde du logo d’entreprise (si disponible)
+            logo_base64 = extracted_data["DEA"].get("logo_entreprise_base64", "")
+            company_name = extracted_data["DEA"].get("entreprise_demandeuse", "")
+            logo_path = EmailAnalyze.save_logo(logo_base64, company_name) if logo_base64 else None
+            client_nom = demandeur.get("nom", "")
+            client_prenom = demandeur.get("prenom", "")
+            client_full_name = f"{client_nom} {client_prenom}".strip() if client_nom or client_prenom else ""
             # 🔹 Construction du dictionnaire structuré
             info = {
                 "email_id": email.id,
@@ -444,123 +525,166 @@ class EmailAnalyze:
                 "email_address": sender_email,
                 "email_body": email.body,
                 "already_answered": email.already_answered,
-                
+
                 # ✅ Client (`ResPartner`)
                 "client_id": partner_data.get("id", ""),
-                "client_name": partner_data.get("name", demandeur.get("nom", "Non spécifié")),
-                "client_phone": partner_data.get("phone", demandeur.get("telephone", "Non spécifié")),
+                "client_name": partner_data.get("name", client_full_name),
+                "client_email": partner_data.get("email", demandeur.get("email_address", "")),
+                "client_phone": partner_data.get("phone", demandeur.get("telephone", "")),
                 "is_company": partner_data.get("is_company", False),
 
                 # ✅ Entreprise (`ResCompany`)
                 "company_id": company_data.get("id", ""),
-                "company_name": company_data.get("name", extracted_data.get("DAE", {}).get("entreprise_demandeuse", "Non spécifié")),
-                "company_phone": company_data.get("phone", demandeur.get("telephone", "Non spécifié")),
-                "company_email": company_data.get("email", demandeur.get("email", "Non spécifié")),
-                "company_street": company_data.get("street", ""),
-                "company_website": company_data.get("website", ""),
-
-                # DAE & DET
+                "company_name": company_data.get("name", extracted_data.get("DEA", {}).get("entreprise_demandeuse", "")),
+                "company_phone": company_data.get("phone", extracted_data["DEA"].get("coordonnees_entreprise", {}).get("telephone", "")),
+                "company_email": company_data.get("email", extracted_data["DEA"].get("coordonnees_entreprise", {}).get("email", "")),
+                "company_street": company_data.get("street", extracted_data["DEA"].get("adresse_entreprise", "")),
+                "company_website": company_data.get("website", extracted_data["DEA"].get("coordonnees_entreprise", {}).get("site_web", "")),
+                "company_logo": logo_path if logo_path else "",
+                
+                "path_mail" : email.path if email.path else "",
+                "probability" : email.percentage,
+                # ✅ DEA & DET
                 "DET": extracted_data.get("DET", {}),
-                "DAE": extracted_data.get("DAE", {})
+                "DEA": extracted_data.get("DEA", {})
             }
 
             # ✅ Sauvegarde des données dans le fichier JSON
             EmailAnalyze.save_email_data(email_id, info)
 
-            # ✅ Vérifier que toutes les données sont bien sérialisables avant de logger
+            # ✅ Vérification des données avant affichage
             log_safe_info = json.dumps(info, default=str, indent=4, ensure_ascii=False)
             current_app.logger.info(log_safe_info)
 
-            return Response(json.dumps(info, default=str), mimetype="application/json")
+            return Response(log_safe_info, mimetype="application/json")
 
         except Exception as e:
             current_app.logger.error(f"❌ Erreur générale : {e}")
             return Response(json.dumps({"error": str(e)}, default=str), mimetype="application/json"), 500
 
-    def extract_info_with_openai(email_body, file_ids):
+    def save_logo(logo_base64, company_name):
         """
-        Envoie un email et ses fichiers joints à OpenAI Assistant pour extraire les DET et DAE.
+        Sauvegarde le logo extrait sous forme de fichier image et retourne son chemin d'accès.
+        """
+        if not logo_base64:
+            return None
+
+        try:
+            # 🔹 Décode l'image en base64
+            image_data = base64.b64decode(logo_base64)
+            
+            # ✅ Crée le dossier s'il n'existe pas
+            os.makedirs(DIRECTORY_LOGO_COMPANY, exist_ok=True)  
+
+            # 🔹 Générer un nom de fichier basé sur le nom de l'entreprise
+            safe_company_name = company_name.replace(" ", "_").replace("/", "_")
+            logo_path = f"{DIRECTORY_LOGO_COMPANY}/{safe_company_name}.png"
+
+            # 🔹 Écrire l'image décodée en fichier PNG
+            with open(logo_path, "wb") as img_file:
+                img_file.write(image_data)
+
+            # ✅ Retourner le chemin accessible depuis le frontend
+            return f"/{logo_path}"  
+
+        except Exception as e:
+            current_app.logger.error(f"❌ Erreur lors de la sauvegarde du logo : {e}")
+            return None
+       
+    def extract_info_with_openai(email_subject, email_body, file_ids):
+        """
+        Envoie un email et ses fichiers joints à OpenAI Assistant pour extraire les informations détaillées de l'opportunité commerciale.
         """
         prompt = f"""
-        📩 **Email reçu & Pièces Jointes**  
-        {email_body}  
+            Tu es un assistant expert dans l’analyse d’opportunités commerciales industrielles.  
+            Tu vas analyser un email et ses **pièces jointes (PDF)** contenant une demande client pour établir un devis.
+            --- Début de l'email ---
+            {email_subject}
+            {email_body}
+            --- Fin de l'email ---
+            🎯 Ton objectif :  
+            1. Extraire **les informations générales (DEA)** relatives au client et à sa demande.  
+            2. Extraire **chaque ligne de produit (DET)** demandée, **exactement comme elle est mentionnée** dans le mail ou le fichier PDF, même si elles se ressemblent.
 
-        🚀 **Analyse ce message et les fichiers joints** pour extraire **les informations essentielles pour une opportunité commerciale** compatible avec Odoo CRM.  
+            🟩 **PARTIE 1 – DEA : Données Générales**  
+            Extrais les données suivantes si elles sont présentes :
+            - Objet de la demande
+            - Nom et prénom du demandeur
+            - Entreprise demandeuse
+            - Adresse entreprise
+            - Coordonnées (email, téléphone, site web)
+            - Référence de la demande
+            - Marée associée
+            - Dates limites (réponse, livraison)
+            - Contexte
+            - Critères de sélection
+            - Budget estimé
+            - Modalités de paiement
+            - Exonération TVA
+            - Adresse de livraison
 
-        **Détails Initiaux de la Demande (DAE) :**  
-        - Objet de la demande (Exemple : Demande de prix, Demande d’information, Appel d’offre)  
-        - Demandeur (Nom et Prénom du contact)  
-        - Entreprise demandeuse  
-        - Coordonnées du contact (email, téléphone)  
-        - Date limite de réponse/livraison
-        - Contexte de la demande  
-        - Critères de sélection  
-        - Budget estimé  
-        - Délai d’exécution attendu  
-        - Modalités de paiement  
+            🟦 **PARTIE 2 – DET : Désignations techniques**  
+            🔎 Recherche dans le PDF **toutes les lignes contenant les produits à chiffrer**, sous forme de tableau ou de liste.
 
-        **Détails Éléments et Techniques (DET) :**  
-        - Description du projet  
-        - **Catégories d’articles demandés** (Exemple : Mécanique, Électronique, Électricité...)
-        - **Lieu d’exécution**
-        - **Articles pour chaque catégorie**, incluant :
-          - **Nom du produit**
-          - **Spécifications techniques** (dimensions, matériaux, normes...)
-          - **Quantité estimée**
-          - **Contraintes techniques**
+            Pour chaque produit, extrait dans une liste `produits` :
+            - `designation_client` : texte **exactement** tel que mentionné (pas de reformulation)
+            - `reference_fournisseur` : si disponible
+            - `specifications_techniques` : dimensions, matériaux, normes
+            - `quantite_estimee` : valeur numérique extraite, ou 1 par défaut
+            - `contraintes_techniques` : pression/température/compatibilité
+            - `certification_requise` : (CE, ISO, etc.)
 
-        **📌 Format de réponse STRICTEMENT en JSON structuré par catégories :**
-        ```json
-        {{
-            "DAE": {{
+            📤 **Format STRICTEMENT JSON suivant :**
+            ```json
+            {{
+            "DEA": {{
                 "objet_demande": "",
                 "demandeur": {{
-                    "nom": "",
-                    "prenom": "",
-                    "email": "",
-                    "telephone": ""
+                "nom": "",
+                "prenom": "",
+                "email": "",
+                "telephone": ""
                 }},
                 "entreprise_demandeuse": "",
+                "adresse_entreprise": "",
+                "reference_demande": "",
+                "maree_associee": "",
                 "date_limite_reponse": "",
+                "date_limite_livraison": "",
                 "contexte": "",
                 "criteres_selection": "",
                 "budget_estime": "",
                 "delai_execution": "",
-                "modalites_paiement": ""
+                "modalites_paiement": "",
+                "exoneration_tva": "",
+                "adresse_livraison": "",
+                "coordonnees_entreprise": {{
+                "email": "",
+                "telephone": "",
+                "site_web": ""
+                }}
             }},
             "DET": {{
                 "description_projet": "",
-                "lieu_execution": ""
-                "categories": {{
-                    "Nom_Categorie_1": [
-                        {{
-                            "nom_produit": "",
-                            "specifications_techniques": "",
-                            "quantite_estimee": "",
-                            "contraintes_techniques": ""
-                        }},
-                        {{
-                            "nom_produit": "",
-                            "specifications_techniques": "",
-                            "quantite_estimee": "",
-                            "contraintes_techniques": ""
-                        }}
-                    ],
-                    "Nom_Categorie_2": [
-                        {{
-                            "nom_produit": "",
-                            "specifications_techniques": "",
-                            "quantite_estimee": "",
-                            "contraintes_techniques": ""
-                        }}
-                    ]
+                "lieu_execution": "",
+                "fournisseur": "",
+                "produits": [
+                {{
+                    "designation_client": "",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": ""
                 }}
+                ]
             }}
-        }}
+            }}
         ```
-    """
+        ❗ Tu ne dois JAMAIS résumer la liste de produits. Aucune coupe, aucun commentaire comme “the same structure applies”, ni “etc.”. Tu dois lister **chaque ligne de produit une par une**, dans son intégralité, sans exception.
+        Tu dois générer un JSON **complet**, même s’il est long. Ta sortie doit être 100% conforme à la structure, **sans aucun ajout hors JSON**.
 
-        try:  # Remplace avec ton Assistant ID
+        """
+        
+        try:  
             thread = openai.beta.threads.create()
             thread_id = thread.id
 
@@ -587,7 +711,8 @@ class EmailAnalyze:
             # 🚀 Lancer l'Assistant
             run = openai.beta.threads.runs.create(
                 thread_id=thread_id,
-                assistant_id=assistant_id
+                assistant_id=assistant_id,
+                tool_choice="auto"
             )
 
             # 🔄 Attendre la réponse (Timeout = 60s)
@@ -595,6 +720,7 @@ class EmailAnalyze:
             start_time = time.time()
             while time.time() - start_time < timeout:
                 run_status = openai.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run.id)
+                
                 if run_status.status == "completed":
                     break
                 time.sleep(2)
@@ -605,15 +731,20 @@ class EmailAnalyze:
 
             # 🔹 Nettoyer la réponse JSON
             cleaned_response = assistant_response.strip()
-            # ✅ Vérifier si la réponse contient des délimiteurs JSON ```json ... ```
+            current_app.logger.info(cleaned_response)
             json_match = re.search(r"```json(.*?)```", cleaned_response, re.DOTALL)
+
             if json_match:
                 cleaned_response = json_match.group(1).strip()
+            else:
+                current_app.logger.warning("⚠️ Aucun bloc JSON détecté dans la réponse OpenAI")
+                return {"error": "Réponse non structurée, format JSON absent"}
+
 
             # 🔹 Convertir en JSON
             extracted_info = json.loads(cleaned_response)
             
-            current_app.logger.info(f"🔍 Réponse brute OpenAI : {extracted_info}")
+            # current_app.logger.info(f"🔍 Réponse brute OpenAI : {extracted_info}")
             return extracted_info
 
         except json.JSONDecodeError as e:
@@ -622,121 +753,15 @@ class EmailAnalyze:
         except Exception as e:
             current_app.logger.error(f"❌ Erreur OpenAI : {str(e)}")
             return {"error": str(e)}
-
-    
-    # def extract_info_company_with_openai(email_body):
-    #     """
-    #     Utilise OpenAI pour extraire les informations d'un email.
         
-    #     :param email_body: Le texte brut du mail à analyser.
-    #     :return: Dictionnaire des informations extraites.
-    #     """
-    #     prompt = f"""
-    #     Analyse ce mail et extrait les informations suivantes sous forme de JSON :
-    #     - Nom et prénom du contact
-    #     - Adresse email
-    #     - Numéro de téléphone
-    #     - Nom de l'entreprise (si disponible)
-    #     - Adresse de l'entreprise (si disponible)
-    #     - Site web de l'entreprise (si mentionné)
-
-    #     Mail :
-    #     {email_body}
-
-    #     Répond STRICTEMENT en JSON, sans texte supplémentaire :
-    #     ```json
-    #     {{
-    #     "nom": "",
-    #     "prenom": "",
-    #     "email": "",
-    #     "telephone": "",
-    #     "entreprise": "",
-    #     "adresse": "",
-    #     "site_web": ""
-    #     }}
-    #     ```
-    #     """
-    #     response = openai.chat.completions.create(
-    #         model="gpt-3.5-turbo", # gpt-4o
-    #         messages=[{"role": "system", "content": "Tu es un assistant qui extrait des informations d'email."},
-    #                 {"role": "user", "content": prompt}]
-    #     )
-    #     try:
-            
-    #         raw_content = response.choices[0].message.content
-
-    #         # 🛠 Nettoyer le JSON (supprimer les ```json et ``` autour)
-    #         cleaned_json = re.sub(r'```json|```', '', raw_content).strip()
-
-    #         # 📌 Convertir la chaîne JSON en dictionnaire
-    #         extracted_info = json.loads(cleaned_json)  
-
-    #         return extracted_info
-        
-    #     except json.JSONDecodeError as e:
-    #         current_app.logger.error(e)
-    #         return {"error": f"Erreur JSON : {str(e)}"}
-    #     except Exception as e:
-    #         current_app.logger.error(e)
-    #         return {"error": f"Erreur d'extraction : {str(e)}"}
-
-    # def prompt_info_client_company(email_id):
-    #     """
-    #     Récupère les informations d'un email et complète les données avec OpenAI si nécessaire.
-
-    #     :param email_id: ID de l'email dans la base de données
-    #     :return: Un JSON structuré avec toutes les informations du client et de l'email.
-    #     """
-
-    #     # Récupération de l'email
-    #     email = Emails.query.get(email_id)
-    #     if not email:
-    #         return {"error": "Email non trouvé"}
-    #     sender_email = email.mail.strip().lower()
-
-    #     # Recherche du client (`ResPartner`) et de son entreprise (`ResCompany`)
-    #     partner = ResPartner.query.filter_by(email=sender_email).first()
-    #     company = PartnerCompany.get_company(partner.id) if partner else None
-    #     current_app.logger.info(company)
-    #     if partner:
-    #         extracted_data = {}  # ✅ Aucune récupération via OpenAI si toutes les infos existent
-    #     else:
-    #         extracted_data = EmailAnalyze.extract_info_with_openai(email.body)  # 🔹 Appel OpenAI uniquement si nécessaire
-
-    #     current_app.logger.info("🔍 Infos OpenAI récupérées :", extracted_data)
-
-    #     # 🔹 Construction du dictionnaire structuré
-    #     try:
-    #         info = {
-    #             "email_id": email.id,
-    #             "email_date": email.receive_at.strftime("%Y-%m-%d %H:%M:%S"),
-    #             "email_subject": email.subject,
-    #             "email_sender": email.sender,
-    #             "email_address": sender_email,
-    #             "email_body": email.body,
-    #             "already_answered": email.already_answered,
-    #             "type_name": email.type_name,
-
-    #             # 🔹 Informations du client (`ResPartner`)
-    #             "client_id": partner.id if partner else None,
-    #             "client_name": partner.name if partner else extracted_data.get("nom"),
-    #             "client_phone": partner.phone if partner else extracted_data.get("telephone"),
-    #             "is_company": partner.is_company if partner else None,
-
-    #             # 🔹 Informations de l'entreprise (`ResCompany`)
-    #             "company_id": company.id if company else None,
-    #             "company_name": company.name if company else extracted_data.get("entreprise"),
-    #             "company_phone": company.phone if company else None,
-    #             "company_email": company.email if company else None,
-    #             "company_street": company.street if company else extracted_data.get("adresse"),
-    #             "company_city": company.city if company else None,
-    #             "company_zip": company.zip if company else None,
-    #             "company_website": company.website if company else extracted_data.get("site_web"),
-    #         }
-
-    #         # ✅ Retourne un JSON propre
-    #         return Response(json.dumps(info, default=str), mimetype="application/json")
-
-    #     except Exception as e:
-    #         current_app.logger.error("❌ Erreur dans la récupération des données :", e)
-    #         return jsonify({"error": str(e)})
+def sanitize_data(data):
+    """ Nettoie le JSON pour éviter les erreurs de sérialisation """
+    if isinstance(data, list):
+        return [sanitize_data(item) for item in data]
+    elif isinstance(data, dict):
+        return {key: sanitize_data(value) for key, value in data.items()}
+    elif isinstance(data, bytes):
+        return "<binary data removed>"  # Remplace les données binaires
+    elif isinstance(data, str):
+        return data.replace("\n", " ").replace("#", "").strip()  # Nettoie les sauts de ligne et #
+    return data

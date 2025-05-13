@@ -11,13 +11,18 @@ from app.models.res_partner import ResPartner
 from app import create_app, socketio
 from app.database import db
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
-from config import JWT_SECRET_KEY, JWT_ACCESS_TOKEN_EXPIRES
+from config import JWT_SECRET_KEY, JWT_ACCESS_TOKEN_EXPIRES, MAKE_WEBHOOK_URL
 from datetime import datetime
 import traceback
 from flask_migrate import Migrate
-from flask_socketio import emit
 import io
-import base64
+import requests
+import os
+import threading
+import openai  
+from config import OPENAI_API_KEY
+
+openai.api_key = OPENAI_API_KEY
 
 app = create_app()
 migrate = Migrate(app, db)
@@ -25,6 +30,7 @@ migrate = Migrate(app, db)
 app.config["JWT_SECRET_KEY"] =   JWT_SECRET_KEY
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] =  JWT_ACCESS_TOKEN_EXPIRES
 jwt = JWTManager(app)
+
 
 import imaplib
 imaplib.Debug = 4
@@ -64,6 +70,64 @@ def email():
 @app.route("/")
 def index():
     return render_template("index.html", title="Connexion - Emails")
+
+def auto_save_email(e, attachments_cache):
+    try:
+        percentage = float(e.get("percentage", 0))
+        if percentage < 50:
+            return False
+
+        new_email = Emails(
+            subject=e["subject"],
+            sender=e["sender"],
+            mail=e["mail"],
+            body=e["body"],
+            receive_at=e["receive_at"],
+            path=e["path"],
+            percentage=percentage,
+            mail_type_id=e["mail_type_id"]
+        )
+        db.session.add(new_email)
+        db.session.flush()
+
+        # 📎 Enregistrement des pièces jointes
+        for attachment in e.get("attachments", []):
+            clean_filename = attachment["filename"].split("?")[0]
+            file_id = f"{e['mail']}_{clean_filename}"
+            att = attachments_cache.get(file_id)
+            if att:
+                db.session.add(EmailAttachment(
+                    email_id=new_email.id,
+                    filename=att["filename"],
+                    content_type=att["content_type"],
+                    data=att["data"]
+                ))
+
+        # 🔗 Vérification partenaire
+        partner = ResPartner.verify_partner(new_email)
+        if partner:
+            state_id = State.is_partner()
+            db.session.add(EmailsPartner(partner.id, new_email.id))
+        else:
+            state_id = State.default()
+
+        emails_state = EmailsState(new_email.id, state_id)
+        db.session.add(emails_state)
+        db.session.commit()
+
+        # 🟢 Événement Socket
+        socketio.emit("new_email", {
+            "total": Emails.query.count(),
+            "new_count": 1,
+            "new_emails": [emails_state.to_dict()]
+        })
+        return True
+
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"❌ Erreur auto_save_email : {e}")
+        return False
+
 
 @app.route("/save_emails", methods=["POST"])
 @jwt_required()
@@ -163,6 +227,22 @@ def save_emails():
             "new_count": new_count, 
             "new_emails": [email.to_dict() for email in new_mail]
         })
+        try:
+            for email in new_mail:
+                email_data = {
+                    "subject": email.subject,
+                    "sender": email.sender,
+                    "mail": email.mail,
+                    "body": email.body,
+                    "receive_at": email.receive_at.strftime("%Y-%m-%d %H:%M:%S"),
+                    "percentage": email.percentage,
+                    "path": email.path
+                }
+                response = requests.post(MAKE_WEBHOOK_URL, json=email_data)
+                app.logger.info(f"Envoyé à Make : {response.status_code} - {response.text}")
+
+        except Exception as e:
+            app.logger.error(f"Erreur lors de l'envoi des données à Make : {str(e)}")
         
         return jsonify({"message": f"{new_count} emails traités avec succès."}), 200
 
@@ -221,7 +301,6 @@ def get_emails():
         if date_before:
             date_before = datetime.strptime(date_before, "%Y-%m-%d")
         emails = email_client.get_unread_emails_since(date_since, date_before, mail_type_id)
-        app.logger.info(emails)
         new_emails = []  # Liste pour stocker les objets à insérer
         attachments_cache.clear()
 
@@ -238,6 +317,7 @@ def get_emails():
                     mail_type_id = e["mail_type_id"]
                 )
                 existing_email = email.verify()
+                
 
                 if existing_email:
                     app.logger.info(email.percentage)
@@ -246,7 +326,7 @@ def get_emails():
                         "sender": e["sender"],
                         "mail": e["mail"],
                         "body": e["body"],
-                        "receive_at": e["receive_at"],
+                        "receive_at": e["receive_at"].isoformat() if isinstance(e["receive_at"], datetime) else e["receive_at"],
                         "path": e["path"],
                         "percentage": e["percentage"],
                         "mail_type_id": e["mail_type_id"],
@@ -265,9 +345,15 @@ def get_emails():
                         }
 
                         email_obj["attachments"].append({
-                            "filename": clean_filename  # ✅ Envoyer uniquement le nom du fichier propre
+                            "filename": clean_filename 
                         })
+                    
+                    
+                    percentage = float(e.get("percentage", 0))
 
+                    # Enregistrement automatique
+                    if percentage >= 50:
+                        success = auto_save_email(email_obj, attachments_cache)
                     new_emails.append(email_obj)
 
                     continue
@@ -278,6 +364,7 @@ def get_emails():
                 return jsonify({"error": "Erreur lors de l'insertion en base"}), 500
             
         types = MailType.get_all_json()
+
         return jsonify({"emails": new_emails, "types": types})
 
 
@@ -359,9 +446,65 @@ def generate_ai_message():
         app.logger.error(e)
         return jsonify({"error": str(e)}), 500
 
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+@app.route("/verifier_designation", methods=["POST"])
+def verifier_designation():
+    data = request.json
+    designation = data.get("designation", "")
+    categorie = data.get("categorie", "")
+    attributs = data.get("attributs", [])
+
+    if not designation or not categorie or not attributs:
+        return jsonify({"error": "Champs manquants"}), 400
+
+    prompt = f"""
+        Tu es un assistant expert en technique industrielle.
+        Voici une désignation client : "{designation}"
+        Catégorie : {categorie}
+        Voici les attributs à extraire :
+        {attributs}
+
+        Analyse la désignation et remplis les attributs ci-dessous.
+        Si une valeur est introuvable, laisse-la vide.
+
+        Réponds uniquement en JSON :
+        {{
+        {', '.join([f'"{attr}": ""' for attr in attributs])}
+        }}
+        """
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.2,
+            max_tokens=150
+        )
+        content = response.choices[0].message.content
+
+        result = eval(content) if content.strip().startswith("{") else {"raw": content}
+        status = "complet" if all(result.get(attr, "").strip() for attr in attributs) else "incomplet"
+        result["status"] = status
+
+        return jsonify(result)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+def start_idle_watcher(app):
+    from email_watcher import idle_watch
+    with app.app_context():
+        idle_watch("minoraherinirina72@gmail.com", "okow yfdx plks owob")
 
 if __name__ == "__main__":
+    
+    watcher_thread = threading.Thread(target=start_idle_watcher, args=(app,))
+    watcher_thread.daemon = True
+    watcher_thread.start()
+
     with app.app_context():
         db.create_all()
-    socketio.run(app, host='0.0.0.0', port=5001, debug=True, allow_unsafe_werkzeug=True)
+    socketio.run(app, host='0.0.0.0', port=5001, debug=True, use_reloader=False, allow_unsafe_werkzeug=True)
+

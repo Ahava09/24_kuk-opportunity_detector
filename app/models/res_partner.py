@@ -1,6 +1,5 @@
-from flask import request, jsonify
+from flask import current_app
 from app.database import db
-from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime
 from app.models.emails import Emails
 
 class ResPartner(db.Model):
@@ -110,3 +109,58 @@ class ResPartner(db.Model):
             # Si l'expéditeur n'est pas un client
             print(f"L'expéditeur {emails.sender} n'est pas un client existant.")
             return None 
+    
+    def exist (partner):
+        # Chercher le partenaire existant en fonction de l'email actuel
+        existing_partner = ResPartner.query.filter_by(email=partner.email, name = partner.sender).first()
+        
+        if existing_partner:
+            return existing_partner
+        else:
+            print(f"L'expéditeur {partner.sender} n'est pas un client existant.")
+            return None 
+    
+    @staticmethod
+    def save_partner_from_json(email_id):
+        """
+        🔄 Charge les informations d'un email depuis le fichier JSON et enregistre le partenaire.
+        """
+        try:
+            from app.models.email_analyze import EmailAnalyze
+            data_json = EmailAnalyze.load_email_data(email_id)
+
+            if not data_json:
+                current_app.logger.error(f"❌ Aucune donnée trouvée pour l'email ID {email_id}")
+                return {"error": "Données non trouvées"}
+
+            current_app.logger.info(f"📂 Données chargées pour l'email ID {email_id}")
+
+            # ✅ Récupérer les infos du client depuis JSON
+            client_name = data_json.get("client_name")
+            client_email = data_json.get("client_email")
+            client_phone = data_json.get("client_phone")
+            is_company = data_json.get("is_company", False)
+
+            # 🔎 Vérifier si le partenaire existe déjà
+            existing_partner = ResPartner.query.filter_by(email=client_email, name=client_name).first()
+
+            if existing_partner:
+                current_app.logger.info(f"✅ Partenaire {client_name} existe déjà.")
+                return existing_partner.to_dict()
+            
+            # 🆕 Si le partenaire n'existe pas, on le crée
+            new_partner = ResPartner(
+                name=client_name,
+                email=client_email,
+                phone=client_phone,
+                is_company=is_company
+            )
+
+            # 💾 Sauvegarde en base de données
+            new_partner.save()
+            current_app.logger.info(f"✅ Nouveau partenaire {new_partner.name} enregistré avec succès.")
+            return new_partner
+
+        except Exception as e:
+            current_app.logger.error(f"❌ Erreur lors de l'enregistrement du partenaire : {e}")
+            return {"error": str(e)}

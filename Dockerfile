@@ -9,7 +9,7 @@ WORKDIR /24kuk
 COPY . .
 
 # Installer les dépendances
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt requests
 
 EXPOSE 5000
 

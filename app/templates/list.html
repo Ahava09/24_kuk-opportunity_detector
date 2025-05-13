@@ -14,10 +14,11 @@
     <!-- 📦 Contenu principal -->
     <div id="container" class="container">
         <div id="list">
-            {% if clients is not none and clients|length > 0 %}
+            {% if request.path == url_for('api_emails.clients') %}
                 <!-- Liste des clients -->
                 <h3>Liste des Clients</h3>
                 <button class="btn-popup" id="openModalBtn" data-type="client">Ajouter un Client</button>
+                {% if clients is not none and clients|length > 0 %}
                 <br>
                 <table class="table">
                     <thead>
@@ -93,10 +94,16 @@
                         {% endfor %}
                     </tbody>
                 </table>
-            {% elif companies is not none and companies|length > 0 %}
+
+                {% else %}
+                    <p>Aucune donnée trouvée.</p>
+                {% endif %}
+
+            {% elif request.path == url_for('api_emails.companies') %}
                 <!-- Liste des entreprises -->
                 <h3>Liste des Entreprises</h3>
                 <button class="btn-popup" id="openModalBtn" data-type="entreprise">Ajouter une Entreprise</button>
+                {% if companies is not none and companies|length > 0 %}
                 <table class="table">
                     <thead>
                         <tr>
@@ -197,9 +204,8 @@
                 </table>
 
             {% else %}
-                <!-- ✅ Aucune donnée trouvée -->
-                <button class="btn-popup" id="openModalBtn" data-type="entreprise">Ajouter une Entreprise</button>
                 <p>Aucune donnée trouvée.</p>
+            {% endif %}
             {% endif %}
     
             <div id="myModal" class="modal">
@@ -276,6 +282,94 @@
         });
     </script>
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const socket = io("http://localhost:5001", {
+                reconnectionAttempts: 5,
+                reconnectionDelay: 1000,
+                timeout: 5000
+            });
+
+            socket.onAny((event, data) => {
+                console.log(`📡 Événement reçu : ${event}`, data);
+            });
+
+            // 🆕 Écoute des nouveaux clients
+            socket.on("new_partner", function (data) {
+                console.log("👤 Nouveau partenaire ajouté :", data);
+                addPartnerToTable(data.new_partner);
+            });
+
+            // 🏢 Écoute des nouvelles entreprises
+            socket.on("new_company", function (data) {
+                console.log("🏢 Nouvelle entreprise ajoutée :", data);
+                addCompanyToTable(data.new_company);
+            });
+
+            socket.on("error", (data) => {
+                console.error("🚨 Erreur WebSocket :", data);
+            });
+
+            socket.on("disconnect", () => {
+                console.log("Déconnecté du serveur");
+            });
+        });
+
+        function addPartnerToTable(partner) {
+            const table = document.querySelector(".table tbody");
+            
+            if (!table) return;
+
+            const row = `
+                <tr>
+                    <td>${partner.id}</td>
+                    <td>${partner.name}</td>
+                    <td>${partner.email || "Non spécifié"}</td>
+                    <td>${partner.created_at}</td>
+                    <td>
+                        <button class="btn btn-edit" onclick="openEditModal('${partner.id}')">Modifier</button>
+                        <form action="/api/delete_client/${partner.id}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-delete" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce client ?')">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            `;
+
+            table.innerHTML += row;
+        }
+
+        function addCompanyToTable(company) {
+            const table = document.querySelector(".table tbody");
+            
+            if (!table) return;
+
+            const row = `
+                <tr>
+                    <td>
+                        ${company.logo 
+                            ? `<img src="/api/get_company_logo/${company.id}" alt="Logo de ${company.name}" width="50">` 
+                            : "---"}
+                    </td>
+                    <td>${company.name}</td>
+                    <td>${company.email || "Non spécifié"}</td>
+                    <td>${company.phone || "Non spécifié"}</td>
+                    <td>${company.street || "Non spécifié"}, ${company.city || "N/A"} (${company.zip || "N/A"})</td>
+                    <td>
+                        ${company.website 
+                            ? `<a href="${company.website}" target="_blank">${company.website}</a>` 
+                            : "N/A"}
+                    </td>
+                    <td>
+                        <button class="btn btn-edit" onclick="openEditModal('${company.id}')">Modifier</button>
+                        <form action="/api/delete_company/${company.id}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-delete" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette entreprise ?')">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            `;
+
+            table.innerHTML += row;
+        }
+
         const modal = document.getElementById('myModal');
         const openModalBtn = document.getElementById('openModalBtn');
         const closeModalBtn = document.getElementById('closeModalBtn');

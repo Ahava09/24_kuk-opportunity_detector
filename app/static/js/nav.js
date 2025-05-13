@@ -166,7 +166,6 @@ function sendMailClient(mailId, defaultMessage = "Nous ne pouvons pas accepter v
     });
 }
 
-
 function getMailInfo(emailId) {
     console.log("Opening confirmation modal for mailId: " + emailId);
 
@@ -185,7 +184,7 @@ function getMailInfo(emailId) {
     })
     .then(response => response.json())
     .then(data => {
-        console.log("✅ Données reçues :", data);
+        // console.log("✅ Données reçues :", data);
 
         // Vérifier si une modal existe déjà et la supprimer pour éviter les doublons
         let existingModal = document.getElementById("dynamicModal");
@@ -199,57 +198,54 @@ function getMailInfo(emailId) {
         modal.classList.add("modal");
         let detTableHTML = `<h3>📦 Produits / Matériaux demandés</h3>`;
 
-        if (data.DET?.categories) {
-            Object.entries(data.DET.categories).forEach(([category, products]) => {
-                detTableHTML += `
-                    <h4 class="category-title">${category}</h4>
-                    <table class="styled-table">
-                        <thead>
-                            <tr>
-                                <th>Nom du produit</th>
-                                <th>Spécifications</th>
-                                <th>Quantité</th>
-                                <th>Contraintes</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                `;
-        
-                products.forEach(product => {
-                    detTableHTML += `
+        if (Array.isArray(data.DET?.produits)) {
+            detTableHTML += `
+                <table class="styled-table">
+                    <thead>
                         <tr>
-                            <td>${product.nom_produit || "Non spécifié"}</td>
-                            <td>${product.specifications_techniques || "Non spécifié"}</td>
-                            <td>${product.quantite_estimee || "Non spécifié"}</td>
-                            <td>${product.contraintes_techniques || "Non spécifié"}</td>
+                            <th>Désignation</th>
+                            <th>Spécifications</th>
+                            <th>Quantité</th>
+                            <th>Contraintes</th>
                         </tr>
-                    `;
-                });
+                    </thead>
+                    <tbody>
+            `;
         
-                detTableHTML += `</tbody></table>`;
+            data.DET.produits.forEach(product => {
+                detTableHTML += `
+                    <tr>
+                        <td>${product.designation_client || "Non spécifié"}</td>
+                        <td>${product.specifications_techniques || "Non spécifié"}</td>
+                        <td>${product.quantite_estimee || "Non spécifié"}</td>
+                        <td>${product.contraintes_techniques || "Non spécifié"}</td>
+                    </tr>
+                `;
             });
+        
+            detTableHTML += `</tbody></table>`;
         } else {
             detTableHTML += `<p class="no-products">Aucun produit/matériau spécifié.</p>`;
         }
+        
         // 📌 Contenu de la modal
         modal.innerHTML = `
             <div class="modal-content">
 
                 <div style="margin-top: 10px;">
-                    <button onclick="saveClientCompany(${emailId}, '${data.client_name}', '${data.email_address}', '${data.client_phone}', '${data.company_name}', '${data.company_street}', '${data.company_website}')">Enregistrer</button>
+                    <button onclick="saveClientCompany(${emailId})">Enregistrer</button>
                     <button onclick="closedynamicModal()">Fermer</button>
                 </div>
-                <span class="close" onclick="closeModal()">&times;</span>
                 <h2>Détails de l'Email</h2>
                 
                 <div class="tabs">
                     <button class="tab-button active" onclick="openTab(event, 'tab-email')">📩 Email</button>
-                    <button class="tab-button" onclick="openTab(event, 'tab-dae')">📄 DAE</button>
+                    <button class="tab-button" onclick="openTab(event, 'tab-dae')">📄 DEA</button>
                     <button class="tab-button" onclick="openTab(event, 'tab-det')">⚙️ DET</button>
                 </div>
 
                 <div id="tab-email" class="tab-content active">
-                    <p><strong>Expéditeur :</strong> ${data.client_name || "Inconnu"}</p>
+                    <p><strong>Expéditeur :</strong> ${data.email_sender || "Inconnu"}</p>
                     <p><strong>Email :</strong> ${data.email_address || "Non disponible"}</p>
                     <p><strong>Téléphone :</strong> ${data.client_phone || "Non disponible"}</p>
                     <p><strong>Entreprise :</strong> ${data.company_name || "Non spécifiée"}</p>
@@ -261,24 +257,34 @@ function getMailInfo(emailId) {
                 </div>
 
                 <div id="tab-dae" class="tab-content">
-                    <h3>Détails Initiaux de la Demande (DAE)</h3>
-                    <p><strong>Objet de la demande :</strong> ${data.DAE?.objet_demande || "Non spécifié"}</p>
-                    <p><strong>Demandeur :</strong> ${data.DAE?.demandeur?.nom || "Non spécifié"} ${data.DAE?.demandeur?.prenom || ""}</p>
-                    <p><strong>Email :</strong> ${data.DAE?.demandeur?.email || "Non spécifié"}</p>
-                    <p><strong>Téléphone :</strong> ${data.DAE?.demandeur?.telephone || "Non spécifié"}</p>
-                    <p><strong>Entreprise :</strong> ${data.DAE?.entreprise_demandeuse || "Non spécifié"}</p>
-                    <p><strong>Date limite de réponse :</strong> ${data.DAE?.date_limite_reponse || "Non spécifiée"}</p>
-                    <p><strong>Contexte :</strong> ${data.DAE?.contexte || "Non spécifié"}</p>
-                    <p><strong>Critères de sélection :</strong> ${data.DAE?.criteres_selection || "Non spécifié"}</p>
-                    <p><strong>Budget estimé :</strong> ${data.DAE?.budget_estime || "Non spécifié"}</p>
-                    <p><strong>Délai d'exécution :</strong> ${data.DAE?.delai_execution || "Non spécifié"}</p>
-                    <p><strong>Modalités de paiement :</strong> ${data.DAE?.modalites_paiement || "Non spécifié"}</p>
+                    <h3>Détails Initiaux de la Demande (DEA)</h3>
+                    <p><strong>Logo :</strong></p>
+                    <div class="logo-container">
+                        ${data.company_logo ? `<img src="${data.DEA?.logo_entreprise_base64}" alt="Logo de ${data.DEA?.entreprise_demandeuse || 'Entreprise'}" class="company-logo">` 
+                        : "<p>Aucun logo disponible</p>"}
+                    </div>
+                    <p><strong>Objet de la demande :</strong> ${data.DEA?.objet_demande || "Non spécifié"}</p>
+                    <p><strong>Demandeur :</strong> ${data.DEA?.demandeur?.nom || "Non spécifié"} ${data.DEA?.demandeur?.prenom || ""}</p>
+                    <p><strong>Email :</strong> ${data.client_email || "Non spécifié"}</p>
+                    <p><strong>Téléphone :</strong> ${data.DEA?.demandeur?.telephone || "Non spécifié"}</p>
+                    <p><strong>Entreprise :</strong> ${data.DEA?.entreprise_demandeuse || "Non spécifié"}</p>
+                    <p><strong>REF demande :</strong> ${data.DEA?.reference_demande || "Non spécifié"}</p>
+                    <p><strong>Maree Associe :</strong> ${data.DEA?.maree_associee || "Non spécifié"}</p>
+                    <p><strong>Date limite de livraison :</strong> ${data.DEA?.date_limite_livraison || "Non spécifiée"}</p>
+                    <p><strong>Date limite de réponse :</strong> ${data.DEA?.date_limite_reponse || "Non spécifiée"}</p>
+                    <p><strong>Contexte :</strong> ${data.DEA?.contexte || "Non spécifié"}</p>
+                    <p><strong>Critères de sélection :</strong> ${data.DEA?.criteres_selection || "Non spécifié"}</p>
+                    <p><strong>Budget estimé :</strong> ${data.DEA?.budget_estime || "Non spécifié"}</p>
+                    <p><strong>Délai d'exécution :</strong> ${data.DEA?.delai_execution || "Non spécifié"}</p>
+                    <p><strong>Modalités de paiement :</strong> ${data.DEA?.modalites_paiement || "Non spécifié"}</p>
                 </div>
 
                 <div id="tab-det" class="tab-content">
                     <h3>Détails Éléments et Techniques (DET)</h3>
                     <p><strong>Description du projet :</strong> ${data.DET?.description_projet || "Non spécifié"}</p>
+                    <p><strong>TVA :</strong> ${data.DEA?.exoneration_tva || "Non spécifié"}</p>
                     <h3>📍 Lieu d'exécution : ${data.DET?.lieu_execution || "Non spécifié"}</h3>
+                    <h3>📍 Lieu de livraison: ${data.DEA?.adresse_livraison || "Non spécifié"}</h3>
                     ${detTableHTML}
                 </div>
             </div>
@@ -318,33 +324,20 @@ function openTab(evt, tabId) {
     evt.currentTarget.classList.add("active");
 }
 
-function saveClientCompany(emailId, clientName, clientEmail, clientPhone, companyName, companyStreet, companyWebsite) {
-    console.log("📡 Envoi des données à l'API d'enregistrement...");
+function saveClientCompany(emailId) {
+    console.log("📡 Envoi des données à l'API d'enregistrement... ", {emailId});
 
-    let payload = {
-        email_id: emailId,
-        client_name: clientName !== "Inconnu" ? clientName : null,
-        client_email: clientEmail !== "Non disponible" ? clientEmail : null,
-        client_phone: clientPhone !== "Non disponible" ? clientPhone : null,
-        company_name: companyName !== "Non spécifiée" ? companyName : null,
-        company_street: companyStreet !== "Non disponible" ? companyStreet : null,
-        company_website: companyWebsite !== "Non disponible" ? companyWebsite : null
-    };
-
-    fetch("api/save_client_company", {
-        method: "POST",
+    fetch(`api/save_client_company/${emailId}`, {
+        method: "GET",
         headers: {
             "Content-Type": "application/json",
             "Authorization": "Bearer " + sessionStorage.getItem("token")
-        },
-        body: JSON.stringify(payload)
+        }
     })
     .then(response => response.json())
     .then(data => {
         console.log("✅ Enregistrement réussi :", data);
         alert("✅ Client et entreprise enregistrés avec succès !");
-        
-        // Fermer la modal après enregistrement
         Dynamic();
     })
     .catch(error => {
@@ -455,7 +448,7 @@ function openEmailModal(mail) {
         mail.attachments.forEach(att => {
             attachmentsHTML += `
                 <li>
-                    <a href="${window.location.origin}/download_attachment/${encodeURIComponent(att.filename)}?email=${encodeURIComponent(mail.email.mail)}" 
+                    <a href="${window.location.origin}/api/download_attachment/${encodeURIComponent(att.filename)}?email=${encodeURIComponent(mail.email.id)}" 
                         target="_blank">
                         📂 ${att.filename}
                     </a>

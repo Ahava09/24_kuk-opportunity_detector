@@ -1,6 +1,5 @@
-from flask import request, jsonify
+from flask import current_app
 from app.database import db
-from sqlalchemy import Column, Integer, String, Text, Boolean
 from sqlalchemy.exc import SQLAlchemyError
 
 class ResCompany(db.Model):
@@ -78,3 +77,39 @@ class ResCompany(db.Model):
             query = query.filter(cls.email == email)
         
         return query.first() is not None
+
+    @classmethod
+    def save_company_from_json(cls, email_id):
+        """
+        🔄 Charge les informations d'un email depuis le fichier JSON et enregistre le partenaire.
+        """
+        try:
+            from app.models.email_analyze import EmailAnalyze
+            company_data = EmailAnalyze.load_email_data(email_id)
+            company_name = company_data.get("company_name")
+            if not company_name:
+                current_app.logger.warning("⚠️ Aucune entreprise à enregistrer (Nom manquant)")
+                return None
+
+            # ✅ Vérifier si l'entreprise existe déjà
+            existing_company = cls.exists(name = company_name, email = None)
+            if existing_company:
+                current_app.logger.info(f"✅ Entreprise '{company_name}' existe déjà.")
+                return existing_company
+
+            # 🆕 Créer et enregistrer la nouvelle entreprise
+            new_company = cls(
+                name=company_name,
+                street=company_data.get("company_street"),
+                phone=company_data.get("company_phone"),
+                email=company_data.get("company_email"),
+                website=company_data.get("company_website")
+            )
+            new_company = new_company.save()
+            current_app.logger.info(f"✅ Nouvelle entreprise '{company_name}' enregistrée avec succès.")
+            return new_company
+
+        except Exception as e:
+            current_app.logger.error(f"❌ Erreur lors de l'enregistrement de l'entreprise : {e}")
+            return None
+        
