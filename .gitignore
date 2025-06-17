@@ -1,3 +1,4 @@
 /env
 .env
+*.env
 app/static/data/email_data_storage.json
