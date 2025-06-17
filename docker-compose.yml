@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
+    restart: always  
+
+  flask:
+    build: .
+    ports:
+      - "5001:5001"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    volumes:
+      - .:/24kuk  
+    working_dir: /24kuk  
+    environment:
+      - FLASK_APP=run.py
+      - FLASK_ENV=development
+    command: python run.py
+
+volumes:
+  pgdata:

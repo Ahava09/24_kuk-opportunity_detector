@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Complément désignation</title>
+</head>
+<body>
+  <h2>Complétez les attributs manquants</h2>
+  <form method="POST">
+    {% for item in data %}
+      <h3>{{ item.designation }}</h3>
+      {% for attr in item.attributs_manquants %}
+        <label>{{ attr }} :</label><br>
+        <input type="text" name="designation_{{ item.id }}_{{ attr }}"><br><br>
+      {% endfor %}
+    {% endfor %}
+    <button type="submit">Envoyer</button>
+  </form>
+</body>
+</html>

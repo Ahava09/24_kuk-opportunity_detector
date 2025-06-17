@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mailing.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/list.css') }}">
+</head>
+<body>
+    <!-- 🏠 Barre de Navigation -->
+    {% include 'nav.html' %}
+
+    <!-- 📦 Contenu principal -->
+    <div id="container" class="container">
+        <div id="list">
+            {% if request.path == url_for('api_emails.clients') %}
+                <!-- Liste des clients -->
+                <h3>Liste des Clients</h3>
+                <button class="btn-popup" id="openModalBtn" data-type="client">Ajouter un Client</button>
+                {% if clients is not none and clients|length > 0 %}
+                <br>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Email</th>
+                            <th>Cree le</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for client in clients %}
+                            <tr>
+                                <td>{{ client.id }}</td>
+                                <td>{{ client.name }}</td>
+                                <td>{{ client.email }}</td>
+                                <td>{{ client.created_at }}</td>
+                                <td>
+                                    <button class="btn btn-edit"
+                                        onclick="event.stopPropagation(); populateEditForm('{{ client.id }}', '{{ client.name }}', '{{ client.email }}', '{{ client.phone }}', '{{ client.is_company }}'); openEditModal('{{ client.id }}')">
+                                        Modifier
+                                    </button>
+    
+                                    <!-- Formulaire de suppression -->
+                                    <form action="{{ url_for('api_emails.delete_client', client_id=client.id) }}" method="POST" style="display:inline;">
+                                        <button type="submit" class="btn btn-delete" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce client ?')">Supprimer</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <!-- Modal d'édition unique pour chaque client -->
+                            <div class="modal fade" id="editModal_{{ client.id }}" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Modifier Client</h5>
+                                            <button type="button" class="close" onclick="closeEditModal({{ client.id }})">
+                                                <span>&times;</span>
+                                            </button>
+                                        </div>
+                                        <form action="{{ url_for('api_emails.edit_client', client_id=client.id) }}" method="POST" id="editForm_{{ client.id }}">
+                                            <div class="modal-body">
+                                                <div class="form-group">
+                                                    <label>Nom</label>
+                                                    <input type="text" id="edit_name_{{ client.id }}" name="name" class="form-control" required>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Email</label>
+                                                    <input type="email" id="edit_email_{{ client.id }}" name="email" class="form-control">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Tel</label>
+                                                    <input type="text" id="edit_phone_{{ client.id }}" name="phone" class="form-control">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Est-ce une entreprise ?</label><br>
+                                                    <input type="radio" id="company_yes_{{ client.id }}" name="is_company" value="True" {% if client.is_company %}checked{% endif %}>
+                                                    <label for="company_yes_{{ client.id }}">Oui</label>
+                                                
+                                                    <input type="radio" id="company_no_{{ client.id }}" name="is_company" value="False" {% if not client.is_company %}checked{% endif %}>
+                                                    <label for="company_no_{{ client.id }}">Non</label>
+                                                </div>
+                                                
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" onclick="closeEditModal({{ client.id }})">Fermer</button>
+                                                <button type="submit" class="btn btn-primary">Sauvegarder</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                {% else %}
+                    <p>Aucune donnée trouvée.</p>
+                {% endif %}
+
+            {% elif request.path == url_for('api_emails.companies') %}
+                <!-- Liste des entreprises -->
+                <h3>Liste des Entreprises</h3>
+                <button class="btn-popup" id="openModalBtn" data-type="entreprise">Ajouter une Entreprise</button>
+                {% if companies is not none and companies|length > 0 %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Logo</th>
+                            <th>Nom</th>
+                            <th>Email</th>
+                            <th>Téléphone</th>
+                            <th>Adresse</th>
+                            <th>Site Web</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for company in companies %}
+                        <tr>
+                            <td>
+                                {% if company.logo %}
+                                    <img src="{{ url_for('api_emails.get_company_logo', company_id=company.id) }}" 
+                                    alt="Logo de {{ company.name }}" width="50">
+                                {% else %}
+                                    ---
+                                {% endif %}
+                            </td>
+                            <td>{{ company.name }}</td>
+                            <td>{{ company.email }}</td>
+                            <td>{{ company.phone }}</td>
+                            <td>{{ company.street }}, {{ company.city }} ({{ company.zip }})</td>
+                            <td>
+                                {% if company.website %}
+                                    <a href="{{ company.website }}" target="_blank">{{ company.website }}</a>
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="btn btn-edit" onclick="openEditModal('{{ company.id }}')">Modifier</button>
+                                <form action="{{ url_for('api_emails.delete_company', company_id=company.id) }}" method="POST" style="display:inline;">
+                                    <button type="submit" class="btn btn-delete" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette entreprise ?')">Supprimer</button>
+                                </form>
+                            </td>
+                        </tr>
+
+                        <!-- 🖊️ Modal d'édition pour chaque entreprise -->
+                        <div class="modal fade" id="editModal_{{ company.id }}" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Modifier l'Entreprise</h5>
+                                        <button type="button" class="close" onclick="closeEditModal({{ company.id }})">
+                                            <span>&times;</span>
+                                        </button>
+                                    </div>
+                                    <form action="{{ url_for('api_emails.edit_company', company_id=company.id) }}" method="POST" enctype="multipart/form-data" id="editForm_{{ company.id }}">
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label>Nom</label>
+                                                <input type="text" id="edit_name_{{ company.id }}" name="name" class="form-control" value="{{ company.name }}" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Email</label>
+                                                <input type="email" id="edit_email_{{ company.id }}" name="email" class="form-control" value="{{ company.email }}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Téléphone</label>
+                                                <input type="text" id="edit_phone_{{ company.id }}" name="phone" class="form-control" value="{{ company.phone }}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Adresse</label>
+                                                <input type="text" id="edit_street_{{ company.id }}" name="street" class="form-control" value="{{ company.street }}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Ville</label>
+                                                <input type="text" id="edit_city_{{ company.id }}" name="city" class="form-control" value="{{ company.city }}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Code Postal</label>
+                                                <input type="text" id="edit_zip_{{ company.id }}" name="zip" class="form-control" value="{{ company.zip }}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Site Web</label>
+                                                <input type="text" id="edit_website_{{ company.id }}" name="website" class="form-control" value="{{ company.website }}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Logo</label>
+                                                <input type="file" id="edit_logo_{{ company.id }}" name="logo" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" onclick="closeEditModal({{ company.id }})">Fermer</button>
+                                            <button type="submit" class="btn btn-primary">Sauvegarder</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            {% else %}
+                <p>Aucune donnée trouvée.</p>
+            {% endif %}
+            {% endif %}
+    
+            <div id="myModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" id="closeModalBtn">&times;</span>
+                    <h3 id="modalTitle">Ajouter un Client</h3>
+            
+                    <!-- Formulaire d'ajout client -->
+                    <form id="clientForm" method="POST" action="{{ url_for('api_emails.create_client') }}">
+                        <label for="name">Nom :</label>
+                        <input type="text" id="client_name" name="name" required><br><br>
+                        <label for="email">Email :</label>
+                        <input type="email" id="client_email" name="email"><br><br>
+                        <label for="phone">Tel :</label>
+                        <input type="text" id="client_phone" name="phone"><br><br>
+                        <label for="is_company">Est-ce une entreprise ?</label><br>
+                        <input type="radio" id="client_company_yes" name="is_company" value="True">
+                        <label for="client_company_yes">Oui</label>
+                        <input type="radio" id="client_company_no" name="is_company" value="False" checked>
+                        <label for="client_company_no">Non</label><br><br>
+                        <button type="submit">Ajouter le Client</button>
+                    </form>
+            
+                    <!-- Formulaire d'ajout entreprise -->
+                    <form id="companyForm" method="POST" action="{{ url_for('api_emails.create_company') }}" enctype="multipart/form-data" style="display: none;">
+                        <label for="company_name">Nom de l'Entreprise :</label>
+                        <input type="text" id="company_name" name="name" required><br><br>
+
+                        <label for="company_email">Email :</label>
+                        <input type="email" id="company_email" name="email"><br><br>
+
+                        <label for="company_phone">Téléphone :</label>
+                        <input type="text" id="company_phone" name="phone"><br><br>
+
+                        <label for="company_street">Adresse :</label>
+                        <input type="text" id="company_street" name="street"><br><br>
+
+                        <label for="company_city">Ville :</label>
+                        <input type="text" id="company_city" name="city"><br><br>
+
+                        <label for="company_zip">Code Postal :</label>
+                        <input type="text" id="company_zip" name="zip"><br><br>
+
+                        <label for="company_website">Site Web :</label>
+                        <input type="text" id="company_website" name="website"><br><br>
+
+                        <label for="company_logo">Logo :</label>
+                        <input type="file" id="company_logo" name="logo" accept="image/*"><br><br>
+
+                        <button type="submit">Ajouter l'Entreprise</button>
+                    </form>
+                </div>
+            </div>
+            
+
+        </div>
+
+    </div>
+
+    <script src="https://cdn.socket.io/4.1.3/socket.io.min.js"></script>
+
+    <script>
+        
+        const list = document.getElementById("list");
+        document.getElementById("messageIcon").addEventListener("click", function () {
+            sessionStorage.setItem("isFetchTrue", "false"); 
+            window.location.href = "/email";
+        });
+
+        document.getElementById("mailIcon").addEventListener("click", function () {
+            document.getElementById("mailCount").textContent = "MD";
+            sessionStorage.setItem("isFetchTrue", "true"); 
+            window.location.href = "/email";
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const socket = io("http://localhost:5001", {
+                reconnectionAttempts: 5,
+                reconnectionDelay: 1000,
+                timeout: 5000
+            });
+
+            socket.onAny((event, data) => {
+                console.log(`📡 Événement reçu : ${event}`, data);
+            });
+
+            // 🆕 Écoute des nouveaux clients
+            socket.on("new_partner", function (data) {
+                console.log("👤 Nouveau partenaire ajouté :", data);
+                addPartnerToTable(data.new_partner);
+            });
+
+            // 🏢 Écoute des nouvelles entreprises
+            socket.on("new_company", function (data) {
+                console.log("🏢 Nouvelle entreprise ajoutée :", data);
+                addCompanyToTable(data.new_company);
+            });
+
+            socket.on("error", (data) => {
+                console.error("🚨 Erreur WebSocket :", data);
+            });
+
+            socket.on("disconnect", () => {
+                console.log("Déconnecté du serveur");
+            });
+        });
+
+        function addPartnerToTable(partner) {
+            const table = document.querySelector(".table tbody");
+            
+            if (!table) return;
+
+            const row = `
+                <tr>
+                    <td>${partner.id}</td>
+                    <td>${partner.name}</td>
+                    <td>${partner.email || "Non spécifié"}</td>
+                    <td>${partner.created_at}</td>
+                    <td>
+                        <button class="btn btn-edit" onclick="openEditModal('${partner.id}')">Modifier</button>
+                        <form action="/api/delete_client/${partner.id}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-delete" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce client ?')">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            `;
+
+            table.innerHTML += row;
+        }
+
+        function addCompanyToTable(company) {
+            const table = document.querySelector(".table tbody");
+            
+            if (!table) return;
+
+            const row = `
+                <tr>
+                    <td>
+                        ${company.logo 
+                            ? `<img src="/api/get_company_logo/${company.id}" alt="Logo de ${company.name}" width="50">` 
+                            : "---"}
+                    </td>
+                    <td>${company.name}</td>
+                    <td>${company.email || "Non spécifié"}</td>
+                    <td>${company.phone || "Non spécifié"}</td>
+                    <td>${company.street || "Non spécifié"}, ${company.city || "N/A"} (${company.zip || "N/A"})</td>
+                    <td>
+                        ${company.website 
+                            ? `<a href="${company.website}" target="_blank">${company.website}</a>` 
+                            : "N/A"}
+                    </td>
+                    <td>
+                        <button class="btn btn-edit" onclick="openEditModal('${company.id}')">Modifier</button>
+                        <form action="/api/delete_company/${company.id}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-delete" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette entreprise ?')">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            `;
+
+            table.innerHTML += row;
+        }
+
+        const modal = document.getElementById('myModal');
+        const openModalBtn = document.getElementById('openModalBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const token = sessionStorage.getItem("token");
+
+        const openModalButtons = document.querySelectorAll('.btn-popup'); 
+
+        // Formulaires à afficher selon le type sélectionné
+        const clientForm = document.getElementById('clientForm');
+        const companyForm = document.getElementById('companyForm');
+        const modalTitle = document.getElementById('modalTitle');
+
+        openModalButtons.forEach(button => {
+            button.addEventListener("click", function() {
+                let type = this.getAttribute("data-type");
+                
+                // Modifier le titre du modal
+                modalTitle.textContent = type === "client" ? "Ajouter un Client" : "Ajouter une Entreprise";
+
+                // Afficher le bon formulaire
+                if (type === "client") {
+                    clientForm.style.display = "block";
+                    companyForm.style.display = "none";
+                } else {
+                    clientForm.style.display = "none";
+                    companyForm.style.display = "block";
+                }
+
+                // Afficher la modal
+                modal.classList.add('show');
+                document.querySelector('.modal-content').classList.add('show');
+            });
+        });
+
+        // Fermer la modal
+        closeModalBtn.onclick = function() {
+            modal.classList.remove('show');
+            document.querySelector('.modal-content').classList.remove('show');
+        }
+
+        // Fermer en cliquant en dehors
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.classList.remove('show');
+                document.querySelector('.modal-content').classList.remove('show');
+            }
+        }
+
+        function populateEditForm(clientId, clientName, clientEmail, clientPhone, isCompany) {
+            document.getElementById(`edit_name_${clientId}`).value = clientName;
+            document.getElementById(`edit_email_${clientId}`).value = clientEmail;
+            document.getElementById(`edit_phone_${clientId}`).value = clientPhone;
+            
+            if (isCompany === "True") {
+                document.getElementById(`company_yes_${clientId}`).checked = true;
+            } else {
+                document.getElementById(`company_no_${clientId}`).checked = true;
+            }
+        }
+
+        function openEditModal(clientId) {
+            let modal = document.getElementById(`editModal_${clientId}`);
+            modal.classList.add('show');
+            modal.style.display = 'block';
+            modal.removeAttribute('aria-hidden');
+            document.body.classList.add('modal-open');
+        }
+
+        function closeEditModal(clientId) {
+            let modal = document.getElementById(`editModal_${clientId}`);
+            modal.classList.remove('show');
+            modal.style.display = 'none';
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('modal-open');
+        }
+
+    </script>
+</body>
+</html>

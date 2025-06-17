@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mailing.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mail.css') }}">
+</head>
+<body>
+
+    <!-- 🏠 Barre de Navigation -->
+    {% include 'nav.html' %}
+
+    <!-- 📦 Contenu principal -->
+    <div id="container" class="container">
+        <div id="searchContainer" style="display: none;">
+            <label for="opportunityFilter">Filtrer par type d'opportunites :</label>
+            <select id="opportunityFilter">
+                <option value="0">Tous</option>
+            </select>
+
+
+            <!-- Filtre par date -->
+            <label for="startDate">Date de début :</label>
+            <input type="date" id="startDate" name="startDate" placeholder="Sélectionner une date de début" value="2025-02-20">
+
+            <label for="endDate">Date de fin :</label>
+            <input type="date" id="endDate" name="endDate" placeholder="Sélectionner une date de fin" value="2025-02-21">
+
+            <button id="applyFilters">Appliquer les filtres</button>
+
+        </div>
+        <button id="saveEmails" style="display: none;">📥 Ajouter à la base de données</button>
+        <div id="emailStatesContainer" class="email-columns" style="display: none;"></div>
+
+        <!-- Liste des emails -->
+        <div id="emails" class="email-list"></div>
+        <!-- Loader -->
+        <div id="loading" class="loader" style="display: none;"></div>
+
+        <div id="emailModal" class="modalemail">
+            <div class="modal-content-email">
+              <span class="close">&times;</span>
+              <div id="modalBodyEmail"></div>
+              <div id="modalFooterEmail"></div>
+            </div>
+          </div>
+          
+    </div>
+    <script src="https://cdn.socket.io/4.1.3/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/mailing.js') }}"></script>
+
+</body>
+</html>
