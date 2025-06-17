@@ -1,4 +1,4 @@
-from flask import jsonify, request, render_template, Response, send_file
+from flask import jsonify, request, render_template, Response, send_file, render_template_string
 from sqlalchemy.exc import SQLAlchemyError
 from app.models.email_analyze import EmailAnalyze
 from app.models.emails_partner import EmailsPartner
@@ -15,8 +15,8 @@ from config import JWT_SECRET_KEY, JWT_ACCESS_TOKEN_EXPIRES, MAKE_WEBHOOK_URL
 from datetime import datetime
 import traceback
 from flask_migrate import Migrate
-import io
 import requests
+import io
 import os
 import threading
 import openai  
@@ -393,7 +393,36 @@ def get_emails_bdd():
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
+import base64
 
+@app.route("/email/<int:email_id>/attachments", methods=["GET"])
+def get_email_attachments(email_id):
+    try:
+        email = Emails.query.get_or_404(email_id)
+
+        # Ajout des pièces jointes encodées en base64
+        attachments = EmailAttachment.query.filter_by(email_id=email_id).all()
+        attachments_data = [
+            {
+                "id": att.id,
+                "filename": att.filename,
+                "content_type": att.content_type,
+                "created_at": att.created_at.isoformat() if att.created_at else None,
+                "base64": base64.b64encode(att.data).decode("utf-8")
+            }
+            for att in attachments
+        ]
+
+        return jsonify({
+            "email_id": email_id,
+            "subject": email.subject,
+            "attachments": attachments_data
+        })
+
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la récupération des pièces jointes : {str(e)}")
+        return jsonify({"error": str(e)}), 500
+    
 @app.route("/update_email_state", methods=["POST"])
 @jwt_required()
 def update_email_state():
@@ -497,6 +526,86 @@ def start_idle_watcher(app):
     from email_watcher import idle_watch
     with app.app_context():
         idle_watch("minoraherinirina72@gmail.com", "okow yfdx plks owob")
+
+
+forms_db = {} 
+
+@app.route('/generate-form', methods=['POST'])
+def generate_form():
+    import uuid
+    data = request.get_json()
+    form_id = str(uuid.uuid4())
+    forms_db[form_id] = data  # stocke la structure à afficher
+    public_url = f"https://6575-41-74-209-149.ngrok-free.app/formulaire?id={form_id}"
+    return public_url
+@app.route('/formulaire', methods=['GET', 'POST'])
+def formulaire():
+    form_id = request.args.get("id")
+    form_data = forms_db.get(form_id)
+
+    if not form_data:
+        return "Formulaire introuvable.", 404
+
+    if request.method == 'POST':
+        reponses = []
+
+        for designation in form_data:
+            designation_id = designation.get("designation_id")
+            ligne = {
+                "designation_id": designation_id,
+                "designation": designation["x_designation_originale"],
+                "reponses": []
+            }
+
+            for attr in designation.get("x_attributs", []):
+                attr_id = attr["attributs"]["id"]
+                attr_label = attr["attributs"]["value"]
+                champ = f"{designation_id}_{attr_id}"
+                valeur = request.form.get(champ, "").strip()
+
+                if valeur:
+                    ligne["reponses"].append({
+                        "designation_id": designation_id,
+                        "attribut_id": attr_id,
+                        "attribut_label": attr_label,
+                        "value": valeur
+                    })
+
+            reponses.append(ligne)
+
+        app.logger.info("✔️ Réponses client :", reponses)
+        requests.post('https://hook.eu2.make.com/yppt782socbyl6wokwfo3carjcsjamrt', json={"reponses": reponses})
+        return "Merci pour votre réponse !"
+
+    # Affichage HTML
+    html = "<h2>Merci de compléter les informations techniques</h2><form method='post'>"
+    for designation in form_data:
+        html += f"<h3>{designation['x_designation_originale']}</h3>"
+        designation_id = designation['designation_id']
+
+        for attr in designation.get("x_attributs", []):
+            attr_id = attr["attributs"]["id"]
+            attr_label = attr["attributs"]["value"]
+            champ = f"{designation_id}_{attr_id}"
+            options = attr["values"]
+            selected = attr.get("value_selected")
+
+            html += f"<label>{attr_label}</label><br><select name='{champ}' required>"
+            html += "<option value=''>-- Choisir --</option>"
+            for option in options:
+                selected_attr = "selected" if selected and option["id"] == selected["id"] else ""
+                html += f"<option value='{option['id']}' {selected_attr}>{option['label']}</option>"
+            html += "</select><br><br>"
+
+    html += "<button type='submit'>Envoyer</button></form>"
+    return render_template_string(html)
+
+# @app.route('/formulaire', methods=['GET', 'POST'])
+# def formulaire():
+#     designations = request.args.get('data')  # JSON encodé en string
+#     import json
+#     designations = json.loads(designations)
+#     return render_template('formulaire.html', designations=designations)
 
 if __name__ == "__main__":
     

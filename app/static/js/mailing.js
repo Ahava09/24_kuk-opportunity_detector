@@ -109,7 +109,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function filterEmails() {
     const selectedType = document.getElementById("opportunityFilter").value;
-    fetchEmails(false);  // 🔥 Recharge les emails avec le filtre
+    fetchEmails(false);  
 }
 
 document.getElementById('applyFilters').addEventListener('click', function () {

@@ -1764,5 +1764,279 @@
                 "site_web": ""
             }
         }
+    },
+    "208": {
+        "email_id": 208,
+        "email_date": "2025-05-13 13:09:27",
+        "email_subject": "Fwd: [DEVIS_ADP2500864_BACAPHORN].pdf",
+        "email_sender": "mr@phareindustries.com",
+        "email_address": "mr@phareindustries.com",
+        "email_body": "---------- Forwarded message --------- De : Christian Lowinsky <christian.lowinsky@phareindustries.com> Date: lun. 12 mai 2025 à 17:22 Subject: Fwd: [DEVIS_ADP2500864_BACAPHORN].pdf To: Grégorie BEGUE <gregorie@phareindustries.com> Cc: <mr@phareindustries.com>, RAF@PHAREINDUSTRIES.COM < raf@phareindustries.com> Gregorie, Pourrais tu créer l'opportunité (code affaire) stp Je consulterai le fournisseur ASAP Merci Bien cordialement, *Site internet Phare Industries < Christian Lowinsky *PHARE INDUSTRIES* [image: mobilePhone] (+262) 0692 43 52 83 <(+262)+0692+43+52+83> [image: emailAddress] christian.lowinsky@phareindustries.com <christian.lowinsky@phareindustries.ocm> [image: address] 7 Parc d’Activite de la Mare, 97438 Sainte-Marie ---------- Forwarded message --------- De : ALCINOUS Andy <aalcinous@sapmer.com> Date: lun. 12 mai 2025 à 14:00 Subject: [DEVIS_ADP2500864_BACAPHORN].pdf To: Christian Lowinsky <christian.lowinsky@phareindustries.com> Cc: Achats Pôle AUSTRAL <achatspoleaustral@sapmer.com> Bonjour J espère que vous allez bien Veuillez trouver ci-joint une demande de prix pour le navire CAP HORN I. Merci de me confirmer votre meilleure offre et disponibilité. Dans l’attente de votre retour Vous souhaitant bonne réception Cordialement * Andy ALCINOÜS* Assistant achat et approvisionnement Pôle Austral *Purchasing officer* * Southern Seas Activities* *Portable : +262(0) 692 91 39 69 * *Ligne Directe : **+262 263 04 49 69* 4 rue Charles Dickens Darse de Pêche –Magasin 10 CS21245 - 97829 Le Port Cedex – La Réunion Standard: +262 (0)262 42 02 73 < < <",
+        "already_answered": false,
+        "client_id": "",
+        "client_name": "ALCINOUS Andy",
+        "client_email": "",
+        "client_phone": "+262(0) 692 91 39 69",
+        "is_company": false,
+        "company_id": "",
+        "company_name": "SAPMER",
+        "company_phone": "02.62.42.02.73",
+        "company_email": "achatspoleaustral@sapmer.com",
+        "company_street": "DARSE DE PECHE - MAGASIN 10 BP 2012, 97823 LE PORT, FRANCE",
+        "company_website": "",
+        "company_logo": "",
+        "path_mail": "https://mail.google.com/mail/u/0/#search/rfc822msgid:CAP2umDwmi7=omYO70RNM131-uLUKxXDD6DtS_nuJ5SFqQ5knFA@mail.gmail.com",
+        "probability": 95.0,
+        "DET": {
+            "description_projet": "Fourniture de cartouches et de filtres Y pour la pompe saumure (équipements destinés au navire CAP HORN I)",
+            "lieu_execution": "Navire CAP HORN I, La Réunion",
+            "fournisseur": "PHARE INDUSTRIES",
+            "produits": [
+                {
+                    "designation_client": "ZARECHA - Cartouche pour filtre Y en inox (Dn 80 Pn16 GG 25)",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "Cartouche pour filtre Y en inox, Dn 80, Pn16, GG 25",
+                    "quantite_estimee": "4",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "Filtre Y pour pompe saumure de GFF",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "4",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                },
+                {
+                    "designation_client": "ZARECHA - Filtre Y Dn 40 Pn 16 en inox",
+                    "reference_fournisseur": "Référence SFERACO : 240 040",
+                    "specifications_techniques": "Filtre Y Dn 40, Pn 16, en inox",
+                    "quantite_estimee": "1",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                }
+            ]
+        },
+        "DEA": {
+            "objet_demande": "Demande de prix pour le navire CAP HORN I",
+            "demandeur": {
+                "nom": "ALCINOUS",
+                "prenom": "Andy",
+                "email": "aalcinous@sapmer.com",
+                "telephone": "+262(0) 692 91 39 69"
+            },
+            "entreprise_demandeuse": "SAPMER",
+            "adresse_entreprise": "DARSE DE PECHE - MAGASIN 10 BP 2012, 97823 LE PORT, FRANCE",
+            "reference_demande": "ADP2500864",
+            "maree_associee": "A2425-M3",
+            "date_limite_reponse": "12/05/25",
+            "date_limite_livraison": "19/05/25",
+            "contexte": "Demande de devis liée à des équipements pour filtration sur navire francisé, commande destinée à la navigation maritime.",
+            "criteres_selection": "",
+            "budget_estime": "",
+            "delai_execution": "",
+            "modalites_paiement": "",
+            "exoneration_tva": "Oui (commande destinée à un navire francisé non assujettie à la TVA, art. 262-II-al 2 à 7 du CGI)",
+            "adresse_livraison": "MAGASIN 23 SEC, DARSE DE PÊCHE MAGASIN 23, 97420 Le Port - La Réunion, FRANCE",
+            "coordonnees_entreprise": {
+                "email": "achatspoleaustral@sapmer.com",
+                "telephone": "02.62.42.02.73",
+                "site_web": ""
+            }
+        }
+    },
+    "210": {
+        "email_id": 210,
+        "email_date": "2025-05-20 13:49:35",
+        "email_subject": "demande de devis",
+        "email_sender": "mycontactrun@gmail.com",
+        "email_address": "mycontactrun@gmail.com",
+        "email_body": "bonjour je souhaiterai obtenir un devis pour 500 vis auto foreuses diametre 3.5 merci beaucoup Yanos",
+        "already_answered": false,
+        "client_id": "",
+        "client_name": "Yanos",
+        "client_email": "",
+        "client_phone": "",
+        "is_company": false,
+        "company_id": "",
+        "company_name": "",
+        "company_phone": "",
+        "company_email": "",
+        "company_street": "",
+        "company_website": "",
+        "company_logo": "",
+        "path_mail": "https://mail.google.com/mail/u/0/#search/rfc822msgid:CAJ3t3YbNAjbvOvpPOv-Sy4tuA543xucE3rWUr9Kr6toH9GzKqQ@mail.gmail.com",
+        "probability": 90.0,
+        "DET": {
+            "description_projet": "",
+            "lieu_execution": "",
+            "fournisseur": "",
+            "produits": [
+                {
+                    "designation_client": "500 vis auto foreuses diametre 3.5",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "diametre 3.5",
+                    "quantite_estimee": "500",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                }
+            ]
+        },
+        "DEA": {
+            "objet_demande": "demande de devis",
+            "demandeur": {
+                "nom": "Yanos",
+                "prenom": "",
+                "email": "",
+                "telephone": ""
+            },
+            "entreprise_demandeuse": "",
+            "adresse_entreprise": "",
+            "reference_demande": "",
+            "maree_associee": "",
+            "date_limite_reponse": "",
+            "date_limite_livraison": "",
+            "contexte": "",
+            "criteres_selection": "",
+            "budget_estime": "",
+            "delai_execution": "",
+            "modalites_paiement": "",
+            "exoneration_tva": "",
+            "adresse_livraison": "",
+            "coordonnees_entreprise": {
+                "email": "",
+                "telephone": "",
+                "site_web": ""
+            }
+        }
+    },
+    "211": {
+        "email_id": 211,
+        "email_date": "2025-05-22 13:18:23",
+        "email_subject": "demande de prix",
+        "email_sender": "mycontactrun@gmail.com",
+        "email_address": "mycontactrun@gmail.com",
+        "email_body": "Boujour, je souhaiterai savoir si vous avez des chaises pour le technicien d'atelier pour le poste de montage de plaquette de frein. merci Yan",
+        "already_answered": false,
+        "client_id": "",
+        "client_name": "Yan",
+        "client_email": "",
+        "client_phone": "",
+        "is_company": false,
+        "company_id": "",
+        "company_name": "",
+        "company_phone": "",
+        "company_email": "",
+        "company_street": "",
+        "company_website": "",
+        "company_logo": "",
+        "path_mail": "https://mail.google.com/mail/u/0/#search/rfc822msgid:CAJ3t3Yavr7JUX3qKufYuXegUNvSMN5jy26xjQitjr0ipuddLuQ@mail.gmail.com",
+        "probability": 85.0,
+        "DET": {
+            "description_projet": "",
+            "lieu_execution": "atelier, poste de montage de plaquette de frein",
+            "fournisseur": "",
+            "produits": [
+                {
+                    "designation_client": "chaises pour le technicien d'atelier pour le poste de montage de plaquette de frein",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "1",
+                    "contraintes_techniques": "",
+                    "certification_requise": ""
+                }
+            ]
+        },
+        "DEA": {
+            "objet_demande": "demande de prix",
+            "demandeur": {
+                "nom": "",
+                "prenom": "Yan",
+                "email": "",
+                "telephone": ""
+            },
+            "entreprise_demandeuse": "",
+            "adresse_entreprise": "",
+            "reference_demande": "",
+            "maree_associee": "",
+            "date_limite_reponse": "",
+            "date_limite_livraison": "",
+            "contexte": "demande de chaises pour le technicien d'atelier pour le poste de montage de plaquette de frein",
+            "criteres_selection": "",
+            "budget_estime": "",
+            "delai_execution": "",
+            "modalites_paiement": "",
+            "exoneration_tva": "",
+            "adresse_livraison": "",
+            "coordonnees_entreprise": {
+                "email": "",
+                "telephone": "",
+                "site_web": ""
+            }
+        }
+    },
+    "212": {
+        "email_id": 212,
+        "email_date": "2025-05-22 13:50:43",
+        "email_subject": "demande pour achat",
+        "email_sender": "mycontactrun@gmail.com",
+        "email_address": "mycontactrun@gmail.com",
+        "email_body": "bonjour, comment ça va, j'espère bien ! je me permets de vous solliciter pour savoir si vous avez des vis autoforeuses Cordialement Yan Lepro",
+        "already_answered": false,
+        "client_id": "",
+        "client_name": "Lepro Yan",
+        "client_email": "",
+        "client_phone": "",
+        "is_company": false,
+        "company_id": "",
+        "company_name": "",
+        "company_phone": "",
+        "company_email": "",
+        "company_street": "",
+        "company_website": "",
+        "company_logo": "",
+        "path_mail": "https://mail.google.com/mail/u/0/#search/rfc822msgid:CAJ3t3YYEA2qLnmXiVMTOvXDWF7VdCi3REVqQFdRm5c0ciK-V=A@mail.gmail.com",
+        "probability": 85.0,
+        "DET": {
+            "description_projet": "",
+            "lieu_execution": "",
+            "fournisseur": "",
+            "produits": [
+                {
+                    "designation_client": "vis autoforeuses",
+                    "reference_fournisseur": "",
+                    "specifications_techniques": "",
+                    "quantite_estimee": "1"
+                }
+            ]
+        },
+        "DEA": {
+            "objet_demande": "demande pour achat",
+            "demandeur": {
+                "nom": "Lepro",
+                "prenom": "Yan",
+                "email": "",
+                "telephone": ""
+            },
+            "entreprise_demandeuse": "",
+            "adresse_entreprise": "",
+            "reference_demande": "",
+            "maree_associee": "",
+            "date_limite_reponse": "",
+            "date_limite_livraison": "",
+            "contexte": "Demande de disponibilité pour des vis autoforeuses.",
+            "criteres_selection": "",
+            "budget_estime": "",
+            "delai_execution": "",
+            "modalites_paiement": "",
+            "exoneration_tva": "",
+            "adresse_livraison": "",
+            "coordonnees_entreprise": {
+                "email": "",
+                "telephone": "",
+                "site_web": ""
+            }
+        }
     }
 }

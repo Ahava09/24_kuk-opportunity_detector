@@ -122,10 +122,9 @@ def clean_special_characters(text):
 
 #     return lead_payload
 
-def structure_lead_payload_for_odoo(info):
+def structure_lead_payload_for_odoo(info, email_id):
     dea = info.get("DEA", {})
     det = info.get("DET", {})
-
     demandeur = dea.get("demandeur", {}) or {}
 
     nom = clean_special_characters(demandeur.get("nom", "")).strip()
@@ -217,6 +216,7 @@ def structure_lead_payload_for_odoo(info):
 """
 
     lead_payload = {
+        "email_id" : email_id,
         "name": f"{sujet} - {company_name}",
         "contexte": contexte,
         "contact_name": client_name,

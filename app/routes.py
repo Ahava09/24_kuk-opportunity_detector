@@ -2,6 +2,7 @@ from flask import Blueprint, current_app, jsonify, render_template, send_file, r
 from app.models.res_company import ResCompany
 from app.models.res_partner import ResPartner
 from app.models.emails_state import EmailsState
+from app.models.emails import Emails
 from app.models.email_analyze import EmailAnalyze, sanitize_data
 from app.models.crm_odoo import structure_lead_payload_for_odoo
 from app.models.partner_company import PartnerCompany
@@ -252,11 +253,12 @@ def get_email_info(email_id):
         # Obtenir la réponse formatée
         flask_response = EmailAnalyze.prompt_info_client_company(email_id)
         payload = json.loads(flask_response.get_data(as_text=True))
-        structured_payload = structure_lead_payload_for_odoo(payload)
+        structured_payload = structure_lead_payload_for_odoo(payload, email_id)
         current_app.logger.info("-----------------------------------------")
         current_app.logger.info(structured_payload)
         # ✅ Envoyer au Webhook Make via POST
-        response = requests.post(MAKE_WEBHOOK_URL, json=structured_payload)
+        # response = requests.post(MAKE_WEBHOOK_URL, json=structured_payload)
+        response = requests.post("https://hook.eu2.make.com/p4yh89aav4e3w96863au87kkjqq6smyh", json=structured_payload)
         response.raise_for_status()
 
         current_app.logger.info(f"✅ Webhook envoyé: {response.status_code}, {response.text}")
@@ -265,6 +267,27 @@ def get_email_info(email_id):
     except requests.exceptions.RequestException as e:
         current_app.logger.error(f"❌ Erreur d'envoi au webhook: {str(e)}")
         return flask_response, 500
+
+    except Exception as e:
+        current_app.logger.error(f"❌ Erreur serveur: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+    
+@api_emails_blueprint.route('/get_email_info_devis/<int:email_id>', methods=['GET'])
+def get_email_info_webhooks(email_id):
+    try:
+        # email = Emails.get_by_path(email_url)
+        # if not email:
+        #     return jsonify({"error": "Email non trouvé pour ce path"}), 404
+
+        flask_response = EmailAnalyze.prompt_info_client_company(email_id)
+        payload = json.loads(flask_response.get_data(as_text=True))
+        structured_payload = structure_lead_payload_for_odoo(payload, email_id)
+
+        return jsonify(structured_payload), 200
+
+    except requests.exceptions.RequestException as e:
+        current_app.logger.error(f"❌ Erreur d'envoi au webhook: {str(e)}")
+        return jsonify({"error": "Erreur webhook"}), 500
 
     except Exception as e:
         current_app.logger.error(f"❌ Erreur serveur: {str(e)}")

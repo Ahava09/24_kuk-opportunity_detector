@@ -86,6 +86,14 @@ class Emails(db.Model):
         if email:
             return email
         return None
+    
+    
+    @staticmethod
+    def get_by_path(path):
+        email = Emails.query.filter_by(path=path).first()
+        if email:
+            return email
+        return None
 
     @classmethod
     def is_already_answered (cls, emails):
