@@ -538,6 +538,7 @@ def generate_form():
     forms_db[form_id] = data  # stocke la structure à afficher
     public_url = f"https://6575-41-74-209-149.ngrok-free.app/formulaire?id={form_id}"
     return public_url
+
 @app.route('/formulaire', methods=['GET', 'POST'])
 def formulaire():
     form_id = request.args.get("id")
@@ -615,5 +616,5 @@ if __name__ == "__main__":
 
     with app.app_context():
         db.create_all()
-    socketio.run(app, host='0.0.0.0', port=5001, debug=True, use_reloader=False, allow_unsafe_werkzeug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True, use_reloader=False, allow_unsafe_werkzeug=True)
 
