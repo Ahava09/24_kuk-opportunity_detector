@@ -14,6 +14,7 @@ EMAIL_PASS = os.getenv("EMAIL_PASS")
 # Clé API OpenAI
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 ASSISTANT_ID = os.getenv("assistant_id")
+assistant_id_email = os.getenv("assistant_id_email")
 
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24) 
