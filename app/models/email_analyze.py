@@ -281,18 +281,24 @@ class EmailAnalyze:
             # 2. Uploader les fichiers
             file_ids = []
             for att in email_dict.get("attachments", []):
+                filename = att["filename"]
+
+                # Ne pas traiter les fichiers .ics
+                if filename.lower().endswith(".ics"):
+                    continue
+
                 file_data = io.BytesIO(att["data"])
                 res = client.files.create(
-                    file=(att["filename"], file_data, att["content_type"]),
+                    file=(filename, file_data, att["content_type"]),
                     purpose="assistants"
                 )
                 file_ids.append(res.id)
 
-                # 3. Ajouter le fichier au thread
+                # Créer un message dans le thread UNIQUEMENT si ce n'est pas un .ics
                 client.beta.threads.messages.create(
                     thread_id=thread_id,
                     role="user",
-                    content=f"Fichier joint : {att['filename']}",
+                    content=f"Fichier joint : {filename}",
                     attachments=[{"file_id": res.id, "tools": [{"type": "file_search"}]}]
                 )
 

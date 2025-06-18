@@ -23,6 +23,8 @@ CREATE TABLE emails (
     percentage DOUBLE PRECISION DEFAULT 0,
     mail_type_id INTEGER REFERENCES mail_type(id) ON DELETE SET NULL
 );
+ALTER TABLE emails ADD COLUMN mail TEXT;
+ALTER TABLE emails ADD COLUMN already_answered Boolean DEFAULT FALSE;
 
 create table state (
     id SERIAL PRIMARY KEY,
