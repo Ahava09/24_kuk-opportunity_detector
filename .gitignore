@@ -1,0 +1,5 @@
+/env
+.env
+*.env
+mon_script.py
+app/static/data/email_data_storage.json
