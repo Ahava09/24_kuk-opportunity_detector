@@ -119,6 +119,16 @@ create table partner_company (
     company_id INTEGER REFERENCES res_company(id) ON DELETE CASCADE
 );
 
+CREATE TABLE email_attachments (
+    id SERIAL PRIMARY KEY,
+    email_id INTEGER NOT NULL REFERENCES emails(id),
+    filename VARCHAR(255) NOT NULL,
+    content_type VARCHAR(100) NOT NULL,
+    data BYTEA NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
 delete from emails_state;
 delete from res_company;
 delete from partner_company;

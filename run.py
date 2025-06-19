@@ -11,7 +11,7 @@ from app.models.res_partner import ResPartner
 from app import create_app, socketio
 from app.database import db
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
-from config import JWT_SECRET_KEY, JWT_ACCESS_TOKEN_EXPIRES, MAKE_WEBHOOK_URL
+from config import JWT_SECRET_KEY, JWT_ACCESS_TOKEN_EXPIRES, MAKE_WEBHOOK_URL, GMAIL_USER, GMAIL_PASSWORD, PUBLIC_BASE_URL
 from datetime import datetime
 import traceback
 from flask_migrate import Migrate
@@ -525,7 +525,7 @@ def verifier_designation():
 def start_idle_watcher(app):
     from email_watcher import idle_watch
     with app.app_context():
-        idle_watch("minoraherinirina72@gmail.com", "okow yfdx plks owob")
+        idle_watch(GMAIL_USER, GMAIL_PASSWORD)
 
 
 forms_db = {} 
@@ -536,7 +536,7 @@ def generate_form():
     data = request.get_json()
     form_id = str(uuid.uuid4())
     forms_db[form_id] = data  # stocke la structure à afficher
-    public_url = f"https://6575-41-74-209-149.ngrok-free.app/formulaire?id={form_id}"
+    public_url = f"{PUBLIC_BASE_URL}/formulaire?id={form_id}"
     return public_url
 
 @app.route('/formulaire', methods=['GET', 'POST'])
