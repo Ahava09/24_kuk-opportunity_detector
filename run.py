@@ -524,13 +524,43 @@ def verifier_designation():
 
 @app.route('/webhook/mail-notification', methods=['POST'])
 def gmail_webhook():
-    from email_watcher import process_gmail_webhook
-    data = request.get_json()
+    from imapclient import IMAPClient
+    from email_watcher import process_email_by_uid
+
     try:
-        process_gmail_webhook(data)
-        return jsonify({"status": "Traitement OK"}), 200
+        data = request.get_json()
+        message_id = data.get("message_id")
+        if not message_id:
+            return jsonify({"error": "Message ID manquant"}), 400
+
+        username = GMAIL_USER
+        password = GMAIL_PASSWORD
+        analyzer = EmailAnalyze(username, password)
+
+        HOST = "imap.gmail.com"
+        with IMAPClient(HOST) as client:
+            client.login(username, password)
+            client.select_folder("INBOX")
+
+            # Recherche du mail par Message-ID
+            app.logger.info(f"email: {username} & password: {password} message ID : {message_id}")
+            uids = client.search(['HEADER', 'Message-ID', message_id])
+            if not uids:
+                return jsonify({"error": "Email introuvable"}), 404
+
+            for uid in uids:
+                new_email = process_email_by_uid(client, uid, analyzer)
+
+                return jsonify({
+                    "status": "Email traité",
+                    "subject": new_email.subject,
+                    "id": new_email.id,
+                    "percentage": new_email.percentage
+                }), 200
+        
+
     except Exception as e:
-        app.logger.error(f"Erreur dans webhook Gmail : {e}")
+        app.logger.error(f"❌ Erreur traitement mail par ID : {e}")
         return jsonify({"error": str(e)}), 500
 
 
@@ -622,9 +652,9 @@ def formulaire():
 
 if __name__ == "__main__":
     
-    watcher_thread = threading.Thread(target=start_idle_watcher, args=(app,))
-    watcher_thread.daemon = True
-    watcher_thread.start()
+    # watcher_thread = threading.Thread(target=start_idle_watcher, args=(app,))
+    # watcher_thread.daemon = True
+    # watcher_thread.start()
 
     with app.app_context():
         db.create_all()

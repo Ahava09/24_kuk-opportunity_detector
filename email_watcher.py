@@ -130,24 +130,26 @@ def process_unseen_emails(client, analyzer):
 
             current_app.logger.info(f"📧 Email enregistré et émis : {new_email.subject}")
 
-def process_gmail_webhook(data):
-    from email.utils import parsedate_to_datetime
+def process_email_by_uid(client, uid, analyzer):
+    raw_msg = client.fetch([uid], ["RFC822"])[uid][b"RFC822"]
+    msg = email.message_from_bytes(raw_msg)
 
-    subject = data.get("subject", "")
-    sender = data.get("from", "")
-    body = data.get("body", "")
-    message_id = data.get("message_id", "")
-    date_str = data.get("date", "")
-    receive_at = parsedate_to_datetime(date_str) if date_str else datetime.utcnow()
+    subject, encoding = decode_header(msg["Subject"])[0]
+    if isinstance(subject, bytes):
+        subject = subject.decode(encoding or "utf-8")
 
-    path = EmailAnalyze.generate_gmail_link(message_id)
-    attachments = []  # à compléter si tu fais passer des fichiers via Make
+    sender = email.utils.parseaddr(msg.get("From"))[1]
+    date_str = msg.get("Date")
+    receive_at = email.utils.parsedate_to_datetime(date_str)
+    body = analyzer.extract_body(msg)
+    path = analyzer.generate_gmail_link(msg.get("Message-ID"))
+    attachments = analyzer.extract_attachments(msg)
 
     mail_type_id = 1
-    percentage = 0
     mail_type = MailType.select_by_id(mail_type_id)
+    percentage = 0
 
-    new_email_dict = {
+    email_dict = {
         "subject": subject,
         "sender": sender,
         "mail": sender,
@@ -160,32 +162,31 @@ def process_gmail_webhook(data):
     }
 
     if mail_type:
-        analyzer = EmailAnalyze()  # sans login IMAP désormais
-        percentage = analyzer.analyze_email_with_chatgpt(new_email_dict, mail_type.type_name)
-        new_email_dict["percentage"] = int(percentage)
+        percentage = analyzer.analyze_email_with_chatgpt(email_dict, mail_type.type_name)
+        email_dict["percentage"] = int(percentage)
+    new_email = Emails(
+        subject=email_dict["subject"],
+        sender=email_dict["sender"],
+        mail=email_dict["mail"],
+        body=email_dict["body"],
+        receive_at=email_dict["receive_at"],
+        path=email_dict["path"],
+        percentage=email_dict["percentage"],
+        mail_type_id=email_dict["mail_type_id"]
+    )
 
-    if new_email_dict["percentage"] >= 50:
-        new_email = Emails(
-            subject=new_email_dict["subject"],
-            sender=new_email_dict["sender"],
-            mail=new_email_dict["mail"],
-            body=new_email_dict["body"],
-            receive_at=new_email_dict["receive_at"],
-            path=new_email_dict["path"],
-            percentage=new_email_dict["percentage"],
-            mail_type_id=new_email_dict["mail_type_id"]
-        )
+    if email_dict["percentage"] >= 50:
 
         db.session.add(new_email)
         db.session.flush()
 
-        for attachment in new_email_dict["attachments"]:
-            if not EmailAttachment.exists(new_email.id, attachment["filename"]):
+        for att in email_dict["attachments"]:
+            if not EmailAttachment.exists(new_email.id, att["filename"]):
                 db.session.add(EmailAttachment(
                     email_id=new_email.id,
-                    filename=attachment["filename"],
-                    content_type=attachment["content_type"],
-                    data=attachment["data"]
+                    filename=att["filename"],
+                    content_type=att["content_type"],
+                    data=att["data"]
                 ))
 
         db.session.add(EmailsState(new_email.id, 1))
@@ -197,4 +198,10 @@ def process_gmail_webhook(data):
             "new_emails": [new_email.to_dict()]
         })
 
-        current_app.logger.info(f"📥 Email enregistré depuis webhook : {new_email.subject}")
+        current_app.logger.info(f"📥 Email traité et stocké : {new_email.subject}")
+        
+    else:
+        current_app.logger.info(f"🕳️ Email ignoré (pertinence < 50%) : {subject}")
+        raise ValueError("Email non pertinent")
+    return new_email
+
