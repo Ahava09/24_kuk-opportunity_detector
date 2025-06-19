@@ -129,3 +129,72 @@ def process_unseen_emails(client, analyzer):
             })
 
             current_app.logger.info(f"📧 Email enregistré et émis : {new_email.subject}")
+
+def process_gmail_webhook(data):
+    from email.utils import parsedate_to_datetime
+
+    subject = data.get("subject", "")
+    sender = data.get("from", "")
+    body = data.get("body", "")
+    message_id = data.get("message_id", "")
+    date_str = data.get("date", "")
+    receive_at = parsedate_to_datetime(date_str) if date_str else datetime.utcnow()
+
+    path = EmailAnalyze.generate_gmail_link(message_id)
+    attachments = []  # à compléter si tu fais passer des fichiers via Make
+
+    mail_type_id = 1
+    percentage = 0
+    mail_type = MailType.select_by_id(mail_type_id)
+
+    new_email_dict = {
+        "subject": subject,
+        "sender": sender,
+        "mail": sender,
+        "body": body,
+        "receive_at": receive_at,
+        "path": path,
+        "percentage": 0,
+        "mail_type_id": mail_type_id,
+        "attachments": attachments
+    }
+
+    if mail_type:
+        analyzer = EmailAnalyze()  # sans login IMAP désormais
+        percentage = analyzer.analyze_email_with_chatgpt(new_email_dict, mail_type.type_name)
+        new_email_dict["percentage"] = int(percentage)
+
+    if new_email_dict["percentage"] >= 50:
+        new_email = Emails(
+            subject=new_email_dict["subject"],
+            sender=new_email_dict["sender"],
+            mail=new_email_dict["mail"],
+            body=new_email_dict["body"],
+            receive_at=new_email_dict["receive_at"],
+            path=new_email_dict["path"],
+            percentage=new_email_dict["percentage"],
+            mail_type_id=new_email_dict["mail_type_id"]
+        )
+
+        db.session.add(new_email)
+        db.session.flush()
+
+        for attachment in new_email_dict["attachments"]:
+            if not EmailAttachment.exists(new_email.id, attachment["filename"]):
+                db.session.add(EmailAttachment(
+                    email_id=new_email.id,
+                    filename=attachment["filename"],
+                    content_type=attachment["content_type"],
+                    data=attachment["data"]
+                ))
+
+        db.session.add(EmailsState(new_email.id, 1))
+        db.session.commit()
+
+        socketio.emit("new_email", {
+            "total": Emails.query.count(),
+            "new_count": 1,
+            "new_emails": [new_email.to_dict()]
+        })
+
+        current_app.logger.info(f"📥 Email enregistré depuis webhook : {new_email.subject}")

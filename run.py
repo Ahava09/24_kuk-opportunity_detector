@@ -522,18 +522,17 @@ def verifier_designation():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route("/trigger-email-check", methods=["POST"])
-def trigger_email_check():
-    from email_watcher import idle_watch
+@app.route('/webhook/mail-notification', methods=['POST'])
+def gmail_webhook():
+    from email_watcher import process_gmail_webhook
+    data = request.get_json()
+    try:
+        process_gmail_webhook(data)
+        return jsonify({"status": "Traitement OK"}), 200
+    except Exception as e:
+        app.logger.error(f"Erreur dans webhook Gmail : {e}")
+        return jsonify({"error": str(e)}), 500
 
-    def run_idle():
-        try:
-            idle_watch(GMAIL_USER, GMAIL_PASSWORD)
-        except Exception as e:
-            print(f"❌ Erreur watcher : {e}")
-
-    threading.Thread(target=run_idle).start()
-    return jsonify({"status": "Watcher started"}), 200
 
 def start_idle_watcher(app):
     from email_watcher import idle_watch
