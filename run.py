@@ -522,6 +522,19 @@ def verifier_designation():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/trigger-email-check", methods=["POST"])
+def trigger_email_check():
+    from email_watcher import idle_watch
+
+    def run_idle():
+        try:
+            idle_watch(GMAIL_USER, GMAIL_PASSWORD)
+        except Exception as e:
+            print(f"❌ Erreur watcher : {e}")
+
+    threading.Thread(target=run_idle).start()
+    return jsonify({"status": "Watcher started"}), 200
+
 def start_idle_watcher(app):
     from email_watcher import idle_watch
     with app.app_context():
