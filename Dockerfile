@@ -8,8 +8,22 @@ WORKDIR /24kuk
 # Copier les fichiers nécessaires dans le container
 COPY . .
 
-# Installer les dépendances
+# Installer dépendances système pour Tesseract et PyMuPDF
+RUN apt-get update && apt-get install -y \
+    tesseract-ocr \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libpoppler-cpp-dev \
+    poppler-utils \
+    build-essential \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN pip install --no-cache-dir -r requirements.txt requests
+
+# RUN pip install --no-cache-dir -r requirements.txt requests
 
 ENV FLASK_APP=run.py
 ENV FLASK_RUN_HOST=0.0.0.0

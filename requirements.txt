@@ -11,3 +11,11 @@ flask-socketio
 eventlet
 Flask-Migrate
 gunicorn==20.1.0
+google-cloud-vision
+pytesseract
+Pillow
+PyMuPDF
+requests
+google-auth
+google-auth-httplib2
+google-auth-oauthlib

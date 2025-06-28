@@ -145,7 +145,7 @@ def process_email_by_uid(client, uid, analyzer):
     path = analyzer.generate_gmail_link(msg.get("Message-ID"))
     attachments = analyzer.extract_attachments(msg)
 
-    mail_type_id = 1
+    mail_type_id = 2
     mail_type = MailType.select_by_id(mail_type_id)
     percentage = 0
 

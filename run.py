@@ -22,6 +22,8 @@ import threading
 import openai  
 from config import OPENAI_API_KEY
 
+from ocr_utils import extract_text_from_image_bytes, extract_text_from_pdf, extract_text_ocr_space, simulate_google_vision
+
 openai.api_key = OPENAI_API_KEY
 
 app = create_app()
@@ -34,6 +36,54 @@ jwt = JWTManager(app)
 
 import imaplib
 imaplib.Debug = 4
+
+@app.route('/file')
+def upload_file():
+    return render_template('upload.html')
+
+@app.route('/ocr', methods=['POST'])
+def ocr():
+    file = request.files['file']
+    method = request.form.get('method', 'tesseract')
+    content = file.read()
+    mimetype = file.mimetype
+
+    if 'image' in mimetype:
+        if method == 'ocrspace':
+            text = extract_text_ocr_space(content)
+        elif method == 'vision_mock':
+            text = simulate_google_vision(content)
+        else:
+            text = extract_text_from_image_bytes(content)
+    elif 'pdf' in mimetype:
+        if method == 'ocrspace':
+            text = extract_text_ocr_space(content, is_pdf=True)
+        elif method == 'vision_mock':
+            text = simulate_google_vision(content)
+        else:
+            text = extract_text_from_pdf(content)
+    else:
+        return render_template('upload.html', text="Type de fichier non pris en charge.")
+
+    return render_template('upload.html', text=text)
+
+# @app.route('/file')
+# def upload_file():
+#     return render_template('upload.html')
+
+# @app.route('/ocr', methods=['POST'])
+# def ocr():
+#     file = request.files['file']
+#     content = file.read()
+#     mimetype = file.mimetype
+#     if 'image' in mimetype:
+#         text = extract_text_from_image_bytes(content)
+#     elif 'pdf' in mimetype:
+#         text = extract_text_from_pdf(content)
+#     else:
+#         return render_template('upload.html', text="Type de fichier non pris en charge.")
+
+#     return render_template('upload.html', text=text)
 
 @app.route("/login", methods=["POST"])
 def login():
