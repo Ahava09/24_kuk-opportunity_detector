@@ -22,7 +22,7 @@ import threading
 import openai  
 from config import OPENAI_API_KEY
 
-from ocr_utils import extract_text_from_image_bytes, extract_text_from_pdf, extract_text_ocr_space, simulate_google_vision
+from ocr_utils import extract_text_from_image_bytes, extract_text_from_pdf, extract_text_ocr_space, extract_text_google_vision
 
 openai.api_key = OPENAI_API_KEY
 
@@ -52,14 +52,14 @@ def ocr():
         if method == 'ocrspace':
             text = extract_text_ocr_space(content)
         elif method == 'vision_mock':
-            text = simulate_google_vision(content)
+            text = extract_text_google_vision(content)
         else:
             text = extract_text_from_image_bytes(content)
     elif 'pdf' in mimetype:
         if method == 'ocrspace':
             text = extract_text_ocr_space(content, is_pdf=True)
         elif method == 'vision_mock':
-            text = simulate_google_vision(content)
+            text = extract_text_google_vision(content)
         else:
             text = extract_text_from_pdf(content)
     else:

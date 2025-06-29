@@ -81,7 +81,7 @@
 #         text += page_text + "\n"
 
 #     return text
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, current_app
 from PIL import Image
 import pytesseract
 import tempfile
@@ -116,5 +116,33 @@ def extract_text_ocr_space(file_bytes, is_pdf=False):
     except Exception as e:
         return f"Erreur OCR.Space : {str(e)}"
 
-def simulate_google_vision(file_bytes):
-    return "[Simulation Google Vision] - Texte fictif extrait avec succès."
+import base64
+import os
+API_KEY = os.getenv("GOOGLE_VISION_API_KEY")
+
+
+def extract_text_google_vision(file_bytes):
+    if not API_KEY:
+        return "[Google Vision] Erreur : clé API non définie."
+
+    image_base64 = base64.b64encode(file_bytes).decode("utf-8")
+
+    url = f"https://vision.googleapis.com/v1/images:annotate?key={API_KEY}"
+
+    payload = {
+        "requests": [
+            {
+                "image": {"content": image_base64},
+                "features": [{"type": "TEXT_DETECTION"}]
+            }
+        ]
+    }
+
+    try:
+        response = requests.post(url, json=payload)
+        response.raise_for_status()
+        result = response.json()
+        current_app.logger.info(result)
+        return result['responses'][0]['textAnnotations'][0]['description']
+    except Exception as e:
+        return f"[Google Vision] Erreur : {str(e)}"
